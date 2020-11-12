@@ -9,7 +9,7 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ```
 .
 ├── README.md
-├── watershedCalculations/
+├── watershedCalculations/  # code and files used by Stuart to assign lakes to watershed basins
     ├── hucIDforLakes.R
     ├── Lake_Info_2020.csv
     ├── Lake_Info_2020.xlsx
