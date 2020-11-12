@@ -8,8 +8,12 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 
 ```
 .
-├──
-├──
+├── README.md
+├── watershedCalculations/
+    ├── hucIDforLakes.R
+    ├── Lake_Info_2020.csv
+    ├── Lake_Info_2020.xlsx
+    └── Lake_Info_2020wBasins.csv
 ├──
 ├──
 ├──
