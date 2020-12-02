@@ -1,0 +1,649 @@
+---
+title: "BLG_Univariates_Analyses"
+author: "Chelsea Bishop"
+date: "December 8, 2019"
+output: pdf_document
+spacing: onehalf
+fontsize: 11.5 pt
+toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=12, fig.height=8)
+```
+
+Eye Widths
+```{r Eye Width Data}
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/EYE MEASUREMENTS")
+eyeWidthDat<-read.csv("eyewidthsFINAL.csv")
+eyewidth<-eyeWidthDat$eyeWidth
+fishIDeye<-eyeWidthDat$fishID
+lakeID<-eyeWidthDat$lakeID
+fishLength<-eyeWidthDat$fishStdLength
+DOClevel<-eyeWidthDat$DOClevel
+eyebodyratio<-eyeWidthDat$eyebodyratio
+DOC<-eyeWidthDat$DOC
+eyewidth.ss<-eyeWidthDat$sizeStandardize
+lakeSS<-eyeWidthDat$lakeSS
+library(lme4)
+library(lmerTest)
+
+```
+
+
+```{r Eye Width Size Standardization}
+### Account for/remove fish size
+size.rem<-lm(log10(eyewidth) ~ log10(fishLength)*lakeID, data=eyeWidthDat)
+summary(size.rem)
+## NOTE!Interaction effect for CR,LT,MS
+## Remove lake ID interaction so can get the intercept for size
+size.rem2<-lm(log10(eyewidth) ~ log10(fishLength)+lakeID, data=eyeWidthDat)
+summary(size.rem2)
+
+### COMPARE MODELS USING GENERAL LINEAR TEST
+anova(size.rem2,size.rem)
+
+
+
+
+
+
+
+## Now plug into equation from Kaeuffer et al.
+
+## Run model with size standardized values for eye width
+MeristicEyeWidth_ss<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + (1|lakeID), data=eyeWidthDat)
+summary(MeristicEyeWidth_ss)
+
+### Run with lake specific SS
+EyewidthSS_bylake<-lmer(log10(lakeSS) ~ 1 + log10(DOC) + (1|lakeID), data=eyeWidthDat)
+summary(EyewidthSS_bylake)
+
+### Same result
+
+### AIC for lake specific and common slope models
+eye_slope_AIC<-AIC(MeristicEyeWidth_ss, EyewidthSS_bylake)
+
+### AIC for common slope= -1935.8, while AIC for lake-specific slope = -1966.9
+
+library(ggplot2)
+mid<-mean(eyeWidthDat$DOC)
+ggplot(eyeWidthDat,aes(x = log10(fishLength), y = log10(eyewidth.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(eyeWidthDat,aes(x = log10(DOC), y = log10(eyewidth.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+```
+
+
+```{r Eye Width Variances}
+### Calculate Variances
+dfeye<-data.frame(eyewidth<-eyeWidthDat$eyeWidth,
+                  fishIDeye<-eyeWidthDat$fishID,
+                  lakeID<-eyeWidthDat$lakeID,
+                  fishLength<-eyeWidthDat$fishStdLength,
+                  DOClevel<-eyeWidthDat$DOClevel,
+                  DOC<-eyeWidthDat$DOC,
+                  eyewidth.ss<-eyeWidthDat$sizeStandardize,
+                  lakeSS<-eyeWidthDat$lakeSS)
+library(dplyr)
+library(ggplot2)
+eyeVar<-dfeye %>% group_by(lakeID....eyeWidthDat.lakeID) %>% summarise(var=var(eyewidth.ss....eyeWidthDat.sizeStandardize))
+eyeVar
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/EYE MEASUREMENTS")
+var.dat<-read.csv("eye_variance.csv")
+DOCvar<-var.dat$DOC
+DOCbin<-var.dat$DOC_bin
+lakevar<-var.dat$Lake
+eyevar<-var.dat$eyeW_var
+
+df.var<-data.frame(DOCvar<-var.dat$DOC,DOCbin<-var.dat$DOC_bin,
+                   lakevar<-var.dat$Lake,
+                   eyevar<-var.dat$eyeW_var)
+
+ggplot(df.var,aes(x = lakevar, y = eyevar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+mean.var_per_bin<-aggregate(df.var[, 4], list(df.var$DOCbin), mean)
+#Group.1         x
+#1     0-10 0.1743750
+#2 10-15.00 0.3043333
+#3    15-25 0.2203333
+
+```
+
+
+```{r Eye Width Compare Models}
+## Run model with size standardized values for eye width
+MeristicEyeWidth_ss<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + (1|lakeID), data=eyeWidthDat)
+summary(MeristicEyeWidth_ss)
+
+### Run with lake specific SS
+EyewidthSS_bylake<-lmer(log10(lakeSS) ~ 1 + log10(DOC) + (1|lakeID), data=eyeWidthDat)
+summary(EyewidthSS_bylake)
+
+### AIC for lake specific and common slope models
+eye_slope_AIC<-AIC(MeristicEyeWidth_ss, EyewidthSS_bylake)
+### AIC for common slope= -1935.8, while AIC for lake-specific slope = -1966.9
+
+### Model allowing the slope and intercept of the allometric relationship to vary by lake, and models the lake-level intercepts as a function of DOC
+MeristicEyeWidth_ss2<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + log(fishLength) + (1 + log(fishLength) | lakeID), data=eyeWidthDat)
+summary(MeristicEyeWidth_ss2)
+AIC(MeristicEyeWidth_ss,MeristicEyeWidth_ss2)
+### Very similar, model2 slightly "better"
+
+
+### Compare lakeand common with allowing and not allowing allometric relationship to vary by lake
+EyewidthSS_bylake2<-lmer(log10(lakeSS) ~ 1 + log10(DOC) + log(fishLength) + (1 + log(fishLength) | lakeID), data=eyeWidthDat)
+summary(EyewidthSS_bylake2)
+## still no effect of DOC on eye width
+AIC(EyewidthSS_bylake,EyewidthSS_bylake2)
+### Second Model slighlty better
+
+
+### Compare "allowing" models with lake specific and common slope models
+AIC(EyewidthSS_bylake2, MeristicEyeWidth_ss2)
+### Common slope still "better"!
+
+### Compare with and without gear
+MeristicEyeWidth_ss_gear<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + captureMethod + (1|lakeID), data=eyeWidthDat)
+summary(MeristicEyeWidth_ss_gear)
+MeristicEyeWidth_ss_gear2<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + log(fishLength) + captureMethod + (1 + log(fishLength) | lakeID), data=eyeWidthDat)
+summary(MeristicEyeWidth_ss_gear2)
+
+AIC(MeristicEyeWidth_ss_gear2,MeristicEyeWidth_ss_gear)
+### VERY Similar
+
+rr1 <- ranef(MeristicEyeWidth_ss2, condVar = TRUE)
+lattice::dotplot(rr1)
+
+rr2<-ranef(EyewidthSS_bylake2, condVar=TRUE)
+lattice::dotplot(rr2)
+
+rr3<-ranef(MeristicEyeWidth_ss_gear2, condVar=TRUE)
+lattice::dotplot(rr3)
+```
+
+
+```{r Eye Widths with Gear}
+ggplot(eyeWidthDat,aes(x = (captureMethod), y = log10(eyewidth.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+MeristicEyeWidth_ss_gear2<-lmer(log10(eyewidth.ss) ~ 1 + log10(DOC) + log(fishLength) + captureMethod + (1 + log(fishLength) | lakeID), data=eyeWidthDat)
+
+```
+
+Gill Rakers
+```{r Gill Raker Data}
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/GILL RAKERS")
+rakerData<- read.csv("Gill_Rakers_2018_Final.csv")
+fishID<-rakerData$fishID
+captureMethod<-rakerData$capture_Method
+lakeID<-rakerData$lakeID
+DOClevel<-rakerData$DOCbin
+DOC<-rakerData$lakeDOC
+fishLength<-rakerData$fishSL
+rakercount<-rakerData$total_RakerNum
+avgRakerLength<-rakerData$avgRakerLength
+avgRakerSpace<-rakerData$avgRakerSpace
+length.avg.ss<-rakerData$SS.Length
+space.avg.ss<-rakerData$SS.Space
+count.ss<-rakerData$SS.Count
+lakess<-rakerData$lakeSS
+
+length1<-rakerData$length_Raker1
+length2<-rakerData$length_Raker2
+length3<-rakerData$length_Raker3
+length4<-rakerData$length_Raker4
+length5<-rakerData$length_Raker5
+length6<-rakerData$length_Raker6
+length7<-rakerData$length_Raker7
+length8<-rakerData$length_Raker8
+length9<-rakerData$length_Raker9
+space1<-rakerData$space1
+space2<-rakerData$space2
+space3<-rakerData$space3
+space4<-rakerData$space4
+space5<-rakerData$space5
+space6<-rakerData$space6
+space7<-rakerData$space7
+space8<-rakerData$space8
+
+dfraker<-data.frame(captureMethod<-rakerData$capture_Method,lakess=rakerData$lakeSS,rakercount=rakerData$total_RakerNum,DOClevel=rakerData$DOCbin,DOC=rakerData$lakeDOC,Lake=rakerData$lakeID,fishLength=rakerData$fishSL,avgRakerLength=rakerData$avgRakerLength,avgRakerSpace=rakerData$avgRakerSpace,count.ss=rakerData$SS.Count, length.ss=rakerData$SS.Length,space.ss=rakerData$SS.Space)
+
+
+```
+
+```{r Gill Raker Size Standardization}
+size.rem.L<-lm(log10(avgRakerLength) ~ log10(fishLength)*lakeID, data=dfraker)
+size.rem.S<-lm(log10(avgRakerSpace) ~ log10(fishLength)*lakeID, data=dfraker)
+size.rem.C<-lm(log10(rakercount) ~ log10(fishLength)*lakeID, data=dfraker)
+summary(size.rem.L)
+## NOTE!Interaction effect for FD,LC,SQ,TO
+summary(size.rem.S)
+## NOTE!Interaction effect for FD,LC,SQ,TO
+summary(size.rem.C)
+## NOTE!Interaction effect for FD,SQ
+
+## Remove lake ID so can get the intercept for size
+size.rem2L<-lm(log10(avgRakerLength) ~ log10(fishLength)+lakeID, data=dfraker)
+summary(size.rem2L)
+size.rem2S<-lm(log10(avgRakerSpace) ~ log10(fishLength)+lakeID, data=dfraker)
+summary(size.rem2S)
+size.rem2C<-lmsize.rem.C<-lm(log10(rakercount) ~ log10(fishLength)+lakeID, data=dfraker)
+summary(size.rem2C)
+
+library(lmerTest)
+library(lme4)
+## Run model with size standardized values 
+MeristicRakerLength<-lmer(log10(length.ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
+summary(MeristicRakerLength)
+MeristicRakerSpace<-lmer(log10(space.ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
+summary(MeristicRakerSpace)
+MeristicRakerCount<-lmer(log10(count.ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
+summary(MeristicRakerCount)
+
+### lake specific size standardization
+rakerLength_lakess<-lmer(log10(lakess) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
+summary(rakerLength_lakess)
+```
+
+```{r Gill Raker Plots}
+library(ggplot2)
+midRL<-mean(rakerData$DOC) ### problems with this, getting NA so just set midpoint to 10
+
+
+ggplot(dfraker,aes(x = lakeID , y = captureMethod)) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(dfraker,aes(x = captureMethod , y = length.ss)) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+midRL<-mean(dfraker$DOC)
+ggplot(dfraker,aes(x = captureMethod, y = log10(length.ss), colour = DOC)) + 
+  geom_point()+
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+ggplot(dfraker,aes(x = log10(fishLength), y = log10(space.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(dfraker,aes(x = captureMethod, y = log10(space.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+ggplot(dfraker,aes(x = log10(fishLength), y = log10(count.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(dfraker,aes(x = captureMethod, y = count.ss)) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(dfraker,aes(x = log10(DOC), y = log10(length.ss))) + 
+  geom_point(aes(colour = DOC)) +
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+ggplot(dfraker,aes(x = log10(DOC), y = log10(space.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(dfraker,aes(x = DOC, y = count.ss)) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(dfraker,aes(x =DOC, y = count.ss))+
+  geom_point(aes(colour = lakeID))+
+  scale_y_log10()+
+  scale_color_manual(values = c("#00BFFF","#47B5EB", "#5FACD8", "#6FA2C5", "#7B99B3", "#838FA0", "#88868E", "#8C7D7C", "#8F736B", "#906A5A", "#906148", "#8F5837","#8D4E26", "#8B4513"), 
+                     name="Lake",
+                    breaks=c("Lost","Little_Crooked","Crampton","Towanda","Found","Papoose","Muskellunge","Bay","Birch","Oxbow","McCullough","Red Bass","Squaw","Hummingbird"))
+
+
+cc <- scales::seq_gradient_pal("deepskyblue", "chocolate4", "Lab")(seq(0,1,length.out=14))
+
+
+MLSS<-lmer(log10(length.ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
+summary(MLSS)  
+ML3<-lmer(log(avgRakerLength) ~ 1 + log(fishLength)+log(DOC) + (1+log(fishLength)|Lake), data=dfraker)
+summary(ML3)
+ML3.2<-lmer(log(avgRakerLength) ~ 1 + log(fishLength)*log(DOC) + (1+log(fishLength)|Lake), data=dfraker)
+summary(ML3.2)
+
+coef(ML3)
+fixef(ML3)
+ranef(ML3)
+
+ggplot(dfraker,aes(x = log10(DOC), y = log10(length.ss))) + 
+  geom_point(aes(colour = DOC)) +
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midRL, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+```
+
+
+```{r Gill Raker Variance}
+### Calculate variance between lakes
+## raker length
+library(dplyr)
+library(ggplot2)
+lengthVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(length.ss))
+spaceVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(space.ss))
+countVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(count.ss)) 
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/GILL RAKERS")
+var.dat<-read.csv("raker_variances.csv")
+DOCvar<-var.dat$DOC
+DOCbin<-var.dat$DOC_bin
+lakevar<-var.dat$Lake
+lengthvar<-var.dat$rakerL_var
+spacevar<-var.dat$rakerS_var
+countvar<-var.dat$rakerC_var
+capturevar<-var.dat$captureMethod
+df.var<-data.frame(DOCvar<-var.dat$DOC,DOCbin<-var.dat$DOC_bin,
+                   lakevar<-var.dat$Lake,
+                   lengthvar<-var.dat$rakerL_var,
+                   spacevar<-var.dat$rakerS_var,
+                   countvar<-var.dat$rakerC_var,capturevar<-var.dat$captureMethod)
+
+ggplot(df.var,aes(x = lakevar, y = lengthvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(df.var,aes(x = capturevar, y = lengthvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(df.var,aes(x = lakevar, y = spacevar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(df.var,aes(x = capturevar, y = spacevar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+ggplot(df.var,aes(x = lakevar, y = countvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(df.var,aes(x = capturevar, y = countvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+mean.var_per_bin<-aggregate(df.var[, 4:6], list(df.var$DOCbin), mean)
+###variance in high DOC bin much higher in raker length compared to other bins, but this is likely being driven by SQ. Also the case with spaces.
+### high DOC lakes have lowest variance in count.
+### Group.1 lengthvar....var.dat.rakerL_var spacevar....var.dat.rakerS_var countvar....var.dat.rakerC_var
+#1     0-10                        4.705000                       1.374125                       1.369625
+#2 10-15.00                        4.573333                       0.448000                       1.790000
+#3    15-25                        8.890000                       1.950667                       0.980000
+```
+
+Pectoral Fins
+```{r Pectoral Fin Shape Data}
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS/Pectoral Fin Photos")
+library(shapes,Morpho)
+library(geomorph)
+myFinData_tps <- readland.tps("C:/Users/Chelsea/Documents/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS/Pectoral Fin Photos/PecFins2018.TPS",specID ="imageID")
+myFinData_tps[,,1]
+
+delete <- c(4) # To delete landmark 4
+myFinData_tps2 <- myFinData_tps[-delete,,]
+dim(myFinData_tps2)
+    
+### GPA to obtain shape variables from landmark data
+
+GPA.fin=gpagen(myFinData_tps2, ProcD = TRUE, Proj = TRUE) 
+corePCAfin=plotTangentSpace(GPA.fin$coords)
+corePCAfin
+### Identifiers
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS/Pectoral Fin Photos")
+identifiersfin=read.table("PecFinDataNovember.txt",sep = "\t", header=TRUE, row.names = 1)
+### Links
+myfinlinks=define.links(myFinData_tps2[,,1])  
+myfinlinks=read.table("Pec_Fin_Links.txt")
+
+dimnames(myData_tps)[[3]]=identifiers$imageID
+dimnames(myFinData_tps2)[[1]]=c("1","2","3","4") 
+plotAllSpecimens(myFinData_tps2, links = myfinlinks,label = TRUE)
+
+outliersfin <- plotOutliers(GPA.fin$coords) ### Find outliers
+
+plotRefToTarget(corePCAfin$pc.shapes$PC1min,corePCAfin$pc.shapes$PC1max,links = myfinlinks)
+plotRefToTarget(corePCAfin$pc.shapes$PC1min,corePCAfin$pc.shapes$PC1max,links = myfinlinks, method = "TPS")
+plotRefToTarget(corePCAfin$pc.shapes$PC1min,corePCAfin$pc.shapes$PC1max,links = myfinlinks, method = "vector")
+plotRefToTarget(corePCAfin$pc.shapes$PC1min,corePCAfin$pc.shapes$PC1max,links = myfinlinks, method = "points")
+plotRefToTarget(corePCAfin$pc.shapes$PC1min, corePCAfin$pc.shapes$PC1max,links = myfinlinks, method = "TPS", axes = TRUE, label = TRUE, useRefPts=TRUE)
+
+
+### PROCRUSTES ANOVA/REGRESSION FOR SHAPE DATA
+gdf.fin=geomorph.data.frame(shape=GPA.fin$coords,DOC=identifiersfin$DOC,Lake=identifiersfin$lakeID, fishLength=identifiersfin$fishStdLength, cSize=GPA.fin$Csize)
+fin.anova<-procD.lm(shape ~ DOC*fishLength, data=gdf.fin) 
+summary(fin.anova)
+fin.anova$coefficients
+
+
+### Principle components analysis
+plotTangentSpace(GPA.fin$coords, groups=as.factor(identifiersfin$lakeID), legend = TRUE)
+plotTangentSpace(GPA.fin$coords, groups=as.factor(identifiersfin$sex), legend = TRUE)
+plotTangentSpace(GPA.fin$coords, groups=as.factor(identifiersfin$captureMethod), legend = TRUE)
+plotTangentSpace(GPA.fin$coords, groups=as.factor(identifiersfin$rangeDOC), legend = TRUE)
+plotTangentSpace(GPA.fin$coords, groups=as.factor(identifiersfin$stdLengthRange), legend = TRUE)
+
+
+
+
+# Make a matrix defining interlandmark distances 
+lmksfin <- matrix(c(1,3), ncol=2, byrow=TRUE, 
+                   dimnames = list(c("PecFinLengths"),c("start", "end")))
+
+PecFinLengths <- interlmkdist(myFinData_tps, lmksfin)
+write.csv(PecFinLengths,"PecFinLengthsNov.csv")
+
+
+lmksfinbase <- matrix(c(1,5), ncol=2, byrow=TRUE, 
+                  dimnames = list(c("baseWidth"),c("start", "end")))
+
+PecFinBase <- interlmkdist(myFinData_tps, lmksfinbase)
+write.csv(PecFinBase,"PecFinBaseNov.csv")
+
+```
+
+```{r Pectoral Fin Data}
+PecFinDat<-read.csv("PecFinDataNovember.csv")
+
+PecFinLength<-PecFinDat$PecFinLengths
+lakeID<-PecFinDat$lakeID
+fishLengthfin<-PecFinDat$fishStdLength
+DOClevel<-PecFinDat$DOCbin
+DOC<-PecFinDat$DOC
+PecFinBase<-PecFinDat$baseWidth
+fishID<-PecFinDat$fishID
+finLss<-PecFinDat$finLengthSS
+finWss<-PecFinDat$finBaseSS
+```
+
+```{r Pectoral Fin Size Standardization}
+PecFinL<-lm(log10(PecFinLength) ~ log10(fishLengthfin)*lakeID, data= PecFinDat)
+summary(PecFinL)
+###NOTE: Significant interaction with FD,HB,LC,OB, PS
+PecFinL<-lm(log10(PecFinLength) ~ log10(fishLengthfin)+lakeID, data= PecFinDat)
+summary(PecFinL)
+
+PecFinB<-lm(log10(PecFinBase) ~ log10(fishLengthfin)*lakeID, data= PecFinDat)
+summary(PecFinB)
+###NOTE: Significant interaction with FD,HB,LC,OB,PS
+PecFinB<-lm(log10(PecFinBase) ~ log10(fishLengthfin)+lakeID, data= PecFinDat)
+summary(PecFinB)
+## Now plug into equation from Kaeuffer et al.
+
+library(lmerTest,lme4)
+dfFin<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
+               lakeID<-PecFinDat$lakeID,
+               fishLengthfin<-PecFinDat$fishStdLength,
+               DOClevel<-PecFinDat$DOCbin,
+               DOC<-PecFinDat$DOC,
+               PecFinBase<-PecFinDat$baseWidth,
+               fishID<-PecFinDat$fishID,
+               finLss<-PecFinDat$finLengthSS,
+               finWss<-PecFinDat$finBaseSS)
+## Run model with size standardized values for eye width
+MeristicFinL_ss<-lmer(log(finLss) ~ 1 + log(DOC) + (1|lakeID), data=dfFin)
+summary(MeristicFinL_ss)
+
+MeristicFinW_ss<-lmer(log(finWss) ~ 1 + log(DOC) + (1|lakeID), data=dfFin)
+summary(MeristicFinW_ss)
+
+```
+
+```{r Pectoral Fin Graphs}
+library(ggplot2)
+mid<-mean(PecFinDat$DOC)
+ggplot(dfFin,aes(x = log(DOC), y = log(finLss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+mid<-mean(PecFinDat$DOC)
+ggplot(dfFin,aes(x = log(DOC), y = log(finWss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+mid<-mean(PecFinDat$DOC)
+ggplot(dfFin,aes(x = log(finLss), y = log(finWss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=mid, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+```
+
+```{r Pectoral Fin Variance}
+### Calculate variance between lakes
+dffin.2<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
+                  lakeID<-PecFinDat$lakeID,
+                  fishLengthfin<-PecFinDat$fishStdLength,
+                  DOClevel<-PecFinDat$DOCbin,
+                  DOC<-PecFinDat$DOC,
+                  PecFinBase<-PecFinDat$baseWidth,
+                  fishID<-PecFinDat$fishID,
+                  finLss<-PecFinDat$finLengthSS,
+                  finWss<-PecFinDat$finBaseSS)
+library(dplyr)
+library(ggplot2)
+L.var<-dffin.2 %>% group_by(lakeID....PecFinDat.lakeID) %>% summarise(var=var(finLss....PecFinDat.finLengthSS))
+W.var<-dffin.2 %>% group_by(lakeID....PecFinDat.lakeID) %>% summarise(var=var(finWss....PecFinDat.finBaseSS))
+L.var
+W.var
+
+var.dat<-read.csv("pecL-W_variance.csv")
+DOCvar<-var.dat$DOC
+DOCbin<-var.dat$DOC_bin
+lakevar<-var.dat$Lake
+lengthvar<-var.dat$pecL_var
+widthvar<-var.dat$pecW_var
+df.var<-data.frame(DOCvar<-var.dat$DOC,DOCbin<-var.dat$DOC_bin,
+                   lakevar<-var.dat$Lake,lengthvar<-var.dat$pecL_var,
+                   widthvar<-var.dat$pecW_var)
+
+ggplot(df.var,aes(x = lakevar, y = lengthvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(df.var,aes(x = lakevar, y = widthvar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+mean.var_per_bin<-aggregate(df.var[, 4:5], list(df.var$DOCbin), mean)
+mean.var_per_bin
+#Group.1 lengthvar....var.dat.pecL_var widthvar....var.dat.pecW_var
+#1     0-10                      23.48250                     6.695000
+#2 10-15.00                      13.03333                     7.213333
+#3    15-25                       7.41000                     4.270000
+
+```
+
+```{r Pectoral Fin Insertion Angle Data}
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS")
+finAngleData<-read.csv("Pec Fin Angles.csv")
+fishID<-finAngleData$fishID
+lakeID<-finAngleData$lakeID
+DOClevel<-finAngleData$DOClevel
+DOC<-finAngleData$DOC
+fishLength<-finAngleData$fishStdLength
+pecFinInsertAngle<-finAngleData$Angle
+captureMethod<-finAngleData$captureMethod
+angle.pos<-finAngleData$Angle.pos
+angle.ss<-finAngleData$sizeStandardize
+dfangle<-data.frame(angle.ss=finAngleData$sizeStandardize,fishID=finAngleData$fishID,angle.pos<-finAngleData$Angle.pos,lakeID=finAngleData$lakeID,DOClevel=finAngleData$DOClevel,DOC=finAngleData$DOC,fishLength=finAngleData$fishStdLength,pecFinInsertAngle=finAngleData$Angle,captureMethod<-finAngleData$captureMethod)
+
+```
+
+```{r Pectoral Fin Insertion Angle Size Standardization}
+angle.szrem<-lm(log10(angle.pos) ~ log10(fishLength)*lakeID, data=dfangle)
+summary(angle.szrem)
+##Interaction significant for CR,LC,LT,MC,SQ
+angle.szrem2<-lm(log10(angle.pos) ~ log10(fishLength)+lakeID, data=dfangle)
+summary(angle.szrem2)
+MeristicPecFinAngle.ss<-lmer(log10(angle.ss) ~ 1 + log10(DOC)+ (1|lakeID), data=dfangle)
+summary(MeristicPecFinAngle.ss)
+
+```
+
+```{r Pectoral Fin Insertion Angle Figures}
+library(ggplot2)
+midfin<-mean(dfangle$DOC)
+ggplot(dfangle,aes(x = log10(fishLength), y = log10(angle.ss))) + 
+  geom_point(aes(colour = DOC)) + 
+  scale_y_log10()+
+  scale_colour_gradient2(midpoint=midfin, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+ggplot(dfangle,aes(x = log10(DOC), y = log10(angle.ss))) + 
+  scale_y_log10()+
+  geom_point(aes(colour = DOC)) + 
+  scale_colour_gradient2(midpoint=midfin, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+```
+
+```{r Pectoral Fin Insertion Variance}
+### Calculating variance
+library(dplyr)
+library(ggplot2)
+angleVar<-dfangle %>% group_by(lakeID) %>% summarise(var=var(angle.ss))
+
+var.dat<-read.csv("angle_var.csv")
+DOCvar<-var.dat$DOC
+DOCbin<-var.dat$DOC_bin
+lakevar<-var.dat$Lake
+anglevar<-var.dat$angle_var
+
+df.var<-data.frame(DOCvar<-var.dat$DOC,DOCbin<-var.dat$DOC_bin,
+                   lakevar<-var.dat$Lake,anglevar<-var.dat$angle_var)
+                   
+
+ggplot(df.var,aes(x = lakevar, y = anglevar)) + 
+  geom_point(aes(colour = DOCvar)) +
+  scale_colour_gradient2(midpoint=10, low="cadetblue1", mid="deepskyblue",high="chocolate4")
+
+
+mean.var_per_bin<-aggregate(df.var[, 4], list(df.var$DOCbin), mean)
+#1     0-10 84.33750
+#2 10-15.00 76.26667
+#3    15-25 86.56667
+
+ggplot(mean.var_per_bin,aes(x = Group.1, y = x)) + 
+ geom_col(aes(colour = Group.1, fill=Group.1))
+
+```
+

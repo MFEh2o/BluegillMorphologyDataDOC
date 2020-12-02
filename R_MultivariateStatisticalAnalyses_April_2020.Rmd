@@ -1,0 +1,304 @@
+---
+title: "Bluegill_GeneralizedLinearModels"
+author: "Madlen Stange"
+date: "16/10/2019"
+output: 
+  pdf_document: 
+    latex_engine: xelatex
+latex_engine: xelatex
+spacing: onehalf
+fontsize: 11.5 pt
+toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=12, fig.height=8) # global settings
+```
+
+## Prepare packages
+#R version  3.6.1 under Mac  
+#geomorph version 3.1.3 #packageVersion("geomorph")  
+```{r}
+library("geomorph")
+library("kableExtra")
+```
+
+## Prepare data, note that the updated dataset has two more landmarks for the mouth position
+```{r}
+
+#myData_tps <- readland.tps("/Users/madlen/Dropbox/Montreal_project/Chelsea_Bluegill_GM/raw/FULL 2018 TPS FILE UPDATED 09-25-19.TPS",specID ="imageID")
+#mylinks=read.table("/Users/madlen/Dropbox/Montreal_project/Chelsea_Bluegill_GM/raw/Full_body_links.txt")
+#identifiers=read.table("/Users/madlen/Dropbox/Montreal_project/Chelsea_Bluegill_GM/raw/TPS_Identifiers_Final_October.txt",sep = "\t", header=TRUE)
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/BLUEGILL/Head and Body Photos")
+myData_tps<- readland.tps("FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS",specID ="imageID")
+mylinks=read.table("Full_body_links.txt")
+identifiers=read.table("Identifiers_Update_2020.txt",sep = "\t", header=TRUE)
+
+dimnames(myData_tps)[[3]]=identifiers$imageID
+dimnames(myData_tps)[[1]]=c("1","2","3","4","5","6","7","8","9","10","11","12","13"
+                            ,"14","15","16","17","18","19")
+```
+
+## Procrustes Superimposition  
+```{r results="hide"}
+GPA.fish=gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
+```
+## Create geomorph dataframe with shape data and factors and co-variates
+```{r}
+gdf.fish=geomorph.data.frame(shape=GPA.fish$coords,DOCcat=identifiers$DOCrange,
+Lake=identifiers$lakeID,Sex=identifiers$Sex, DOCvalue=identifiers$DOC,
+captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize, basin=identifiers$Basin)
+```
+
+
+## Definition of fixed and random terms
+Random effect is lake (categorical, factor) and fixed effects are sex (categorical, factor), size (continuous, co-variate), DOC (can be both categorical or continuous, either factor or co-variate, respectively), capture method (categorical, factor). Further, Lake is nested within DOC (several lakes have same DOC but each lake has only one DOC) if DOC is treated as factor. The fixed effect sex will be dropped from the analyses below, because we have a large number of specimens with unknown sex. A analyses will follow more below that will incorporate sex while dropping all data with unsassigned sex.   
+
+## Test if co-variate size is interacting with any of the factors
+First, we test the impact of the co-variate size on shape following the recommendation in Zelditch p 242ff:  
+> ” When one or more discrete factors and one or more continuous covariates are also of interest, the general approach is to identify the form of the dependence of Y (shape) on the covariate, and then to remove the variance in Y explained by the covariate, assuming no interaction between the covariate and factor(s). Having removed the variance explained by the covariate, one can then proceed to test the significance of the factors, as discussed earlier. In the univariate case, the term “common slope model” is used to describe a homogeneous response to the covariate across all levels of all factors. If the responses to the covariate are not homogeneous, meaning that there is an interaction between the covariate and one or more factors, the variance explained by the covariate cannot be removed by regression. In such cases, the focus of the analysis must be on the interaction between factor(s) and the covariate rather than on the main effects of the factors. In a univariate analysis (ANCOVA), the typical approach is to compute the regression slopes for each level of A and then to test the null hypothesis that the slopes do not differ by comparing values of the derived univariate slopes (this approach does not have a simple multivariate analog)."  
+
+In the following, we compute common and unique slope models for the factors Lake, Capture Method and DOC (controlling for lake), and then we test whether the null-model (common slopes) performs better than the alternative for each factor.
+
+```{r results="hide"}
+aov.fit.size <- anova(procD.lm(shape ~ log(cSize),
+                      data = gdf.fish, print.progress = FALSE), print.progress = FALSE) 
+                      # simple allometry model
+fit.Lake.un<- procD.lm(shape ~ log(cSize) * Lake, 
+                     data = gdf.fish, print.progress = FALSE) # unique Lake allometries
+fit.Lake.com<- procD.lm(shape ~ log(cSize) + Lake, 
+                     data = gdf.fish, print.progress = FALSE) # common Lake allometries
+aov.fit.lake=anova(fit.Lake.com, fit.Lake.un, print.progress = FALSE)
+
+
+fit.Capturemethod.un<- procD.lm(shape ~ log(cSize) * captureMethod, 
+                     data = gdf.fish, print.progress = FALSE) # unique Capture method allometries 
+fit.Capturemethod.com<- procD.lm(shape ~ log(cSize) + captureMethod, 
+                     data = gdf.fish, print.progress = FALSE) # common Capture method allometries 
+aov.fit.Capturemethod=anova(fit.Capturemethod.com, fit.Capturemethod.un, print.progress=FALSE)
+```
+
+\pagebreak
+```{r echo=FALSE}
+knitr::kable(aov.fit.size$table, format="latex", booktabs=TRUE,
+             caption="simple allometry model") 
+knitr::kable(aov.fit.lake$table, format="latex", booktabs=TRUE,
+             caption="Lake common slope test") %>% kable_styling(latex_options="scale_down")
+knitr::kable(aov.fit.Capturemethod$table, format="latex", booktabs=TRUE,
+             caption="Capture method common slope test") %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+```{r results= "hide"}
+# now DOC, controlling for lake and assigning it as random factor
+fit.DOCexact.unique<- procD.lm(shape ~ log(cSize) * DOCvalue*Lake, 
+                     data = gdf.fish, print.progress = FALSE) # unique DOC (continous) allometries 
+fit.DOCexact.common<- procD.lm(shape ~ log(cSize) + DOCvalue*Lake, 
+                     data = gdf.fish, print.progress = FALSE) # common DOC (continous) allometries
+fit.DOCcat.unique<- procD.lm(shape ~ log(cSize) * DOCcat/Lake, 
+                     data = gdf.fish, print.progress = FALSE) # unique DOC (categorical) allometries
+fit.DOCcat.common<- procD.lm(shape ~ log(cSize) + DOCcat/Lake, 
+                     data = gdf.fish, print.progress = FALSE) # common DOC (categorical) allometries
+
+fitcompareDOCexact=anova(fit.DOCexact.common, fit.DOCexact.unique, print.progress = FALSE,
+                         error=c("Residuals","Residuals","DOCvalue:Lake"))
+fitcompareDOCcat=anova(fit.DOCcat.common, fit.DOCcat.unique, print.progress = FALSE,
+                       error=c("Residuals","Residuals","DOCcat:Lake"))
+```
+
+\pagebreak
+```{r echo=FALSE}
+knitr::kable(fitcompareDOCexact$table, caption="DOC cont. common slope test", 
+             format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+knitr::kable(fitcompareDOCcat$table, caption="DOC low/high common slope test",format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+Testing for unqiue allometries among DOC regimes accounting for structure in DOC via the factor lake yields significant p-values (true for both categorical and continous). We can reject the null-hypothesis of common slopes.
+
+Result: The factors DOC and lake show co-variation with size, therefore the reponse of shape to changes in size is dependent on the level of the factor i.e. which lake fish was fished in, and what DOC concentration fish was sampled in. Capture method does not have an effect on allometry.  
+A co-variate can easily be incorporated into the theoretical multivariate mixed model (see next section). However, the practical implemetation in the statsitical package geomorph is a different story. Since two out of three factors have a unique allometry (shape-size realtionship) we cannot size correct using a common slope approach.
+
+\pagebreak
+### Visualisation of the relationships of allometries and factors
+Visualsizations are done using PredLine method: "the function calculates fitted values from a procD.lm fit, and plots the first principal component of the "predicted" values versus size as a stylized graphic of the allometric trend (Adams and Nistri 2010). This method is based on linear models and can allow for other model variable to be incorporated."  
+
+#### DOC allometries
+DOC as categorical variable with lake nested in DOC. The plot highlights how lake structures the data within high and low DOC.
+```{r}
+plotAllometry(fit.DOCcat.unique, size = gdf.fish$cSize, logsz = TRUE, method = "PredLine",
+              pch = 19, col = as.numeric(gdf.fish$DOCcat),main="DOC continuous unique allometries")
+```
+Same here with DOC as continuous variable with lake nested in DOC.  
+```{r}
+plotAllometry(fit.DOCexact.unique, size = gdf.fish$cSize, logsz = TRUE, method = "PredLine",
+              pch = 19, col = rainbow(14)[gdf.fish$Lake],main="DOC continuous unique allometries")
+```
+
+
+#### Lake unique allometries:  
+```{r}
+plotAllometry(fit.Lake.un, size = gdf.fish$cSize, logsz = TRUE, method = "PredLine",
+              pch = 19, col=rainbow(14)[gdf.fish$Lake], main="Lake unique allometries")
+```
+
+#### Capture method common allomtery:  
+```{r}
+plotAllometry(fit.Capturemethod.com, size = gdf.fish$cSize, logsz = TRUE, method = "PredLine",
+              pch = 19, col=rainbow(3)[gdf.fish$captureMethod], main="Capture method common allometry")
+```
+
+
+## Shape-DOC relationhsip accounting for: body size(CS) (covariate), lake (random effect) and capture method (fixed effect)  
+
+Since we cannot size correct the multivariate shape data we have to account for factor dependent slopes.  
+
+1) The full model is a multivariate 4-factor model, one of them being a co-variate (centroid size); factor lake is nested in factor DOC; slopes are dependent on the interactions of DOC and CaptureMethod (I believe interaction of DOC/Lake drops out here as lake is nested in DOC):  
+
+$shape =DOC + lake +CaptureMethod + DOC / lake + DOC * CaptureMethod + lake * CaptureMethod + DOC / lake * CaptureMethod + \beta_x (DOC * CaptureMethod, lake * CaptureMethod, DOC / lake * CaptureMethod)X +\epsilon$
+
+2) to be tested against the reduced models, slopes being dependent on DOC only   
+
+$shape =DOC + lake + CaptureMethod + DOC / lake + DOC * CaptureMethod + lake * CaptureMethod + DOC / lake * CaptureMethod + \beta_x (DOC) X +\epsilon$
+
+3) to be tested against the reduced models, slopes being dependent on CaptureMethod only  
+
+$shape =DOC + lake + CaptureMethod + DOC / lake + DOC * CaptureMethod + lake * CaptureMethod + DOC / lake * CaptureMethod + \beta_x (CaptureMethod) X +\epsilon$
+
+4) to be tested against the common slope model:  
+
+$shape =DOC + lake + CaptureMethod + DOC / lake + DOC * CaptureMethod + lake * CaptureMethod + DOC / lake * CaptureMethod + \beta_xX +\epsilon$
+
+with $\beta$ being a matrix of coefficients (or slopes), one per variable in shape and X being the co-variate (size)  
+
+\pagebreak
+Here come the full models, three versions with Table 8 showing the results for the model that includes size variation:  
+```{r results="hide"}
+# DOC categorical, no-covariate (not corrected for size)
+fullmodel_DOCcat_nosize=anova(procD.lm(shape ~ DOCcat + Lake + captureMethod + DOCcat / Lake +
+DOCcat / Lake * captureMethod + DOCcat * captureMethod + Lake * captureMethod , SS.type = "II",
+data = gdf.fish),error = c("Residuals","Lake","Residuals","Residuals","Lake:captureMethod")) 
+# include "residuals" for all fixed effects and the term for all random effects
+```  
+
+```{r echo=FALSE}
+knitr::kable(fullmodel_DOCcat_nosize$table, caption="DOC categorical, no co-variate (not corrected for size)",format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+\pagebreak
+```{r results="hide"}
+# DOC continouous, no-covariate (not corrected for size)
+fullmodel_DOCvalue_nosize=anova(procD.lm(shape ~ DOCvalue + Lake + captureMethod + 
+DOCvalue * Lake + DOCvalue * Lake * captureMethod + DOCvalue * captureMethod +
+  Lake * captureMethod , SS.type = "II", data = gdf.fish), 
+error = c("Residuals","Lake","Residuals","Residuals","Lake:captureMethod"))
+```
+
+
+```{r echo=FALSE}
+knitr::kable(fullmodel_DOCvalue_nosize$table,caption="DOC continuous, no co-variate (not corrected for size)",format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+```{r results="hide"}
+#Four-Factor Multivariate Analysis of Covariance (size accounted for) with DOC as categorical:
+fullmodel_DOCcat_size=anova(procD.lm(shape ~ log(cSize) + DOCcat + Lake + captureMethod +
+ DOCcat / Lake + DOCcat*captureMethod+ Lake * captureMethod + DOCcat / Lake * captureMethod
++ log(cSize)*DOCcat*captureMethod +log(cSize)*Lake*captureMethod +
+  log(cSize)*DOCcat/Lake*captureMethod,SS.type = "II",data = gdf.fish),
+  error = c("Residuals","Residuals","Lake" , "Residuals", "Residuals",
+ "Lake:captureMethod","Residuals","Residuals",  "log(cSize):Lake", "Residuals",
+ "log(cSize):Lake:captureMethod")) 
+```
+
+```{r echo=FALSE}
+knitr::kable(fullmodel_DOCcat_size$table,caption="DOC categorical, with co-variate (corrected for size)",format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+```{r results="hide"}
+#Four-Factor Multivariate Analysis of Covariance (size accounted for) with DOC as continuous:
+fullmodel_DOCvalue_size=anova(procD.lm(shape ~ log(cSize) + DOCvalue + Lake + captureMethod +
+ DOCvalue * Lake + DOCvalue*captureMethod + Lake * captureMethod + DOCvalue * Lake * captureMethod
++ log(cSize)*DOCvalue*captureMethod +log(cSize)*Lake*captureMethod +
+  log(cSize)*DOCvalue*Lake*captureMethod,SS.type = "II",data = gdf.fish),
+  error = c("Residuals","Residuals","Lake" , "Residuals", "Residuals",
+ "Lake:captureMethod","Residuals","Residuals",  "log(cSize):Lake", "Residuals",
+ "log(cSize):Lake:captureMethod")) 
+```
+
+```{r echo=FALSE}
+knitr::kable(fullmodel_DOCvalue_size$table,caption="DOC continuous, with co-variate (corrected for size)", format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+## Final models
+```{r results="hide"}
+#Three-Factor Multivariate Analysis of Covariance (size accounted for) with DOC as continuous, Capture method excluded, lake random factor not nested BUT keep in mind - each lake has one specific DOC value and no value appears twice among lakes:
+fullmodel_DOCvalue_size_noCapture=anova(procD.lm(shape ~ log(cSize) + DOCvalue + Lake + DOCvalue * Lake + log(cSize)*DOCvalue + log(cSize)*Lake + log(cSize)*DOCvalue*Lake,SS.type = "II",data = gdf.fish),
+  error = c("Residuals","Residuals","Lake" , "Residuals", "log(cSize):Lake")) 
+```
+
+```{r echo=FALSE}
+knitr::kable(fullmodel_DOCvalue_size_noCapture$table,caption="DOC continuous, with co-variate (corrected for size), no capture method", format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+\pagebreak
+The model above has to be tested against the reduced models:  
+
+2) slopes being dependent on DOC only   
+$shape =DOC + lake  + DOC * lake + \beta_x (DOC) X +\epsilon$
+
+3) slopes being dependent on lake only   
+$shape =DOC + lake  + DOC * lake + \beta_x (lake) X +\epsilon$
+
+4) to be tested against the common slope model   
+$shape =DOC + lake  + DOC * lake + \beta_xX +\epsilon$
+
+Here comes the implementation:  
+
+#### Model 1: full model  
+```{r results="hide"}
+fullmodel=procD.lm(shape ~ log(cSize) + DOCvalue + Lake + DOCvalue * Lake + log(cSize)*DOCvalue + log(cSize)*Lake + log(cSize)*DOCvalue*Lake,SS.type = "II",data = gdf.fish)
+# error = c("Residuals","Residuals","Lake" , "Residuals", "log(cSize):Lake")) 
+```
+
+
+#### Model 2: DOC slope only
+```{r results="hide"}
+reduced_DOC=procD.lm(shape ~ log(cSize) + DOCvalue + Lake + DOCvalue * Lake + log(cSize)*DOCvalue ,SS.type = "II",data = gdf.fish)
+  # error = c("Residuals","Residuals","Lake" , "Residuals"))
+```
+
+#### Model 3: lake slope only
+```{r results="hide"}
+reduced_lake=procD.lm(shape ~ log(cSize) + DOCvalue + Lake + DOCvalue * Lake + log(cSize)*Lake ,SS.type = "II",data = gdf.fish)
+  #error = c("Residuals","Residuals","Lake" , "log(cSize):Lake"))
+```
+#### Model 4: common slope  
+```{r results="hide"}
+reduced_common_slope=procD.lm(shape ~ log(cSize) + DOCvalue + Lake + DOCvalue * Lake,SS.type = "II",data = gdf.fish)
+  # error = c("Residuals","Residuals","Lake"))
+```
+
+#### Comparison of full and reduced models
+```{r results="hide"}
+fit_comparison=anova(reduced_common_slope,reduced_DOC, reduced_lake, fullmodel) #,error = c("Residuals","Residuals","Lake","DOCvalue * Lake", "log(cSize) * Lake"))
+```
+\pagebreak
+```{r echo=FALSE}
+knitr::kable(fit_comparison$table,caption="model comparison:full versus reduced models", format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
+
+If I didn't make any mistake (very well possible that I did) I think what Table 11 is saying is that using Lake specific slopes performs just as good as using individuals slopes for each factor that we have.
+
+\pagebreak
+## The final model to be used for analisys is Model 2
+
+```{r results="hide"}
+final=anova(procD.lm(shape ~ log(cSize) + DOCvalue + Lake + 
+log(cSize)*DOCvalue ,SS.type = "II",data = gdf.fish),
+error= c("Residuals","Residuals","Lake","Residuals"))
+```
+```{r echo=FALSE}
+knitr::kable(final$table,caption="Impact of DOC on shape and DOC-dependent allometry", format="latex", booktabs=TRUE) %>% kable_styling(latex_options="scale_down")
+```
