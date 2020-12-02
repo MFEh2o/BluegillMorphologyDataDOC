@@ -1,0 +1,550 @@
+---
+title: "Code_and_Results_Bluegill_DOC"
+author: "Chelsea Bishop"
+date: "August 14, 2019"
+output:
+  pdf_document: default
+  word_document: default
+spacing: onehalf
+fontsize: 11.5 pt
+toc: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=12, fig.height=8)
+```
+
+## Prepare data
+#R version  3.5.3 
+#geomorph version 3.1.2 #packageVersion("geomorph")
+#shapes version 1.2.4 #packageVersion("shapes")
+```{r}
+library("geomorph")
+library("shapes")
+library("Morpho")
+library("StereoMorph")
+library("phangorn")
+```
+
+```{r}
+#load data
+
+setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/BLUEGILL/Head and Body Photos")
+myData_tps <- readland.tps("FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS",specID ="imageID")
+mylinks=read.table("Full_body_links.txt")
+identifiers=read.table("Identifiers_Update_2020.txt",sep = "\t", header=TRUE)
+dimnames(myData_tps)[[3]]=identifiers$imageID
+dimnames(myData_tps)[[1]]=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
+```
+
+## Procrustes Superimposition  
+```{r results="hide"}
+GPA.fish=gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
+```
+
+```{r}
+plotAllSpecimens(GPA.fish$coords, links = mylinks,label = TRUE)
+```
+
+## Identifying Outliers
+```{r}
+outliers <- plotOutliers(GPA.fish$coords)
+names(outliers[1:14])
+```
+14 outliers, could have biological meaning because most from same lake. Keep an eye on this and check scale on photos
+
+## Principal component analysis
+```{r}
+corePCA=plotTangentSpace(GPA.fish$coords,groups=as.factor(identifiers$lakeID), legend = TRUE)
+corePCA=plotTangentSpace(GPA.fish$coords,groups=as.factor(identifiers$DOCrange), legend = TRUE)
+gdf.fish=geomorph.data.frame(shape=GPA.fish$coords,DOC=identifiers$DOC,Lake=identifiers$lakeID,Sex=identifiers$Sex, DOCrange=identifiers$DOCrange, captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize)
+```
+#Eye Widths
+```{r}
+# Make a matrix defining interlandmark distances 
+lmkseye <- matrix(c(19,2), ncol=2, byrow=TRUE, 
+                   dimnames = list(c("EyeWidths"),c("start", "end")))
+
+EyeWidth <- interlmkdist(myData_tps, lmkseye)
+write.csv(EyeWidth,"EyeWidthsMay.csv")
+
+```
+
+
+
+Get all PC1 and PC2 scores for all the combinations that I want to highlight
+```{r}
+PCscores=corePCA$pc.scores[,1:2]
+idx=which(gdf.fish$Lake=="Bay"); Bay=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Birch"); Birch=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Crampton"); Crampton=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Found"); Found=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Hummingbird"); Hummingbird=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Little_Crooked"); Little_Crooked=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Lost"); Lost=PCscores[idx,]
+idx=which(gdf.fish$Lake=="McCullough"); McCullough=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Muskellunge"); Muskellunge=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Oxbow"); Oxbow=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Papoose"); Papoose=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Red_Bass"); Red_Bass=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Squaw"); Squaw=PCscores[idx,]
+idx=which(gdf.fish$Lake=="Towanda"); Towanda=PCscores[idx,]
+```
+
+
+```{r,echo=FALSE}
+xlab <- paste("Principal Component 1 ", "(", round(corePCA$pc.summary$importance[2,1]*100,1), "%)", sep="")
+ylab <- paste("Principal Component 2 ", "(", round(corePCA$pc.summary$importance[2,2]*100,1), "%)", sep="")
+plot(PCscores[,1],PCscores[,2], type="n",xlab=xlab, ylab=ylab,asp=1,frame=T) ### creates empty plot, have to select all to run 
+points(Bay[,1], Bay[,2], col="#6666FF", pch=19,cex=2)
+points(Birch[,1], Birch[,2], col="#3333FF", pch=19,cex=2)
+points(Crampton[,1], Crampton[,2], col="#33FFFF", pch=19,cex=2)
+points(Found[,1], Found[,2], col="#33CCFF", pch=19,cex=2)
+points(Hummingbird[,1], Hummingbird[,2], col="#000033", pch=19,cex=2)
+points(Little_Crooked[,1], Little_Crooked[,2], col="#99FFFF", pch=19,cex=2)
+points(Lost[,1], Lost[,2], col="#CCFFFF", pch=19,cex=2)
+points(McCullough[,1], McCullough[,2], col="#333399", pch=19,cex=2)
+points(Muskellunge[,1], Muskellunge[,2], col="#6699FF", pch=19,cex=2)
+points(Oxbow[,1], Oxbow[,2], col="#3333CC", pch=19,cex=2)
+points(Papoose[,1], Papoose[,2], col="#0099FF", pch=19,cex=2)
+points(Red_Bass[,1], Red_Bass[,2], col="#003366", pch=19,cex=2)
+points(Squaw[,1], Squaw[,2], col="#333366", pch=19,cex=2)
+points(Towanda[,1], Towanda[,2], col="#99CCFF", pch=19,cex=2)
+legend("topright", legend=c("Bay","Birch","Crampton", "Found", "Hummingbird", "Little_Crooked", "Lost", "McCullough", "Muskellunge", "Oxbow", "Papoose", "Red_Bass", "Squaw", "Towanda" ), pch=19, col=c("#6666FF","#3333FF","#33FFFF","#33CCFF","#000033","#99FFFF", "#CCFFFF", "#333399", "#6699FF", "#3333CC", "#0099FF", "#003366", "#333366", "#99CCFF", cex=0.50 ))
+```
+
+## Alternative highlighting in PCA plot by group - DOC Range
+```{r, echo=FALSE}
+PCscores=corePCA$pc.scores[,1:2]
+idx=which(gdf.fish$DOCrange=="0-5.0"); Range0_5 =PCscores[idx,]
+idx=which(gdf.fish$DOCrange=="5.0-10.0"); Range5_10=PCscores[idx,]
+idx=which(gdf.fish$DOCrange=="10.0-15.0"); Range10_15=PCscores[idx,]
+idx=which(gdf.fish$DOCrange=="15.0-20.0"); Range15_20=PCscores[idx,]
+idx=which(gdf.fish$DOCrange=="20.0-25.0"); Range20_25=PCscores[idx,]
+
+xlab <- paste("Principal Component 1 ", "(", round(corePCA$pc.summary$importance[2,1]*100,1), "%)", sep="")
+ylab <- paste("Principal Component 2 ", "(", round(corePCA$pc.summary$importance[2,2]*100,1), "%)", sep="")
+plot(PCscores[,1],PCscores[,2], type="n",xlab=xlab, ylab=ylab,asp=1,frame=T) ### creates empty plot, have to select all to run 
+points(Range0_5 [,1], Range0_5[,2], col="#ffffcc", pch=19,cex=2)
+points(Range5_10 [,1] , Range5_10[,2], col="#a1dab4", pch=19,cex=2)
+points(Range10_15 [,1] , Range10_15[,2], col="#41b6c4", pch=19,cex=2)
+points(Range15_20 [,1] , Range15_20[,2], col="#225ea8", pch=19,cex=2)
+points(Range20_25 [,1] , Range20_25[,2], col="#003152", pch=19,cex=2)
+legend(0.05,0.04, legend=c("Range0_5","Range5_10","Range10_15", "Range15_20", "Range20_25" ), pch=19, col=c("#ffffcc","#a1dab4","#41b6c4","#225ea8","#003152" ))
+```
+
+```{r}
+PCscores=corePCA$pc.scores[,1:2]
+idx=which(gdf.fish$DOC=="low"); Low_DOC =PCscores[idx,]
+idx=which(gdf.fish$DOC=="high"); High_DOC=PCscores[idx,]
+
+xlab <- paste("Principal Component 1 ", "(", round(corePCA$pc.summary$importance[2,1]*100,1), "%)", sep="")
+ylab <- paste("Principal Component 2 ", "(", round(corePCA$pc.summary$importance[2,2]*100,1), "%)", sep="")
+plot(PCscores[,1],PCscores[,2], type="n",xlab=xlab, ylab=ylab,asp=1,frame=T) ### creates empty plot, have to select all to run
+points(Low_DOC [,1], Low_DOC[,2], col="#41C6EC", pch=19,cex=2)
+points(High_DOC [,1] , High_DOC[,2], col="#A0674E", pch=19,cex=2)
+legend(0.05,0.04, legend=c("Low_DOC","High_DOC"), pch=19, col=c("#41C6EC","#A0674E"))
+```
+
+## Alternative highlighting in PCA plot by group - Capture Method
+```{r, echo=FALSE}
+PCscores=corePCA$pc.scores[,1:2]
+idx=which(gdf.fish$captureMethod=="Angling"); Angling =PCscores[idx,]
+idx=which(gdf.fish$captureMethod=="Electrofishing"); Electrofishing=PCscores[idx,]
+idx=which(gdf.fish$captureMethod=="Fyke_Net"); Fyke_Net=PCscores[idx,]
+
+xlab <- paste("Principal Component 1 ", "(", round(corePCA$pc.summary$importance[2,1]*100,1), "%)", sep="")
+ylab <- paste("Principal Component 2 ", "(", round(corePCA$pc.summary$importance[2,2]*100,1), "%)", sep="")
+plot(PCscores[,1],PCscores[,2], type="n",xlab=xlab, ylab=ylab,asp=1,frame=T) ### creates empty plot, have to select all to run 
+points(Angling [,1], Angling[,2], col="#FC8D59", pch=19,cex=2)
+points(Electrofishing [,1] , Electrofishing[,2], col="#FFFFBF", pch=19,cex=2)
+points(Fyke_Net [,1] , Fyke_Net[,2], col="#91BFDB", pch=19,cex=2)
+legend(0.05,0.04, legend=c("Angling","Electrofishing","Fyke_Net"), pch=19, col=c("#FC8D59","#FFFFBF","#91BFDB"))
+```
+
+## Alternative highlighting in PCA plot by group - Sex
+```{r, echo=FALSE}
+PCscores=corePCA$pc.scores[,1:2]
+idx=which(gdf.fish$Sex=="M"); Male =PCscores[idx,]
+idx=which(gdf.fish$Sex=="F"); Female=PCscores[idx,]
+idx=which(gdf.fish$Sex=="U"); Unknown=PCscores[idx,]
+
+xlab <- paste("Principal Component 1 ", "(", round(corePCA$pc.summary$importance[2,1]*100,1), "%)", sep="")
+ylab <- paste("Principal Component 2 ", "(", round(corePCA$pc.summary$importance[2,2]*100,1), "%)", sep="")
+plot(PCscores[,1],PCscores[,2], type="n",xlab=xlab, ylab=ylab,asp=1,frame=T) ### creates empty plot, have to select all to run 
+points(Male [,1], Male[,2], col="#67a9cf", pch=19,cex=2)
+points(Female [,1] , Female[,2], col="#E9A3C9", pch=19,cex=2)
+points(Unknown [,1] , Unknown[,2], col="#F7F7F7", pch=19,cex=2)
+legend(0.05,0.04, legend=c("Male","Female","Unkown"), pch=19, col=c("#67a9cf","#E9A3C9","#F7F7F7"))
+```
+
+## Shape changes along PC1-PC2 morphospace  
+PC 1 change from min to max: body depth  
+```{r, echo=FALSE}
+plotRefToTarget(corePCA$pc.shapes$PC1min, corePCA$pc.shapes$PC1max,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
+```
+
+  
+PC 2 change from min to max: head-body ratio and position of pectoral fins  
+```{r, echo=FALSE}
+plotRefToTarget(corePCA$pc.shapes$PC2min, corePCA$pc.shapes$PC2max,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
+
+```
+
+## Backtransform Morphospace plottting all individuals
+```{r, echo=FALSE, results="hide"}
+library(StereoMorph)
+lm_array<-myData_tps
+gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
+
+# Convert array to matrix for PCA
+gpa_mat <- t(apply(gpa_array, 3, function(y) matrix(t(y), 1)))
+
+# Perform non-phylogenetic PCA
+resEig <- eigen(cov(gpa_mat))
+
+# Get PC scores, changed sign of rotation matrix (resEig$vectors)
+
+scores <- gpa_mat %*% -(resEig$vectors)
+####shapes switched, need to reverse signs to fix
+
+# Get percent variance explained along each axis
+per_var <- (resEig$values / sum(resEig$values))*100
+
+plot_fish_lateral <- function(xy, coor, size=1, col="black"){
+
+	# If 3D, rotate points about x-axis using 3D rotation matrix
+	if(ncol(coor) == 3){
+		coor <- coor %*% matrix(c(1,0,0, 0,cos(-pi/2),sin(-pi/2), 
+			0,-sin(-pi/2),cos(-pi/2)), nrow=3, ncol=3)
+	}
+
+	# Get just x,y coordinates (orthographic projection into xy-plane)
+	coor <- coor[, 1:2]
+
+	# Get plot aspect ratio
+	w <- par("pin")[1]/diff(par("usr")[1:2])
+	h <- par("pin")[2]/diff(par("usr")[3:4])
+	asp <- w/h
+
+	# Correct for plot aspect ratio not necessarily being 1:1
+	coor[, 1] <- coor[, 1] * (1/asp)
+
+	# Scale points and place back in position
+	coor <- coor*size
+
+	# Center about zero based on range of coordinates
+	coor <- coor - matrix(colMeans(apply(coor, 2, range)), 
+		nrow=nrow(coor), ncol=ncol(coor), byrow=TRUE)
+
+	# Move shape to PC score
+	coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow=TRUE)
+
+# Set order in which to draw points to create polygon
+  polygon_order=c(1,3:12,16,1) # name landmarks in the order you want them connected
+ # Create filled polygon
+	polygon(coor[polygon_order, ], col=col, border=col)
+}
+# Set PCs to plot
+pcs <- 1:2
+
+
+
+PCscores=corePCA$pc.scores[,1:2] # which groups do you want to plot? put basin, when basin
+idx=which(gdf.fish$basin=="Great Lakes Watershed"); basin_X =PCscores[idx,]
+idx=which(gdf.fish$basin=="Mexico"); basin_Y=PCscores[idx,]
+
+# Create plot box with axes and axis labels
+plot(scores[, pcs], type="n", main="Backtransform morphospace",
+	xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+	ylab=paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+
+# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors)
+btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral,
+pcs=pcs, n=c(4,4), m=dim(lm_array)[2], row.names=dimnames(lm_array)[[1]],
+pc.margin=c(0.06,0.05), size=0.038, col=gray(0.7))
+points(basin_X [,1], basin_X[,2], col="#41C6EC", pch=19,cex=2)
+points(basin_Y [,1] , basin_Y[,2], col="#A0674E", pch=19,cex=2)
+#again add as many as you have basins
+
+
+legend(0.05,0.04, legend=c("basin_X","basin_Y"), pch=19, col=c("#41C6EC","#A0674E"))
+
+# Add convex hull polygons to the PCA plot, PC1 vs PC2:
+colour = c("#A0674E","#41C6EC")
+for(j in 1:nlevels(as.factor(gdf.fish$basin))) { #needs to have this name or change it
+  # Get edge points (used to plot convex hull):
+  edge_points <- rownames(PCscores[which(gdf.fish$basin == levels(as.factor(gdf.fish$basin))[j]),])[
+    chull(PCscores[which(gdf.fish$basin == levels(as.factor(gdf.fish$basin))[j]), c(1,2)])]
+  # Plot convex hull as polygon:
+  polygon(PCscores[edge_points, c(1,2)], col = adjustcolor(colour[j],
+  alpha.f = 0.3) , border = colour[j])
+} # alpha gives the degree of transparency of the polygon
+
+```
+
+## Backtransform Morphospace for lake means
+```{r, echo=FALSE, results="hide"}
+library(StereoMorph)
+lm_array<-myData_tps
+gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
+
+x <- two.d.array(gpa_array) # the following part is necessary to calculate mean shapes per lake
+gpa_df=geomorph.data.frame(shape=gpa_array, Lake=identifiers$lakeID)
+p <- dim(gpa_array)[1] # the number of landmarks
+k <- dim(gpa_array)[2] # the dimensions of the coordinates
+Y <- array(NA, dim=c(p,k,length(levels(gpa_df$Lake)))) #new empty array to fill
+dimnames(Y)[[3]] <- levels(gpa_df$Lake) # set group levels as new names
+
+ for (i in 1: length(levels(gpa_df$Lake))){
+  grp <- x[which(gpa_df$Lake==levels(gpa_df$Lake)[i]),]
+  foo <- arrayspecs(grp ,p,k)
+  Y[,,i] <- mshape(foo) # place into the new 3D array
+}
+gpa_array <- Y
+
+# Convert array to matrix for PCA
+gpa_mat <- t(apply(gpa_array, 3, function(y) matrix(t(y), 1)))
+
+# Perform non-phylogenetic PCA
+resEig <- eigen(cov(gpa_mat))
+
+# Get PC scores, changed sign of rotation matrix (resEig$vectors)
+
+scores <- gpa_mat %*% -(resEig$vectors)
+####shapes switched need to reverse signs to fix
+
+# Get percent variance explained along each axis
+per_var <- (resEig$values / sum(resEig$values))*100
+
+plot_fish_lateral <- function(xy, coor, size=1, col="black"){
+
+	# If 3D, rotate points about x-axis using 3D rotation matrix
+	if(ncol(coor) == 3){
+		coor <- coor %*% matrix(c(1,0,0, 0,cos(-pi/2),sin(-pi/2), 
+			0,-sin(-pi/2),cos(-pi/2)), nrow=3, ncol=3)
+	}
+
+	# Get just x,y coordinates (orthographic projection into xy-plane)
+	coor <- coor[, 1:2]
+
+	# Get plot aspect ratio
+	w <- par("pin")[1]/diff(par("usr")[1:2])
+	h <- par("pin")[2]/diff(par("usr")[3:4])
+	asp <- w/h
+
+	# Correct for plot aspect ratio not necessarily being 1:1
+	coor[, 1] <- coor[, 1] * (1/asp)
+
+	# Scale points and place back in position
+	coor <- coor*size
+
+	# Center about zero based on range of coordinates
+	coor <- coor - matrix(colMeans(apply(coor, 2, range)), 
+		nrow=nrow(coor), ncol=ncol(coor), byrow=TRUE)
+
+	# Move shape to PC score
+	coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow=TRUE)
+
+# Set order in which to draw points to create polygon
+  polygon_order=c(1,3:12,16,1) # name landmarks in the order you want them connected
+ # Create filled polygon
+	polygon(coor[polygon_order, ], col=col, border=col)
+}
+# Set PCs to plot
+pcs <- 1:2
+
+# Create plot box with axes and axis labels
+plot(scores[, pcs], type="n", main="Backtransform morphospace",
+	xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+	ylab=paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+
+
+# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
+btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral, 
+	pcs=pcs, n=c(4,4), m=dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
+	pc.margin=c(0.06,0.06), size=0.018, col=gray(0.7))
+points(scores [,1], scores[,2], col="#41C6EC", pch=19,cex=2)
+text(scores [,1], scores [,2], labels=levels(gpa_df$Lake), cex= 0.7)
+
+```
+
+## Procrustes ANOVA
+### shape-size relationship, no covariate
+
+```{r, echo=FALSE}
+gdf.fish=geomorph.data.frame(shape=GPA.fish$coords,DOC=identifiers$DOC,Lake=identifiers$lakeID,Sex=identifiers$Sex, DOCrange=identifiers$DOCrange, captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize)
+gdf.fish$DOC=as.factor(gdf.fish$DOC)
+gdf.fish$captureMethod=as.factor(gdf.fish$captureMethod)
+
+fishAllometry <- procD.lm(shape~cSize, logsz = TRUE, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fishAllometry$aov.table)
+```
+
+effect of size on shape is R2 = `r fishAllometry$aov.table$Rsq[1]*100`%  
+
+
+```{r}
+
+```
+
+### shape-DOC relationhsip accounting for confounding factors: body size(CS)-covariate,lake-random effect, sex-fixed effect
+```{r}
+fit.size <- procD.lm(shape ~ log(cSize),
+                     data = gdf.fish, print.progress = FALSE) # simple allometry model
+fit.Lake<- procD.lm(shape ~ log(cSize) * Lake, 
+                     data = gdf.fish, print.progress = FALSE) # unique Lake allometries
+fit.DOC<- procD.lm(shape ~ log(cSize) *DOC+Lake, 
+                     data = gdf.fish, print.progress = FALSE) # unique DOC + Lake allometries
+fish.aov=anova(fit.size, fit.Lake,fit.DOC, print.progress=FALSE)
+knitr::kable(fish.aov$table)
+```
+
+Let's check whether lakes that are low or high DOC have common on unique allometries
+
+```{r}
+fit.unique <- procD.lm(shape ~ log(cSize) * Lake, 
+                     data = gdf.fish, print.progress = FALSE, SS.type = "II") # unique allometries
+fit.common <- procD.lm(shape ~ log(cSize) + DOC/Lake, 
+                     data = gdf.fish, print.progress = FALSE, SS.type = "II") # common allometry
+fitcompare=anova(fit.common, fit.unique, print.progress = FALSE)
+knitr::kable(fitcompare$table)
+```
+
+
+The comparison of unique to common allomtry yields significant p/value rejecying the hzpothesis of common allometry of high and low DOC lakes.
+
+```{r}
+plotAllometry(fit.unique, size = gdf.fish$cSize, logsz = TRUE, method = "RegScore",
+              pch = 19, col = as.numeric(gdf.fish$Lake))
+fit.unique.updated=anova(fit.unique, error = c("Residuals", "Lake", "log(cSize):Lake"))
+```
+
+
+```{r}
+
+anova(procD.lm(shape ~ DOC+Lake, data = gdf.fish, print.progress = FALSE, SS.type = "II"),error = c("Residuals","Lake"))
+
+anova(procD.lm(shape ~ Sex+DOC+Lake+Lake*DOC, data = gdf.fish, print.progress = FALSE, SS.type = "II"))
+
+shapemodel=anova(procD.lm(shape ~ DOC/Lake*captureMethod, data = gdf.fish, print.progress = FALSE, SS.type = "II"),error = c("Residuals","Residuals","DOC:Lake","Residuals","DOC:captureMethod:Lake"))
+knitr::kable(shapemodel$table)
+
+shapemodel2=anova(procD.lm(shape~DOC+Lake+DOC/Lake+captureMethod+DOC/Lake*captureMethod+DOC*captureMethod+Lake*captureMethod+DOC*Lake, data =gdf.fish, print.progress= FALSE, SS.type="II"),error = c("Residuals","Lake","Residuals","Residuals","Lake:captureMethod"))
+
+knitr::kable(shapemodel2$table)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+TO KEEP FOR LATER BUT OUTDATED
+
+### shape-size relationhsip accounting for between-lake differences
+```{r}
+fish_lake_allom=procD.lm(shape~cSize*Lake, logsz = TRUE, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_lake_allom$aov.table)
+```
+
+Significant interaction term means that slopes of shape and size differ among lakes. The effect of size on shape depends on the lake, and hence lake is equivalent with different DOCs the effect of size on shape probably depends on DOC. Let's test this.
+
+### shape-DOC relationhsip
+
+```{r}
+fish_DOC_AOV=procD.lm(shape~DOC, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_DOC_AOV$aov.table)
+
+fish_DOCrange_AOV=procD.lm(shape~DOCrange, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_DOCrange_AOV$aov.table)
+```
+
+37.7% of the observed variation in shape are explained by DOC. However, DOC is equivalent with lake, so it could be an Lake effect. When looking at the ranges of DOC from low to high, 8.6% of the observed variation can be explained by the different levels of DOC.
+
+
+## Procrustes ANOVA
+### shape-size relationship, no covariate
+
+```{r, echo=FALSE}
+gdf.fish=geomorph.data.frame(shape=GPA.fish$coords,DOC=identifiers$DOC,Lake=identifiers$lakeID,Sex=identifiers$Sex, DOCrange=identifiers$DOCrange, captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize)
+gdf.fish$DOC=as.factor(gdf.fish$DOC)
+
+fishAllometry <- procD.lm(shape~cSize, logsz = TRUE, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fishAllometry$aov.table)
+```
+
+effect of size on shape is R2 = `r fishAllometry$aov.table$Rsq[1]*100`%  
+
+### shape-DOC relationhsip accounting for confounding factors: body size(CS)-covariate,lake-random effect, sex-fixed effect
+```{r}
+fish_DOC_CS_AOV=procD.lm(shape~cSize*DOC, data=gdf.fish, iter=999, print.progress = FALSE,SS.type = "II")
+knitr::kable(fish_DOC_CS_AOV$aov.table)
+```
+
+Shape-size relationship is different between high and low DOC. There is a significant interaction between body size and DOC.
+
+```{r}
+fish_lake_allom=procD.lm(shape~cSize*Lake, logsz = TRUE, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_lake_allom$aov.table)
+```
+
+Significant interaction term means that slopes of shape and size differ among lakes. The effect of size on shape depends on the lake, and hence lake is equivalent with different DOCs the effect of size on shape probably depends on DOC. Let's test this.
+
+### shape-DOC relationhsip
+
+```{r}
+fish_DOC_AOV=procD.lm(shape~DOC, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_DOC_AOV$aov.table)
+
+fish_DOCrange_AOV=procD.lm(shape~DOCrange, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_DOCrange_AOV$aov.table)
+```
+
+37.7% of the observed variation in shape are explained by DOC. However, DOC is equivalent with lake, so it could be an Lake effect. When looking at the ranges of DOC from low to high, 8.6% of the observed variation can be explained by the different levels of DOC.  
+  
+To test whether shape is different between different DOC regimes but similar within regimes (lakes) here first a summarizing table of which lakes fall into whicg category:  
+```{r}
+knitr::kable(table(identifiers$lakeID,identifiers$DOCrange))
+```
+
+Procrustes ANOVA testing for interaction of lake and DOC on shape:  
+```{r}
+fish_DOCrange_lake_AOV=procD.lm(shape~DOCrange*Lake, data=gdf.fish, iter=999, print.progress = FALSE)
+knitr::kable(fish_DOCrange_lake_AOV$aov.table)
+```
+
+## Procrustes distances between lakes
+To determine the distance in Procrustes shape space of each lake to each other, calulcate Prcurstesd distance and plot in dendrogram:
+```{r, echo=FALSE}
+# calculate Procrustes distances with permudist function from morpho package
+dist=permudist(gdf.fish$shape, groups = gdf.fish$Lake,which=1:14, rounds = 1000)
+# perform the clustering using UPGMA ("average"
+cluster<-hclust(dist$dist, method="average")
+# compute the distances along the branches
+coph<-cophenetic(cluster)
+# compute the correlation between branch distances in the plot and distances in the original matrix
+cor(dist$dist,coph) # 0.85 or less are taken to mean that the branching distances in the diagram distort the distances in the data.
+# draw the dendrogram
+plot(hclust(dist$dist, method="average"),hang=0.1, main= "average distance/hclust, r2=0.76")
+plot(nj(dist$dist),main="Neighbor Joining")
+
+```
+
+Correlation between branch distances in the plot and distances in the original matrix are low with R2 0.76. However, the lakes that belong to each DOC category do not cluster together.
+
+
+### shape-DOC relationship
+```{r}
+
+```
+
