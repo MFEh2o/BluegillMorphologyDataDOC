@@ -14,7 +14,7 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
     ├── Lake_Info_2020.csv
     ├── Lake_Info_2020.xlsx
     └── Lake_Info_2020wBasins.csv
-├──
+├── Bishop_NotoriosBLG.xlsx
 ├──
 ├──
 ├──
