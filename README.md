@@ -22,9 +22,11 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
     ├── R_UnivariateAnalyses.Rmd
     ├── eyewidthsFINAL.csv
     └── f
-├──
-├──
-└──
+└──  fishGeometricMorphometricAnalyses/
+    ├── Code_and_Results_BLG_DOC_v2020Mar15.Rmd
+    ├── Identifiers_Update_2020.xlsx
+    ├── R_MultivariateStatisticalAnalyses_April_2020.Rmd
+    └── s
 ```
 
 ### Contributions
