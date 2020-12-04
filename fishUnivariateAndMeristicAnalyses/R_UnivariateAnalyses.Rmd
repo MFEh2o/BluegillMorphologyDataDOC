@@ -12,9 +12,26 @@ toc: yes
 knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=12, fig.height=8)
 ```
 
+Libraries
+```{r}
+library(RSQLite)
+library(ggplot2)
+library(lme4)
+library(lmerTest)
+library(dplyr)
+library(shapes, Morpho)
+library(geomorph)
+```
+
+
+Connect to the database
+```{r}
+
+```
+
+
 Eye Widths
 ```{r Eye Width Data}
-setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/EYE MEASUREMENTS")
 eyeWidthDat<-read.csv("eyewidthsFINAL.csv")
 eyewidth<-eyeWidthDat$eyeWidth
 fishIDeye<-eyeWidthDat$fishID
@@ -25,9 +42,6 @@ eyebodyratio<-eyeWidthDat$eyebodyratio
 DOC<-eyeWidthDat$DOC
 eyewidth.ss<-eyeWidthDat$sizeStandardize
 lakeSS<-eyeWidthDat$lakeSS
-library(lme4)
-library(lmerTest)
-
 ```
 
 
@@ -66,7 +80,6 @@ eye_slope_AIC<-AIC(MeristicEyeWidth_ss, EyewidthSS_bylake)
 
 ### AIC for common slope= -1935.8, while AIC for lake-specific slope = -1966.9
 
-library(ggplot2)
 mid<-mean(eyeWidthDat$DOC)
 ggplot(eyeWidthDat,aes(x = log10(fishLength), y = log10(eyewidth.ss))) + 
   geom_point(aes(colour = DOC)) + 
@@ -91,8 +104,7 @@ dfeye<-data.frame(eyewidth<-eyeWidthDat$eyeWidth,
                   DOC<-eyeWidthDat$DOC,
                   eyewidth.ss<-eyeWidthDat$sizeStandardize,
                   lakeSS<-eyeWidthDat$lakeSS)
-library(dplyr)
-library(ggplot2)
+
 eyeVar<-dfeye %>% group_by(lakeID....eyeWidthDat.lakeID) %>% summarise(var=var(eyewidth.ss....eyeWidthDat.sizeStandardize))
 eyeVar
 setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/EYE MEASUREMENTS")
@@ -241,8 +253,6 @@ summary(size.rem2S)
 size.rem2C<-lmsize.rem.C<-lm(log10(rakercount) ~ log10(fishLength)+lakeID, data=dfraker)
 summary(size.rem2C)
 
-library(lmerTest)
-library(lme4)
 ## Run model with size standardized values 
 MeristicRakerLength<-lmer(log10(length.ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
 summary(MeristicRakerLength)
@@ -257,7 +267,6 @@ summary(rakerLength_lakess)
 ```
 
 ```{r Gill Raker Plots}
-library(ggplot2)
 midRL<-mean(rakerData$DOC) ### problems with this, getting NA so just set midpoint to 10
 
 
@@ -343,8 +352,6 @@ ggplot(dfraker,aes(x = log10(DOC), y = log10(length.ss))) +
 ```{r Gill Raker Variance}
 ### Calculate variance between lakes
 ## raker length
-library(dplyr)
-library(ggplot2)
 lengthVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(length.ss))
 spaceVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(space.ss))
 countVar<-dfraker %>% group_by(Lake) %>% summarise(var=var(count.ss)) 
@@ -395,8 +402,6 @@ mean.var_per_bin<-aggregate(df.var[, 4:6], list(df.var$DOCbin), mean)
 Pectoral Fins
 ```{r Pectoral Fin Shape Data}
 setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS/Pectoral Fin Photos")
-library(shapes,Morpho)
-library(geomorph)
 myFinData_tps <- readland.tps("C:/Users/Chelsea/Documents/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS/Pectoral Fin Photos/PecFins2018.TPS",specID ="imageID")
 myFinData_tps[,,1]
 
@@ -490,7 +495,6 @@ PecFinB<-lm(log10(PecFinBase) ~ log10(fishLengthfin)+lakeID, data= PecFinDat)
 summary(PecFinB)
 ## Now plug into equation from Kaeuffer et al.
 
-library(lmerTest,lme4)
 dfFin<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
                lakeID<-PecFinDat$lakeID,
                fishLengthfin<-PecFinDat$fishStdLength,
@@ -510,7 +514,6 @@ summary(MeristicFinW_ss)
 ```
 
 ```{r Pectoral Fin Graphs}
-library(ggplot2)
 mid<-mean(PecFinDat$DOC)
 ggplot(dfFin,aes(x = log(DOC), y = log(finLss))) + 
   geom_point(aes(colour = DOC)) + 
@@ -542,8 +545,7 @@ dffin.2<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
                   fishID<-PecFinDat$fishID,
                   finLss<-PecFinDat$finLengthSS,
                   finWss<-PecFinDat$finBaseSS)
-library(dplyr)
-library(ggplot2)
+
 L.var<-dffin.2 %>% group_by(lakeID....PecFinDat.lakeID) %>% summarise(var=var(finLss....PecFinDat.finLengthSS))
 W.var<-dffin.2 %>% group_by(lakeID....PecFinDat.lakeID) %>% summarise(var=var(finWss....PecFinDat.finBaseSS))
 L.var
@@ -604,7 +606,6 @@ summary(MeristicPecFinAngle.ss)
 ```
 
 ```{r Pectoral Fin Insertion Angle Figures}
-library(ggplot2)
 midfin<-mean(dfangle$DOC)
 ggplot(dfangle,aes(x = log10(fishLength), y = log10(angle.ss))) + 
   geom_point(aes(colour = DOC)) + 
@@ -618,8 +619,6 @@ ggplot(dfangle,aes(x = log10(DOC), y = log10(angle.ss))) +
 
 ```{r Pectoral Fin Insertion Variance}
 ### Calculating variance
-library(dplyr)
-library(ggplot2)
 angleVar<-dfangle %>% group_by(lakeID) %>% summarise(var=var(angle.ss))
 
 var.dat<-read.csv("angle_var.csv")
