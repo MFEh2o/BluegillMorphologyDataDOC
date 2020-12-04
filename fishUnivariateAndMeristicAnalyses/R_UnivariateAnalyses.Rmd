@@ -14,25 +14,48 @@ knitr::opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE, fig.width=12, f
 
 Libraries
 ```{r}
+# KG added this section, and moved all library calls to the beginning of the script
 library(RSQLite)
-library(ggplot2)
+library(here)
+library(tidyverse)
 library(lme4)
 library(lmerTest)
-library(dplyr)
 library(shapes, Morpho)
 library(geomorph)
+source(here("dbUtil.R"))
 ```
 
 
 Connect to the database
 ```{r}
-
+# KG addition
+dbdir = here()
+db = "MFEdb_20201125.db"
+fm <- dbTable("fish_morphometrics") # pull in fish morphometrics data
 ```
-
 
 Eye Widths
 ```{r Eye Width Data}
 eyeWidthDat<-read.csv("eyewidthsFINAL.csv")
+
+# KG: transform the eye width data from the FISH_MORPHOMETRICS table so that it's in exactly the same format as eyeWidthDat.
+ew <- fm %>%
+  filter(parameter == "eyeWidth")
+all(ew$parameterValue == eyeWidthDat$eyeWidth) # parameters match up.
+
+ew <- ew %>%
+  rename("imageID" = imageFile,
+         "eyeWidth" = parameterValue) %>%
+  select(-parameter) %>%
+  mutate(captureMethod = str_extract(fishID, "(?<=\\d{3,4}\\_)[A-Z]+(?=\\_)")) %>%
+  mutate(captureMethod = fct_recode(captureMethod,
+                                    "Electrofishing" = "DE",
+                                    "Angling" = "AN",
+                                    "Fyke_Net" = "FN"),
+         lakeID = str_extract(fishID, "^[A-Z]+(?=\\_)"))
+
+
+
 eyewidth<-eyeWidthDat$eyeWidth
 fishIDeye<-eyeWidthDat$fishID
 lakeID<-eyeWidthDat$lakeID
