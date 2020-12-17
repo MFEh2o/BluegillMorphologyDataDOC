@@ -19,7 +19,10 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ├── Code_and_Results_BLG_DOC_v2020Mar15.Rmd  # code for geometric morphometrics analysis of full body images, includes getting eye width values from interlandmark distance of landmarks on eye. Also includes how to create backtransform morphospace figure from Olsen, A.M. 2017 paper in Functional Ecology. Some model trials as well. 
 ├── FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS  # tps file of landmark x,y coordinates of 19 landmarks placed on each photo of sampled fish. To be uploaded in geometric morphometrics analyses
 ├── FULL_body_links.txt.  # tells geomorph in R how to connect landmarks. To be uploaded in geometric morphometrics analyses
-├── Gill_Rakers_2018_Final.csv  #
+├── Gill_Rakers_2018_Final.csv 
+├── Identifiers_Update_2020.txt  # identifiers for geometric morphometrics analyses in code_and_results..
+├── Identifiers_Update_2020.xlsx
+
 
 ```
 
