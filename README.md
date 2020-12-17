@@ -14,17 +14,8 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
     ├── Lake_Info_2020.csv
     ├── Lake_Info_2020.xlsx
     └── Lake_Info_2020wBasins.csv
-├── Bishop_NotoriosBLG.xlsx
-├── fishUnivariateAndMeristicAnalyses/
-    ├── Gill_Rakers_2018_Final.csv
-    ├── Pec Fin Angles.csv
-    ├── PecFinDataNovember.csv
-    ├── R_UnivariateAnalyses.Rmd
-    ├── eyewidthsFINAL.csv
-└──  fishGeometricMorphometricAnalyses/
-    ├── Code_and_Results_BLG_DOC_v2020Mar15.Rmd
-    ├── Identifiers_Update_2020.xlsx
-    ├── R_MultivariateStatisticalAnalyses_April_2020.Rmd
+
+
 ```
 
 ### Contributions
