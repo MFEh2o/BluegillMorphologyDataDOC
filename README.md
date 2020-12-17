@@ -14,8 +14,9 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
     ├── Lake_Info_2020.csv
     ├── Lake_Info_2020.xlsx
     └── Lake_Info_2020wBasins.csv
-├── Bishop_NotoriousBLG.xlsx # Excel file containing all capture and merisitic data that is included in MFE database
-├── 
+├── Bishop_NotoriousBLG.xlsx  # excel file containing all capture and merisitic data that is included in MFE database
+├── Code For SVG Images for Inkscape.R   # summarized code for all analyses to create figures. May just be repeat of what is already in larger analyses R files so might delete. 
+├── Code_and_Results_BLG_DOC_v2020Mar15.Rmd  #
 
 
 ```
