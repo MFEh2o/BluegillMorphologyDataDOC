@@ -1,13 +1,18 @@
-library("geomorph")
-library("shapes")
-library("Morpho")
-library("StereoMorph")
-library("phangorn")
-library("dplyr")
-library("lme4")
-library("lmerTest")
-library("ggplot2")
-#load data
+# This script creates SVG files showing morphometric landmarks.
+
+# Load packages -----------------------------------------------------------
+library(geomorph)
+library(shapes)
+library(Morpho)
+library(StereoMorph)
+library(phangorn)
+library(dplyr)
+library(lme4)
+library(lmerTest)
+library(ggplot2)
+library(here)
+
+# Load data ---------------------------------------------------------------
 setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/BLUEGILL/2018 BLG BODY PHOTOS")
 myData_tps<- readland.tps("FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS",specID ="imageID")
 mylinks=read.table("Full_body_links.txt")
