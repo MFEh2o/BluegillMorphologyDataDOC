@@ -13,18 +13,31 @@ library(ggplot2)
 library(here)
 
 # Load data ---------------------------------------------------------------
-setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/BLUEGILL/2018 BLG BODY PHOTOS")
-myData_tps<- readland.tps("FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS",specID ="imageID")
-mylinks=read.table("Full_body_links.txt")
-identifiers=read.table("Identifiers_Update_2020.txt",sep = "\t", header=TRUE)
+myData_tps <- readland.tps(here("data", "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), specID = "imageID")
+mylinks <- read.table(here("data", "Full_body_links.txt"))
+identifiers <- read.table(here("data", "Identifiers_Update_2020.txt"), sep = "\t", header=TRUE)
 
-dimnames(myData_tps)[[3]]=identifiers$imageID
-dimnames(myData_tps)[[1]]=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
-GPA.fish=gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
-gdf.fish=geomorph.data.frame(shape=GPA.fish$coords,DOCrange=identifiers$DOCrange,
-                             Lake=identifiers$lakeID,Sex=identifiers$Sex, DOC=identifiers$lakeDOC, DOCcat=identifiers$DOC,
-                             captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize, basin=identifiers$Basin)
-corePCA=plotTangentSpace(gdf.fish$shape,groups=as.factor(gdf.fish$DOC), legend = TRUE)
+dimnames(myData_tps)[[3]] <- identifiers$imageID
+
+dimnames(myData_tps)[[1]] <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
+
+GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
+
+gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
+                                DOCrange=identifiers$DOCrange,
+                                Lake=identifiers$lakeID,
+                                Sex=identifiers$Sex, 
+                                DOC=identifiers$lakeDOC, 
+                                DOCcat=identifiers$DOC,
+                                captureMethod=identifiers$captureMethod, 
+                                cSize=GPA.fish$Csize, 
+                                basin=identifiers$Basin)
+
+corePCA <- gm.prcomp(A = gdf.fish$shape, # XXX come back to this!
+                            groups=as.factor(gdf.fish$DOC),
+                            legend = TRUE)
+
+ #XXX START HERE
 PCscores=corePCA$pc.scores[,1:2]
 idx=which(gdf.fish$Lake=="Bay"); Bay=PCscores[idx,]
 idx=which(gdf.fish$Lake=="Birch"); Birch=PCscores[idx,]
