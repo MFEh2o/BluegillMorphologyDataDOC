@@ -67,7 +67,6 @@ lmkseye <- matrix(c(19,2), ncol=2, byrow=TRUE,
 
 EyeWidth <- interlmkdist(myData_tps, lmkseye)
 write.csv(EyeWidth,"EyeWidthsMay.csv")
-
 ```
 
 
@@ -188,12 +187,10 @@ plotRefToTarget(corePCA$pc.shapes$PC1min, corePCA$pc.shapes$PC1max,method="point
 PC 2 change from min to max: head-body ratio and position of pectoral fins  
 ```{r, echo=FALSE}
 plotRefToTarget(corePCA$pc.shapes$PC2min, corePCA$pc.shapes$PC2max,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
-
 ```
 
 ## Backtransform Morphospace plottting all individuals
 ```{r, echo=FALSE, results="hide"}
-library(StereoMorph)
 lm_array<-myData_tps
 gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
 
@@ -280,12 +277,10 @@ for(j in 1:nlevels(as.factor(gdf.fish$basin))) { #needs to have this name or cha
   polygon(PCscores[edge_points, c(1,2)], col = adjustcolor(colour[j],
   alpha.f = 0.3) , border = colour[j])
 } # alpha gives the degree of transparency of the polygon
-
 ```
 
 ## Backtransform Morphospace for lake means
 ```{r, echo=FALSE, results="hide"}
-library(StereoMorph)
 lm_array<-myData_tps
 gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
 
@@ -366,7 +361,6 @@ btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral,
 	pc.margin=c(0.06,0.06), size=0.018, col=gray(0.7))
 points(scores [,1], scores[,2], col="#41C6EC", pch=19,cex=2)
 text(scores [,1], scores [,2], labels=levels(gpa_df$Lake), cex= 0.7)
-
 ```
 
 ## Procrustes ANOVA
@@ -382,11 +376,6 @@ knitr::kable(fishAllometry$aov.table)
 ```
 
 effect of size on shape is R2 = `r fishAllometry$aov.table$Rsq[1]*100`%  
-
-
-```{r}
-
-```
 
 ### shape-DOC relationhsip accounting for confounding factors: body size(CS)-covariate,lake-random effect, sex-fixed effect
 ```{r}
@@ -422,7 +411,6 @@ fit.unique.updated=anova(fit.unique, error = c("Residuals", "Lake", "log(cSize):
 
 
 ```{r}
-
 anova(procD.lm(shape ~ DOC+Lake, data = gdf.fish, print.progress = FALSE, SS.type = "II"),error = c("Residuals","Lake"))
 
 anova(procD.lm(shape ~ Sex+DOC+Lake+Lake*DOC, data = gdf.fish, print.progress = FALSE, SS.type = "II"))
