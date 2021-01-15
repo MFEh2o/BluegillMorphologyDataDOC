@@ -26,31 +26,31 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 
 | Data file      | Description | Output from | Input to |
 | -------------- | ----------- | ----------- | -------- |
-| angle_var.csv  | | | |R_UnivariateAnalyses.Rmd|
-| Bishop_NotoriousBLG.xlsx ||| ||
-| eye_variance.csv|||||
-| eyedata2020_modelSE_and_intercepts.csv|||||
-| eyewidthsFINAL.csv |||||
-| findata2020_modelSE_and_intercepts.csv |||||
-| FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS |||||
-| Full_body_links.txt |||||
-| Gill_Rakers_2018_Final.csv |||||
-| Identifiers_Update_2020.txt |||||
-| Identifiers_Update_2020.xlsx |||||
+| angle_var.csv  | | |R_UnivariateAnalyses.Rmd|
+| Bishop_NotoriousBLG.xlsx ||| |
+| eye_variance.csv||||
+| eyedata2020_modelSE_and_intercepts.csv||||
+| eyewidthsFINAL.csv ||||
+| findata2020_modelSE_and_intercepts.csv ||||
+| FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS ||||
+| Full_body_links.txt ||||
+| Gill_Rakers_2018_Final.csv ||||
+| Identifiers_Update_2020.txt ||||
+| Identifiers_Update_2020.xlsx ||||
 | MFEdb_20201125.db | MFE database from which some of the data is pulled. ||||
-| Pec Fin Angles.csv |||||
-| PecFinDataNovember.csv |||||
-| PecFins2018.TPS |||||
-| pecL-w_variance.csv |||||
-| proc_shape_variance.csv |||||
-| raker_variances.csv |||||
-| rakerdata2020_modelSE_and_intercepts2.csv |||||
-| rakerLength_variances.xlsx |||||
-| Ratio Identifiers Update.txt |||||
-| Ratio Identifiers Update.xlsx |||||
-| Replicates Identifiers.txt |||||
-| Total Replicates Coords.TPS |||||
-| TPS_Identifiers_Final_October.txt |||||
+| Pec Fin Angles.csv ||||
+| PecFinDataNovember.csv ||||
+| PecFins2018.TPS ||||
+| pecL-w_variance.csv ||||
+| proc_shape_variance.csv ||||
+| raker_variances.csv ||||
+| rakerdata2020_modelSE_and_intercepts2.csv ||||
+| rakerLength_variances.xlsx ||||
+| Ratio Identifiers Update.txt ||||
+| Ratio Identifiers Update.xlsx ||||
+| Replicates Identifiers.txt ||||
+| Total Replicates Coords.TPS ||||
+| TPS_Identifiers_Final_October.txt ||||
 
 
 ### Contributions
