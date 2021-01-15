@@ -24,12 +24,10 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ├── Identifiers_Update_2020.xlsx
 ```
 
-```
 | Data file      | Description | Source |
 | -------------- | ----------- | ------ |
 |                |             |        |
 |                |             |        |
-```
 
 ### Contributions
 Repository created by Chelsea Bishop and Kaija Gahm in 2020. Data were collected by Chelsea Bishop with the help of Alex Ross, Colin Dassow, Matthew Farragher, Henry Chung and undergrads of the University of Notre Dame in 2018. Geometric Morphometrics Analyses were conducted with the help of Madlen Stange. Data will eventually be contributed to the [MFE database](https://figshare.com/articles/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). 
