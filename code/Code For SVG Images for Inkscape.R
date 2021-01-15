@@ -1,7 +1,7 @@
 # This script creates SVG files showing morphometric landmarks.
 
 # Load packages -----------------------------------------------------------
-library(geomorph)
+library(geomorph) # verson 3.2.1. This is important, since the newer version has a breaking change! Hence why this project uses renv to manage package versions. -KG
 library(shapes)
 library(Morpho)
 library(StereoMorph)
@@ -33,7 +33,7 @@ gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
                                 cSize=GPA.fish$Csize, 
                                 basin=identifiers$Basin)
 
-corePCA <- gm.prcomp(A = gdf.fish$shape, # XXX come back to this!
+corePCA <- plotTangentSpace(gdf.fish$shape,
                             groups=as.factor(gdf.fish$DOC),
                             legend = TRUE)
 
@@ -285,17 +285,15 @@ summary(finalWBasin2)
 
 #Eyes
 setwd("~/")
-eyeWidthDat<-read.csv("eyewidthsFINAL.csv")
+eyeWidthDat<-read.csv(here("data", "eyewidthsFINAL.csv")) 
 
-dfeye<-data.frame(eyewidth<-eyeWidthDat$eyeWidth,
-                  fishIDeye<-eyeWidthDat$fishID,
-                  lakeID<-eyeWidthDat$lakeID,
-                  fishLength<-eyeWidthDat$fishStdLength,
-                  DOClevel<-eyeWidthDat$DOClevel,
-                  DOC<-eyeWidthDat$DOC,
-                  eyewidth.ss<-eyeWidthDat$sizeStandardize,
-                  lakeSS<-eyeWidthDat$lakeSS,basin<-eyeWidthDat$basin, 
-                  area<-eyeWidthDat$area,maxDepth<-eyeWidthDat$max_Depth, fittedValues<-eyeWidthDat$fitted, fitted2<-eyeWidthDat$fitted2)
+dfeye <- eyeWidthDat %>%
+  select(-lakeSlope) %>%
+  rename("fishIDeye" = "fishID",
+         "fishLength" = "fishStdLength",
+         "eyewidth.ss" = "sizeStandardize",
+         "maxDepth" = "max_Depth",
+         "fittedValues" = "fitted")
 #Original Model 
 EyeModel=lmer(log(eyewidth.ss) ~ 1 + log(DOC) + (1|lakeID), data=dfeye)
 summary(EyeModel)
@@ -319,17 +317,32 @@ fitted(EyeModelWBasin)
 ggplot(dfeye,aes(x = DOC, y =fittedValues, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) + 
   geom_smooth(method = 'lm')
----------------------------------------------------------------------
+#---------------------------------------------------------------------
 
 #Gill Rakers
-rakerData<- read.csv("Gill_Rakers_2018_Final.csv")
-dfraker<-data.frame(captureMethod<-rakerData$capture_Method,lakeLss=rakerData$avgrakerlengthSS_bylake,
-                    lakeSss=rakerData$avgrakerspaceSS_bylake,lakeCss=rakerData$rakercountSS_bylake,
-                    rakercount=rakerData$total_RakerNum,DOClevel=rakerData$DOCbin,DOC=rakerData$lakeDOC,
-                    Lake=rakerData$lakeID,fishLength=rakerData$fishSL,avgRakerLength=rakerData$avgRakerLength,
-                    avgRakerSpace=rakerData$avgRakerSpace,count.ss=rakerData$SS.Count, length.ss=rakerData$SS.Length,
-                    space.ss=rakerData$SS.Space,avgL2<-rakerData$avgL_4.7,avgS2<-rakerData$avgS_4.6,
-                    avgL2_ss<-rakerData$avgL2_ss,avgS2_ss<-rakerData$avgS2_ss, basin.raker<-rakerData$basin, fitted_L<-rakerData$fitted_L,fitted_S<-rakerData$fitted_S,fitted_C<-rakerData$fitted_C)
+rakerData<- read.csv(here("data", "Gill_Rakers_2018_Final.csv"))
+dfraker<-data.frame(captureMethod=rakerData$capture_Method,
+                    lakeLss=rakerData$avgrakerlengthSS_bylake,
+                    lakeSss=rakerData$avgrakerspaceSS_bylake,
+                    lakeCss=rakerData$rakercountSS_bylake,
+                    rakercount=rakerData$total_RakerNum,
+                    DOClevel=rakerData$DOCbin,
+                    DOC=rakerData$lakeDOC,
+                    Lake=rakerData$lakeID,
+                    fishLength=rakerData$fishSL,
+                    avgRakerLength=rakerData$avgRakerLength,
+                    avgRakerSpace=rakerData$avgRakerSpace,
+                    count.ss=rakerData$SS.Count, 
+                    length.ss=rakerData$SS.Length,
+                    space.ss=rakerData$SS.Space,
+                    avgL2=rakerData$avgL_4.7,
+                    avgS2=rakerData$avgS_4.6,
+                    avgL2_ss=rakerData$avgL2_ss,
+                    avgS2_ss=rakerData$avgS2_ss, 
+                    basin.raker=rakerData$basin, 
+                    fitted_L=rakerData$fitted_L,
+                    fitted_S=rakerData$fitted_S,
+                    fitted_C=rakerData$fitted_C)
 #avgL2_ss is size standardizations for average length for rakers 4-7
 rakerLModel=lmer(log10(avgL2_ss) ~ 1 + log10(DOC) + (1|Lake), data=dfraker)
 summary(rakerLModel)
@@ -399,22 +412,24 @@ ggplot(dfraker,aes(x = DOC, y =fitted_S, label= Lake)) +
 ggplot(dfraker,aes(x = DOC, y =fitted_C, label= Lake)) + 
   geom_point(aes(colour = basin.raker)) + 
   geom_smooth(method = 'lm')
--------------------------------------------------------
+#-------------------------------------------------------
 
 #Pectoral Fins
-setwd("~/")
-PecFinDat<-read.csv("PecFinDataNovember.csv")
+PecFinDat<-read.csv(here("data", "PecFinDataNovember.csv"))
 
-dfFin<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
-                  lakeID<-PecFinDat$lakeID,
-                  fishLengthfin<-PecFinDat$fishStdLength,
-                  DOClevel<-PecFinDat$DOCbin,
-                  DOC<-PecFinDat$DOC,
-                  PecFinBase<-PecFinDat$baseWidth,
-                  fishID<-PecFinDat$fishID,
-                  finLss<-PecFinDat$finLengthSS,
-                  finWss<-PecFinDat$finBaseSS, finLbylakess<-PecFinDat$bylake_finlengthSS,
-                  finWbylakess<-PecFinDat$bylake_finwidthSS, finRss<-PecFinDat$ss_ratio, basin.fin<-PecFinDat$basin)
+dfFin<-data.frame(PecFinLength=PecFinDat$PecFinLengths,
+                  lakeID=PecFinDat$lakeID,
+                  fishLengthfin=PecFinDat$fishStdLength,
+                  DOClevel=PecFinDat$DOCbin,
+                  DOC=PecFinDat$DOC,
+                  PecFinBase=PecFinDat$baseWidth,
+                  fishID=PecFinDat$fishID,
+                  finLss=PecFinDat$finLengthSS,
+                  finWss=PecFinDat$finBaseSS, 
+                  finLbylakess=PecFinDat$bylake_finlengthSS,
+                  finWbylakess=PecFinDat$bylake_finwidthSS, 
+                  finRss=PecFinDat$ss_ratio, 
+                  basin.fin=PecFinDat$basin)
 finLModel=lmer(log10(finLss) ~ 1 + log10(DOC) + (1|lakeID), data=dfFin)
 finWModel=lmer(log10(finWss) ~ 1 + log10(DOC) + (1|lakeID), data=dfFin)
 finRModel=lmer(log10(finRss) ~ 1 + log10(DOC) + (1|lakeID), data=dfFin)
