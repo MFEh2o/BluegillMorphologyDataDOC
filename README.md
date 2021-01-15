@@ -26,7 +26,7 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 
 | Data file      | Description | Source |
 | -------------- | ----------- | ------ |
-|                |             |        |
+| Do the columns have to align for this to work?             |             |        |
 |                |             |        |
 
 ### Contributions
