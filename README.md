@@ -25,7 +25,7 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ```
 
 | Data file      | Description | Output from | Input to |
-| -------------- | ----------- | ------ ||
+| -------------- | ----------- | ----------- | -------- |
 | angle_var.csv  | | | ||
 | Bishop_NotoriousBLG.xlsx ||| ||
 | eye_variance.csv|||||
