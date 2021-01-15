@@ -24,10 +24,21 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ├── Identifiers_Update_2020.xlsx
 ```
 
-| Data file      | Description | Source |
-| -------------- | ----------- | ------ |
-| Do the columns have to align for this to work?             |             |        |
-|                |             |        |
+| Data file      | Description | Output from | Input to |
+| -------------- | ----------- | ------ ||
+| angle_var.csv  | | | ||
+| Bishop_NotoriousBLG.xlsx ||| ||
+| eye_variance.csv|||||
+| eyedata2020_modelSE_and_intercepts.csv|||||
+| eyewidthsFINAL.csv |||||
+| findata2020_modelSE_and_intercepts.csv |||||
+| FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS |||||
+| Full_body_links.txt |||||
+| Gill_Rakers_2018_Final.csv |||||
+| Identifiers_Update_2020.txt |||||
+| Identifiers_Update_2020.xlsx |||||
+| MFEdb_20201125.db | Database from which some of the \n data is pulled||||
+
 
 ### Contributions
 Repository created by Chelsea Bishop and Kaija Gahm in 2020. Data were collected by Chelsea Bishop with the help of Alex Ross, Colin Dassow, Matthew Farragher, Henry Chung and undergrads of the University of Notre Dame in 2018. Geometric Morphometrics Analyses were conducted with the help of Madlen Stange. Data will eventually be contributed to the [MFE database](https://figshare.com/articles/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). 
