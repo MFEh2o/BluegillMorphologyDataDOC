@@ -22,8 +22,13 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 ├── Gill_Rakers_2018_Final.csv 
 ├── Identifiers_Update_2020.txt  # identifiers for geometric morphometrics analyses in code_and_results..
 ├── Identifiers_Update_2020.xlsx
+```
 
-
+```
+| Data file      | Description | Source |
+| -------------- | ----------- | ------ |
+|                |             |        |
+|                |             |        |
 ```
 
 ### Contributions
