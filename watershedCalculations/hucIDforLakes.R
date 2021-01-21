@@ -1,27 +1,31 @@
 # getting catchment information based on lat-long
+# Script by Stuart E Jones
+# Edited for workflow and file paths by Kaija Gahm, January 2021
 
-rm(list=ls())
-
+# Load packages -----------------------------------------------------------
 library(rgdal)
 library(rgeos)
 library(sf)
+library(here)
+library(dplyr)
 
 # make coordinates into sf object
 setwd("~/Documents/Research/People/Students/current/Bishop_Chelsea/lakeWatersheds/")
-d=read.csv("Lake_Info_2020.csv",header=TRUE,stringsAsFactors=FALSE)
-dsf=st_as_sf(d[,3:4],coords=c("long","lat"),crs=4269)
+d <- read.csv(here("data", "inputs", "lakeInfo.csv"), 
+              header = T, stringsAsFactors = F)
+dsf <- st_as_sf(d[,c("lat", "long")], 
+                coords = c("long", "lat"), crs = 4269)
+d$basin <- ""
 
-d$basin=""
 
+# Assign lakes to regions -------------------------------------------------
 # check whether each lake point is in NHD region 04 or 07
 #region 04 is the UP and drains into the great lakes
 #region 07 is Wisconsin and drains into the Gulf of Mexico
-setwd("~/Documents/Research/LTER_EAGER/scalingC/NHDplusDownloads/")
 
 #check region 04
-setwd("NHDPlus04/NHDSnapshot/Hydrography")
 #load waterbody shape file
-shape<-readOGR(dsn=".",layer="NHDWaterbody")
+shape <- readOGR(dsn = here("data", "inputs", "region4", "NHDSnapshot", "Hydrography"), layer = "NHDWaterbody")
 
 # makes sf version of shapefile I think...
 z=st_as_sf(shape)
@@ -29,12 +33,9 @@ z=st_as_sf(shape)
 # find intersection of lake polygons and coordinate
 int04=st_intersects(dsf,z)
 
-setwd("~/Documents/Research/LTER_EAGER/scalingC/NHDplusDownloads/")
-
 # repeat  process for region 07
-setwd("NHDPlus07/NHDSnapshot/Hydrography")
 #load waterbody shape file
-shape<-readOGR(dsn=".",layer="NHDWaterbody")
+shape<-readOGR(dsn=here("data", "inputs", "region7", "NHDSnapshot", "Hydrography"),layer="NHDWaterbody")
 
 # makes sf version of shapefile I think...
 z=st_as_sf(shape)
@@ -53,5 +54,4 @@ d$basin[in07$row.id]="07"
 d$basin[5]="04"
 
 d
-setwd("~/Documents/Research/People/Students/current/Bishop_Chelsea/lakeWatersheds/")
-write.csv(d,"Lake_Info_2020wBasins.csv",row.names=FALSE)
+write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"),row.names=FALSE)
