@@ -22,14 +22,14 @@ library(lme4)
 library(lmerTest)
 library(shapes, Morpho)
 library(geomorph)
-source(here("dbUtil.R"))
+source(here("code", "dbUtil.R"))
 ```
 
 
 Connect to the database
 ```{r}
 # KG addition
-dbdir = here()
+dbdir = here("data")
 db = "MFEdb_20201125.db"
 fm <- dbTable("fish_morphometrics") # pull in fish morphometrics data
 ```
@@ -602,8 +602,8 @@ mean.var_per_bin
 ```
 
 ```{r Pectoral Fin Insertion Angle Data}
-setwd("~/MCGILL/Bluegill Sunfish Data/2018 Photos/PECTORAL FINS")
-finAngleData<-read.csv("Pec Fin Angles.csv")
+finAngleData<-read.csv(here("data", "unclassified", "Pec Fin Angles_ORIGINAL.csv"))
+# XXX from here, going to check out a new branch called "pecFinAngles" and proceed forward assuming that Angle.pos is equivalent to "ang_deg"
 fishID<-finAngleData$fishID
 lakeID<-finAngleData$lakeID
 DOClevel<-finAngleData$DOClevel
