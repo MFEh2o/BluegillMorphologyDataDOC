@@ -87,28 +87,3 @@ iuR <- iuR %>%
 
 table(iuR$captureMethod, exclude = NULL)
 table(iu$captureMethod, exclude = NULL) # good, these match.
-
-# Now we just need Sex information ----------------------------------------
-sex <- openxlsx::read.xlsx(here("data", "inputs", "Bishop_NotoriousBLG.xlsx"), sheet = "Bishop_NotoriousBLG") %>%
-  select("fishID" = X26, "Sex" = X42) %>%
-  slice(-1)
-
-ids <- openxlsx::read.xlsx(here("data", "inputs", "Bishop_NotoriousBLG.xlsx"),
-                           sheet = "FISH_MORPH_MERISTIC") %>%
-  select(fishID, imageFile) %>%
-  distinct()
-
-all(sex$fishID %in% ids$fishID) & all(ids$fishID %in% sex$fishID) # ok, good, we can join
-
-sex <- sex %>%
-  left_join(ids, by = "fishID") %>%
-  select(-fishID)
-
-## now, can we join Sex to iuR?
-all(iuR$imageID %in% sex$imageFile) # the other direction doesn't matter
-
-iuR <- iuR %>%
-  left_join(sex, by = c("imageID" = "imageFile"))
-
-iuR$Sex == iu$Sex # uhhhhh what???
-
