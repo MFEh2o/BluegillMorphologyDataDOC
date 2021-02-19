@@ -161,31 +161,6 @@ plot_fish_lateral <- function(xy, coor, size=1, col="black"){
 # Set PCs to plot
 pcs <- 1:2
 
-
-# KG: I think all of this is the exact same as above? ---------------------
-# # prepare input data
-# test <- geomorph.data.frame(shape=GPA.fish$coords,
-#                                 DOCrange=identifiers$DOCrange,
-#                              Lake=identifiers$lakeID,Sex=identifiers$Sex, DOC=identifiers$lakeDOC, DOCcat=identifiers$DOC,
-#                              captureMethod=identifiers$captureMethod, cSize=GPA.fish$Csize, basin=as.factor(identifiers$Basin))
-# 
-# PCscores=corePCA$pc.scores[,1:2] 
-# 
-# idx=which(gdf.fish$Lake=="Bay"); Bay=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Birch"); Birch=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Crampton"); Crampton=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Found"); Found=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Hummingbird"); Hummingbird=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Little_Crooked"); Little_Crooked=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Lost"); Lost=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="McCullough"); McCullough=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Muskellunge"); Muskellunge=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Oxbow"); Oxbow=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Papoose"); Papoose=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Red_Bass"); Red_Bass=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Squaw"); Squaw=PCscores[idx,]
-# idx=which(gdf.fish$Lake=="Towanda"); Towanda=PCscores[idx,]
-
 ### BACKTRANSFORM MORPHOSPACE ALL INDIVIDUALS
 # Create plot box with axes and axis labels
 plot(scores[, pcs], type="n", main="Backtransform morphospace",
