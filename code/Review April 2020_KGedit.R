@@ -22,7 +22,6 @@ GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)
 gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
                              DOCrange=identifiers$DOCrange,
                              Lake=identifiers$lakeID,
-                             Sex=identifiers$Sex, 
                              DOC=identifiers$lakeDOC,
                              DOCcat=identifiers$DOC,
                              captureMethod=identifiers$captureMethod, 
