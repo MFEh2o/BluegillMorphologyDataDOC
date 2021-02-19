@@ -2,7 +2,6 @@
 # Created by Kaija Gahm on 19 February 2021
 
 # Load packages -----------------------------------------------------------
-library(RSQLite) # for database connections
 library(dplyr) # for data wrangling
 library(tidyr) # for data wrangling
 library(stringr) # for text string manipulation
