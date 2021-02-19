@@ -8,13 +8,13 @@ library(lme4) # for mixed models
 library(lmerTest)
 library(ggplot2) # for plots
 library(MuMIn) # for effect sizes
-library(here) # added by KG for file paths
+library(here) # for file paths
 
 # Load data ---------------------------------------------------------------
 myData_tps <- readland.tps(here("data", "inputs", "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), specID = "imageID")
 mylinks <- read.table(here("data", "inputs", "Full_body_links.txt"))
-identifiers <- read.table(here("data", "inputs", "Identifiers_Update_2020.txt"), 
-                          sep = "\t", header = TRUE)
+identifiers <- read.table(here("data", "outputs", "Identifiers_Update_2020.txt"), 
+                          sep = ",", header = TRUE) # reading in the version that I created from inputs
 
 dimnames(myData_tps)[[3]] <- identifiers$imageID
 dimnames(myData_tps)[[1]] <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
@@ -38,40 +38,40 @@ idx <- which(gdf.fish$Lake=="Birch")
 Birch <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Crampton")
-Crampton=PCscores[idx,]
+Crampton <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Found")
-Found=PCscores[idx,]
+Found <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Hummingbird")
-Hummingbird=PCscores[idx,]
+Hummingbird <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Little_Crooked")
-Little_Crooked=PCscores[idx,]
+Little_Crooked <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Lost")
-Lost=PCscores[idx,]
+Lost <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="McCullough")
-McCullough=PCscores[idx,]
+McCullough <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Muskellunge")
-Muskellunge=PCscores[idx,]
+Muskellunge <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Oxbow")
-Oxbow=PCscores[idx,]
+Oxbow <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Papoose")
-Papoose=PCscores[idx,]
+Papoose <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Red_Bass")
-Red_Bass=PCscores[idx,]
+Red_Bass <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Squaw")
-Squaw=PCscores[idx,]
+Squaw <- PCscores[idx,]
 
 idx <- which(gdf.fish$Lake=="Towanda")
-Towanda=PCscores[idx,]
+Towanda <- PCscores[idx,]
 
 
 # PC1 plot ----------------------------------------------------------------
