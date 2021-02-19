@@ -11,7 +11,7 @@ source(here("code", "dbUtil.R")) # for the dbTable() function
 library(openxlsx)
 
 # Load the original Identifiers_Update_2020.txt for comparison ------------
-iu <- read.table(here("data", "inputs", "Identifiers_Update_2020.txt"), sep = "\t", header = T)
+iu <- read.table(here("data", "dontNeed", "Identifiers_Update_2020_ORIGINAL.txt"), sep = "\t", header = T)
 
 ## Remove the underscores in the file names
 iu <- iu %>%
@@ -87,3 +87,6 @@ iuR <- iuR %>%
 
 table(iuR$captureMethod, exclude = NULL)
 table(iu$captureMethod, exclude = NULL) # good, these match.
+
+# Write out Identifiers_Update_2020.txt -----------------------------------
+write.table(iuR, here("data", "outputs", "Identifiers_Update_2020.txt"))
