@@ -323,8 +323,8 @@ fit.DOC.common<- procD.lm(shape~log(cSize)+log(DOC)*Lake, data = gdf.fish) #comm
 fitcompare <- anova(fit.DOC.common, fit.DOC.unique, error = c("Residuals","Residuals","DOC:Lake"))
 summary(fitcompare)
 #basin common slope test
-fit.basin.unique<- procD.lm(shape~log(cSize)*basin, data = gdf.fish)
-fit.basin.common<- procD.lm(shape~log(cSize)+basin, data = gdf.fish)
+fit.basin.unique <- procD.lm(shape~log(cSize)*basin, data = gdf.fish)
+fit.basin.common <- procD.lm(shape~log(cSize)+basin, data = gdf.fish)
 aov.fit.basin <- anova(fit.basin.common,fit.basin.unique)
 summary(aov.fit.basin)
 
@@ -377,7 +377,6 @@ plotAllometry(fit, size=gdf.fish$cSize, logsz = TRUE, method = "PredLine", pch=1
 
 #Predicted/Fitted PC1 max and min from Model
 plotRefToTarget(preds$predmin, preds$predmax,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
-
 
 ###Univariate Data Check and Run###
 #Eyes
