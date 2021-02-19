@@ -89,4 +89,4 @@ table(iuR$captureMethod, exclude = NULL)
 table(iu$captureMethod, exclude = NULL) # good, these match.
 
 # Write out Identifiers_Update_2020.txt -----------------------------------
-write.table(iuR, here("data", "outputs", "Identifiers_Update_2020.txt"))
+write.table(iuR, here("data", "outputs", "Identifiers_Update_2020.txt"), sep = ",", row.names = F)
