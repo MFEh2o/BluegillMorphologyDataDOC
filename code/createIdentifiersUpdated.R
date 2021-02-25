@@ -87,5 +87,7 @@ iuR <- iuR %>%
 table(iuR$captureMethod, exclude = NULL)
 table(iu$captureMethod, exclude = NULL) # good, these match.
 
+# Sex: Note that I talked to Chelsea, and she said that the Sex data is unreliable. There are some discrepancies between the Sex data in Identifiers_Update and the Sex data in notoriousBLG. She says that's because some fish were sexed in the field, while others were sexed in the lab. But there were some mix-ups with death tags that led to that sex information being appended to the wrong fish... Anyway. She says the sex data is not reliable and I should not try to add it to FISH_MORPHOMETRICS. She also didn't end up using it in her analyses. So I have left it off.
+
 # Write out Identifiers_Update_2020.txt -----------------------------------
 write.table(iuR, here("data", "outputs", "Identifiers_Update_2020.txt"), sep = ",", row.names = F)
