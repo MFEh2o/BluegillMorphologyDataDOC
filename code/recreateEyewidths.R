@@ -66,7 +66,7 @@ table(ew$lakeID, exclude = NULL) # good, the counts line up and there are no NA'
 # Add DOC and basin ------------------------------------------------------
 ewR <- ewR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC, DOClevel, basin, 
+              select(lakeName, DOC, DOClevel, basin,
                      "area" = surface_Area.ha., 
                      "max_Depth" = max_Depth.m.),
             by = c("lakeID" = "lakeName"))
@@ -74,17 +74,7 @@ ewR <- ewR %>%
 ## Check that the DOC values went through
 all(ewR$DOC == ew$DOC) # yay!
 
-# add capture method ------------------------------------------------------
-ewR <- ewR %>%
-  mutate(captureMethod = str_extract(fishID, "AN|FN|Electro")) %>%
-  mutate(captureMethod = forcats::fct_recode(captureMethod,
-                                             "Angling" = "AN",
-                                             "Electrofishing" = "Electro",
-                                             "Fyke_Net" = "FN"))
-
-table(ewR$captureMethod, exclude = NULL)
-table(ew$captureMethod, exclude = NULL) # good, these match.
-all(ewR$captureMethod == ew$captureMethod) # cool.
+# Not adding capture method because it doesn't get used in analyses.
 
 # Calculate fish standard length ------------------------------------------
 # Standard length is the distance between landmarks 1 and 7
@@ -111,7 +101,6 @@ ew$fishStdLength %>% head(10)
 # ok, these are the same to 2 decimal places. So not *quite* exactly the same. But it looks like this column actually doesn't get used in the modeling, so that's okay.
 
 # Size-standardize the eye widths -----------------------------------------
-
 ## Models to account for/remove fish size
 ## First, a model that includes an interaction effect with `lakeID`:
 size.rem <- lm(log10(eyeWidth) ~ log10(fishStdLength)*lakeID, data = ewR)
@@ -121,12 +110,12 @@ summary(size.rem) # we note that there is an interaction effect for CR, LT, and 
 size.rem2 <- lm(log10(eyeWidth) ~ log10(fishStdLength)+lakeID, data = ewR)
 summary(size.rem2) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishStdLength)`: 0.626646.
 
-commonWithinGroupSlope <- coef(size.rem2)[2] # programmatically grab that coefficient
+commonWithinGroupSlope <- coef(size.rem2)[2] %>% unname() # programmatically grab that coefficient
 meanFishSize <- mean(ewR$fishStdLength) # compute the mean `fishStdLength` across all fish in the data set
 
 ## Now add a column to ewR for size-standardized eye width
 ewR <- ewR %>%
-  mutate(eyewidth.ss = eyeWidth*(meanFishSize/fishStdLength)^0.62)
+  mutate(eyewidth.ss = eyeWidth*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
 
 ## check it against the original
 head(ewR$eyewidth.ss)
