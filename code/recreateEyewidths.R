@@ -20,7 +20,6 @@ ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
 fm <- dbTable("fish_morphometrics")
 
-
 # Grab lakeInfo -----------------------------------------------------------
 lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
 
@@ -42,7 +41,7 @@ nrow(ewR) == nrow(ew)
 all(ewR$fishID == ew$fishID)
 all(ewR$eyeWidth == ew$eyeWidth) # all right, these match!
 
-# lakeID and DOC ----------------------------------------------------------
+# lakeID ------------------------------------------------------------------
 ewR <- ewR %>%
   mutate(lakeID = factor(str_extract(fishID, "^[A-Z]+(?=\\s)"))) %>%
   mutate(lakeID = forcats::fct_recode(lakeID,
@@ -73,9 +72,7 @@ ewR <- ewR %>%
             by = c("lakeID" = "lakeName"))
 
 ## Check that the DOC values went through
-all(ewR$lakeDOC == ew$lakeDOC)
-data.frame(iuR$lakeDOC, iu$lakeDOC) %>%
-  distinct() # ok, this ends up being the same, just with different precision. But I don't think we actually really use the DOC values from the identifiers sheet anyway, so it shouldn't be a problem.
+all(ewR$DOC == ew$DOC) # yay!
 
 # add capture method ------------------------------------------------------
 ewR <- ewR %>%
@@ -107,9 +104,37 @@ fsl <- fm %>%
 ewR <- ewR %>%
   left_join(fsl, by = "fishID")
 
-# Now we just need lakeSlope and lakeSS -----------------------------------
-# Or, do we actually need these?
-# I don't see these at all in the Review April 2020 script, so I am going to leave them out for now.
+## Check
+ewR$fishStdLength %>% head(10)
+ew$fishStdLength %>% head(10)
+
+# ok, these are the same to 2 decimal places. So not *quite* exactly the same. But it looks like this column actually doesn't get used in the modeling, so that's okay.
+
+# Size-standardize the eye widths -----------------------------------------
+
+## Models to account for/remove fish size
+## First, a model that includes an interaction effect with `lakeID`:
+size.rem <- lm(log10(eyeWidth) ~ log10(fishStdLength)*lakeID, data = ewR)
+summary(size.rem) # we note that there is an interaction effect for CR, LT, and MS.
+
+## To get the common within-group slope to be used in size-standardization, we need to remove that interaction effect. So we'll fit a second model:
+size.rem2 <- lm(log10(eyeWidth) ~ log10(fishStdLength)+lakeID, data = ewR)
+summary(size.rem2) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishStdLength)`: 0.626646.
+
+commonWithinGroupSlope <- coef(size.rem2)[2] # programmatically grab that coefficient
+meanFishSize <- mean(ewR$fishStdLength) # compute the mean `fishStdLength` across all fish in the data set
+
+## Now add a column to ewR for size-standardized eye width
+ewR <- ewR %>%
+  mutate(eyewidth.ss = eyeWidth*(meanFishSize/fishStdLength)^0.62)
+
+## check it against the original
+head(ewR$eyewidth.ss)
+head(ew$sizeStandardize) # these are very close but slightly different. I think that's because Chelsea said she rounded the commonWithinGroupSlope parameter to 0.62, whereas I'm using the whole thing. Indeed, I tried it out with the parameter rounded to 0.62, and then they're the same out to like 3 decimals.
+
+# At this point, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
+
+# I think that this file is now ready to write out and use in other analyses.
 
 # Write out the data ------------------------------------------------------
 write.csv(ewR, file = here("data", "outputs", "eyewidthsFINAL.csv"), row.names = F)
