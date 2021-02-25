@@ -372,29 +372,29 @@ attributes(fit)
 fit$fitted[1:3, ] # the fitted values (first three specimens)
 fit$GM$fitted[,, 1:3] # the fitted values as Procrustes coordinates (same specimens)
 #Fitted Values Allometry colored by basin
-# XXX error here
-plotAllometry(fit, size=gdf.fish$cSize, logsz = TRUE, method = "PredLine", pch=19, col=rainbow(2)[gdf.fish$basin], main="Predicted PC1 Values From Model vs. Size (Colored By Basin)")
+# plotAllometry(fit, size=gdf.fish$cSize, logsz = TRUE, method = "PredLine", pch=19, col=rainbow(2)[gdf.fish$basin], main="Predicted PC1 Values From Model vs. Size (Colored By Basin)") # This was code that was just used for checking--maybe associated with an older version of geomorph? No longer runs, but also not super critical.
 
 #Predicted/Fitted PC1 max and min from Model
 plotRefToTarget(preds$predmin, preds$predmax,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
 
 ###Univariate Data Check and Run###
 #Eyes
-eyeWidthDat<-read.csv(here("data", "unclassified", "eyewidthsFINAL.csv")) # XXX FIX FILE PATH
+dfeye <-read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) # This is the re-created file, generated in recreateEyewidths.R. It does not include by-lake size-standardized values because those values were not used in the subsequent analysis.
 
-dfeye <- eyeWidthDat %>%
+# Create a new data frame, changing some of the column names.
+dfeye <- dfeye %>%
   select("eyewidth" = eyeWidth, 
          "fishIDeye" = fishID,
          lakeID,
          "fishLength" = fishStdLength,
          DOClevel,
          DOC,
-         "eyewidth.ss" = sizeStandardize,
-         lakeSS,
          basin,
          area,
          "maxDepth" = max_Depth,
-         fitted)
+         captureMethod,
+         eyewidth.ss)
+
 # Original Model 
 EyeModel <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + (1|lakeID), data=dfeye)
 summary(EyeModel)
@@ -403,18 +403,19 @@ summary(EyeModel)
 EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfeye)
 summary(EyeModelNew)
 
-# Get fitted values and add to data frame. Note only one value for each lake, so only 14 different fitted values. fitted(model)
-fitted(EyeModel)
-fitted(EyeModelNew)
+# Get fitted values and add to data frame. Note only one value for each lake, so only 14 different fitted values.
+fitted(EyeModel) # fitted values for the first model
+fitted(EyeModelNew) # fitted values for the model that includes basins. These are the ones we want to save.
+
+## Add the basin-model fitted values to dfeye
+dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitted values.
 
 # Get R2 effect sizes
 r.squaredGLMM(EyeModelNew, by_group=TRUE)
 #           R2m       R2c
-#[1,] 0.02491908 0.3809909
+#[1,] 0.02491908 0.3809909 # (ish--may vary slightly)
 #R2m is marginal variance which shows variance explained by fixed effects
 #R2c is conditional variance which shows variance explained by total model
-
-# XXX have to save the fitted values to dfeye$fitted before making these plots.
 
 ggplot(dfeye,aes(x = DOC, y =fitted, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
@@ -423,6 +424,8 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth, label= lakeID)) +
   geom_point(aes(colour = lakeID))
 ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
+
+# YESSSSSS all done with the eye widths!!
 
 #Gill Rakers
 rakerData <- read.csv("Gill_Rakers_2018_Final.csv")
