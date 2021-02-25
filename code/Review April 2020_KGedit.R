@@ -410,6 +410,9 @@ fitted(EyeModelNew) # fitted values for the model that includes basins. These ar
 ## Add the basin-model fitted values to dfeye
 dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitted values.
 
+## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
+write.csv(dfeye, file = here("data", "outputs", "eyewidthsFINAL_wFitted.csv"), row.names = F)
+
 # Get R2 effect sizes
 r.squaredGLMM(EyeModelNew, by_group=TRUE)
 #           R2m       R2c
