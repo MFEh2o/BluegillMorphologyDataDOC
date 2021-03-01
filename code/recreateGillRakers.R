@@ -122,6 +122,7 @@ grR <- grR %>%
 ## check that these averages look good
 head(grR$avgL_4.7)
 head(gr$avgL_4.7) # okay, great! These look good. I also checked all of them, and some are off by slight amounts, but it's definitely just a rounding thing.
+# KG: double check that this is actually just a rounding error. 
 
 # Size-standardize the averages -------------------------------------------
 # Looking at the Review April 2020 script, it seems that the only size-standardized measurements that are actually used in the model are the avgL_4.7 measurement and the avgS_4.6 measurement, both size-standardized independent of lakeID (so, size-standardized using the full data set, as seen in recreateEyewidths.R).
@@ -141,7 +142,7 @@ grR <- grR %>%
 
 ## check it against the original
 head(grR$avgL2_ss)
-head(gr$avgL2_ss) # Okay, these are slightly different, but they seem pretty close--probably another case of rounding the coefficient. Could try again with the rounded or truncated coefficient if we want to.
+head(gr$avgL2_ss) # These values are slightly different than the values in Chelsea's csv. She looked into it, and explains that she accidentally used coef(size.rem.avgL)[1] (the intercept value) instead of coef(size.rem.avgL)[2] (the log10(fishSL) value) as the commonWithinGroupSlope value Since the former is 0.424219 and the latter is 0.398793, the resulting values are only slightly different. The same mistake was made for the raker spaces (see below), resulting in a much greater difference in values since the intercept and slope values were much more different in that model.
 
 # Average Raker Space (Spaces 4-6)
 ## To get the common within-group slope to be used in size-standardization, we need to exclude an interaction effect with lakeID. So we'll fit this model:
@@ -157,10 +158,11 @@ grR <- grR %>%
 
 ## check it against the original
 head(grR$avgS2_ss)
-head(gr$avgS2_ss) # Oh no, this is REALLY different.
+head(gr$avgS2_ss) # These values are extremely different. See the explanation above for raker lengths: in her original work, Chelsea took the wrong coefficient, the intercept instead of the slope. Since the former, for this model, is -0.59703633 and the latter is 0.72846002, the values are understandably hugely different.
 
-# Does the difference here come from a difference in the underlying data?
-head(gr$avgS_4.6)
-head(grR$avgS_4.6) # No, these look the same, or very close to the same. So what's going on?
+# Check names between grR and gr.
+names(gr)[!(names(gr) %in% names(grR))]
+# Okay, we still have not recreated all the column names, but that's okay. capture_Method isn't necessary for analyses. SS.Length, SS.Space, and SS.Count were also not used in subsequent analyses, so I haven't performed size-standardizations on those. lakeSlope, avgrakerlengthSS_bylake, avgrakerspaceSS_bylake, and rakercountSS_bylake are all by-lake size-standardized values, but Chelsea says that these were part of some exploratory analyses and weren't used in subsequent models. fitted_L, fitted_S, and fitted_C will be added in the 'Review April 2020_KGedit.R' script. So we're ready to write out the data.
 
-# May need to ask Chelsea about this. 
+# Write out the data ------------------------------------------------------
+write.csv(grR, file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), row.names = F)
