@@ -335,7 +335,7 @@ summary(reduced_DOC_basin_model)
 #Full model below includes size*DOC*basin interaction which is significant so it seems like it is a better choice??
 fullmodel <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake + log(DOC)*Lake + log(DOC)*basin + basin*Lake + log(DOC)*Lake*basin + log(cSize)*log(DOC)*basin,SS.type = "II",data = gdf.fish), error=c("Residuals","Residuals","Residuals","Lake","Residuals","Residuals","Residuals"))
 summary(fullmodel)
-#NOTE:Same result from full model as "SHAPE MODEL NEW" used above and in thesis! So, I think what I did in my thesis was correct
+# NOTE:Same result from full model as "SHAPE MODEL NEW" used above and in thesis! So, I think what I did in my thesis was correct
 
 # TPS grids for min and max scores in previous plot
 fit <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake  +
@@ -377,8 +377,8 @@ fit$GM$fitted[,, 1:3] # the fitted values as Procrustes coordinates (same specim
 #Predicted/Fitted PC1 max and min from Model
 plotRefToTarget(preds$predmin, preds$predmax,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
 
-###Univariate Data Check and Run###
-#Eyes
+# Univariate Data Check and Run -------------------------------------------
+# Eye Widths --------------------------------------------------------------
 dfeye <-read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) # This is the re-created file, generated in recreateEyewidths.R. It does not include by-lake size-standardized values because those values were not used in the subsequent analysis.
 
 # Create a new data frame, changing some of the column names.
@@ -392,7 +392,6 @@ dfeye <- dfeye %>%
          basin,
          area,
          "maxDepth" = max_Depth,
-         captureMethod,
          eyewidth.ss)
 
 # Original Model 
@@ -414,7 +413,7 @@ dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitt
 write.csv(dfeye, file = here("data", "outputs", "eyewidthsFINAL_wFitted.csv"), row.names = F)
 
 # Get R2 effect sizes
-r.squaredGLMM(EyeModelNew, by_group=TRUE)
+r.squaredGLMM(EyeModelNew, by_group = TRUE)
 #           R2m       R2c
 #[1,] 0.02491908 0.3809909 # (ish--may vary slightly)
 #R2m is marginal variance which shows variance explained by fixed effects
@@ -430,81 +429,85 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label= lakeID)) +
 
 # YESSSSSS all done with the eye widths!!
 
-#Gill Rakers
-rakerData <- read.csv("Gill_Rakers_2018_Final.csv")
-dfraker<-data.frame(captureMethod<-rakerData$capture_Method,lakeLss=rakerData$avgrakerlengthSS_bylake,
-                    lakeSss=rakerData$avgrakerspaceSS_bylake,lakeCss=rakerData$rakercountSS_bylake,
-                    rakercount=rakerData$total_RakerNum,DOClevel=rakerData$DOCbin,DOC=rakerData$lakeDOC,
-                    Lake=rakerData$lakeID,fishLength=rakerData$fishSL,avgRakerLength=rakerData$avgRakerLength,
-                    avgRakerSpace=rakerData$avgRakerSpace,count.ss=rakerData$SS.Count, length.ss=rakerData$SS.Length,
-                    space.ss=rakerData$SS.Space,avgL2<-rakerData$avgL_4.7,avgS2<-rakerData$avgS_4.6,
-                    avgL2_ss<-rakerData$avgL2_ss,avgS2_ss<-rakerData$avgS2_ss, basin.raker<-rakerData$basin, fitted_L<-rakerData$fitted_L,fitted_S<-rakerData$fitted_S,fitted_C<-rakerData$fitted_C)
+# Gill Rakers -------------------------------------------------------------
+dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
+
 #avgL2_ss is size standardizations for average length for rakers 4-7
-rakerLModel=lmer(log(avgL2_ss) ~ 1 + log(DOC) + (1|Lake), data=dfraker)
+rakerLModel <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + (1|lakeID), data=dfraker)
 summary(rakerLModel)
-rakerSModel=lmer(log(avgS2_ss) ~ 1 + log(DOC) + (1|Lake), data=dfraker)
+rakerSModel <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + (1|lakeID), data=dfraker)
 summary(rakerSModel)
-#With Basin
-RakerLModelNew=lmer(log(avgL2_ss) ~ 1 + log(DOC) + basin.raker + basin.raker:log(DOC) + (1|Lake), data = dfraker)
+# With Basin
+RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerLModelNew)
-RakerSModelNew=lmer(log(avgS2_ss) ~ 1 + log(DOC) + basin.raker + basin.raker:log(DOC) + (1|Lake), data = dfraker)
+RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerSModelNew)
-fitted(RakerLModelNew)
-fitted(RakerSModelNew)
+fittedL <- fitted(RakerLModelNew)
+fittedS <- fitted(RakerSModelNew)
 #use glm for count data
-rakerCModel=glmer(log(rakercount) ~ 1 + log(DOC) + (1|Lake),family = poisson,nAGQ=0,control=glmerControl(optimizer = "nloptwrap"), data=dfraker)
+rakerCModel <- glmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + (1|lakeID),
+                     family = poisson,
+                     nAGQ = 0,
+                     control = glmerControl(optimizer = "nloptwrap"), 
+                     data = dfraker)
 summary(rakerCModel)
-RakerCModelNew=glmer(rakercount ~ 1 + log(DOC) + basin.raker + basin.raker:log(DOC) + (1|Lake),family = poisson,nAGQ=0,control=glmerControl(optimizer = "nloptwrap"), data=dfraker)
+RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID),
+                       family = poisson,
+                       nAGQ = 0,
+                       control = glmerControl(optimizer = "nloptwrap"), 
+                       data = dfraker)
 summary(RakerCModelNew)
 fitted(RakerCModelNew)
-#Still Singular!
+#Still Singular! (KG: Well, it isn't anymore, because of the changes I made to the coefficients; see script recreateGillRakers.R for a more detailed explanation.)
 #Going to have to use lmer
-RakerCModelNew=lmer(rakercount ~ 1 + log(DOC) + basin.raker + basin.raker:log(DOC) + (1|Lake), data = dfraker)
+RakerCModelNew <- lmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerCModelNew)
-fitted(RakerCModelNew)
-#fitted plots
-ggplot(dfraker,aes(x = DOC, y =fitted_L, label= Lake)) + 
-  geom_point(aes(colour = Lake)) 
-ggplot(dfraker,aes(x = DOC, y =fitted_S, label= Lake)) + 
-  geom_point(aes(colour = Lake))
-ggplot(dfraker,aes(x = DOC, y =fitted_C, label= Lake)) + 
-  geom_point(aes(colour = Lake))
+fittedC <- fitted(RakerCModelNew)
 
-#Other figures to compare
-ggplot(dfraker,aes(x = DOC, y =avgL2, label= Lake)) + 
-  geom_point(aes(colour = Lake)) 
-ggplot(dfraker,aes(x = DOC, y =avgS2, label= Lake)) + 
-  geom_point(aes(colour = Lake))
-ggplot(dfraker,aes(x = DOC, y =rakercount, label= Lake)) + 
-  geom_point(aes(colour = Lake))
-ggplot(dfraker,aes(x = DOC, y =avgL2_ss, label= Lake)) + 
-  geom_point(aes(colour = Lake)) 
-ggplot(dfraker,aes(x = DOC, y =avgS2_ss, label= Lake)) + 
-  geom_point(aes(colour = Lake))
-ggplot(dfraker,aes(x = DOC, y =count.ss, label= Lake)) + 
-  geom_point(aes(colour = Lake))
+# Add the fitted values to the df ------------------------------------------
+dfraker <- dfraker %>%
+  mutate(fitted_L = fittedL,
+         fitted_S = fittedS,
+         fitted_C = fittedC)
+
+# Write out the fitted values to a new sheet ------------------------------
+write.csv(dfraker, file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), row.names = F)
+
+# Make plots of the fitted values -----------------------------------------
+ggplot(dfraker, aes(x = lakeDOC, y = fitted_L, label = lakeID)) + 
+  geom_point(aes(colour = lakeID)) 
+
+ggplot(dfraker, aes(x = lakeDOC, y = fitted_S, label = lakeID)) +
+  geom_point(aes(colour = lakeID))
+
+ggplot(dfraker, aes(x = lakeDOC, y = fitted_C, label = lakeID)) +
+  geom_point(aes(colour = lakeID))
+
+# Other figures to compare ------------------------------------------------
+ggplot(dfraker, aes(x = lakeDOC, y = avgL_4.7, label= lakeID)) + 
+  geom_point(aes(colour = lakeID)) 
+
+ggplot(dfraker, aes(x = lakeDOC, y = avgS_4.6, label= lakeID)) + 
+  geom_point(aes(colour = lakeID))
+
+ggplot(dfraker, aes(x = lakeDOC, y = total_RakerNum, label= lakeID)) + 
+  geom_point(aes(colour = lakeID))
+
+ggplot(dfraker, aes(x = lakeDOC, y = avgL2_ss, label= lakeID)) + 
+  geom_point(aes(colour = lakeID)) 
+
+ggplot(dfraker, aes(x = lakeDOC, y = avgS2_ss, label= lakeID)) + 
+  geom_point(aes(colour = lakeID))
 
 
-#Pectoral Fins
-setwd("~/")
-PecFinDat<-read.csv("PecFinDataNovember.csv")
-
-dfFin<-data.frame(PecFinLength<-PecFinDat$PecFinLengths,
-                  lakeID<-PecFinDat$lakeID,
-                  fishLengthfin<-PecFinDat$fishStdLength,
-                  DOClevel<-PecFinDat$DOCbin,
-                  DOC<-PecFinDat$DOC,
-                  PecFinBase<-PecFinDat$baseWidth,
-                  fishID<-PecFinDat$fishID,
-                  finLss<-PecFinDat$finLengthSS,
-                  finWss<-PecFinDat$finBaseSS, finLbylakess<-PecFinDat$bylake_finlengthSS,
-                  finWbylakess<-PecFinDat$bylake_finwidthSS, finRss<-PecFinDat$ss_ratio, 
-                  basin.fin<-PecFinDat$basin, fitted_PL=PecFinDat$fitted_PL, fitted_PW=PecFinDat$fitted_PW, fitted_PR=PecFinDat$fitted_PR)
-finLModel=lmer(log(finLss)~ 1 + log(DOC) + (1|lakeID), data=dfFin)
-# > isSingular(finLModel)
-#[1] TRUE
+# Pectoral Fins -----------------------------------------------------------
+dfFin <- read.csv(here("data", "outputs", "PecFinDataNovemberFINAL.csv"))
+finLModel <- lmer(log(finLengthSS)~ 1 + log(DOC) + (1|lakeID), data = dfFin)
+#isSingular(finLModel) # FALSE
+#[1] TRUE # KG: originally, this model *was* singular. Is it the slight differences in body size that are causing this to be different?
 #This means that some "dimensions" of the variance-covariance matrix have been estimated as exactly zero, 
 #in output, variance and std. dev. of lake intercepts are both 0
+# XXX KG START HERE
 #Getting rid of log infront of finLss gets rid of error. Note,just getting rid of log infront of DOC still results in sing.
 finLModel=lmer(finLss~ 1 + log(DOC) + (1|lakeID), data=dfFin)## log removed
 finWModel=lmer(log(finWss) ~ 1 + log(DOC) + (1|lakeID), data=dfFin)
@@ -550,28 +553,29 @@ ggplot(dfFin,aes(x = DOC, y = finWss, label= lakeID)) +
 ggplot(dfFin,aes(x = DOC, y = finRss, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
 
-#finAngles
-finAngleData<-read.csv("Pec Fin Angles.csv")
-dfangle<-data.frame(fishID=finAngleData$fishID,lakeID=finAngleData$lakeID,
-                    DOClevel=finAngleData$DOClevel,DOC=finAngleData$DOC,fishLength=finAngleData$fishStdLength,
-                    captureMethod<-finAngleData$captureMethod, basin.angle<-finAngleData$basin,
-                    finangle<-finAngleData$ang_deg, fittedang<-finAngleData$fitted)
+# Pec Fin Angles ----------------------------------------------------------
+dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
+  rename("finangle" = "pecFinInsertionAngle")
 
-finAModel=lmer(log(finangle) ~ 1 + log(DOC) + (1|lakeID), data=dfangle)
+finAModel <- lmer(log(finangle) ~ 1 + log(DOC) + (1|lakeID), data = dfangle)
 summary(finAModel)
 
-FinAModelNew=lmer(log(finangle) ~ 1 + log(DOC) + basin.angle + basin.angle:log(DOC) + (1|lakeID), data = dfangle)
+FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID),
+                     data = dfangle)
 summary(FinAModelNew)
 
-fitted(FinAModelNew)
+# Get fitted values and add to data frame. 
+fitted(FinAModelNew) # yep, these are the right values to use.
 
-ggplot(dfangle,aes(x = DOC, y = fittedang, label= lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
-#Check to see if relationship with size to see if needs to be size corrected
-ggplot(dfangle,aes(x = fishLength, y = finangle, label= lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
-#No size relationship, can leave it as is.
+dfangle$fitted <- fitted(FinAModelNew)
 
-#Raw Plot
-ggplot(dfangle,aes(x = DOC, y = finangle, label= lakeID)) + 
+## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
+write.csv(dfangle, file = here("data", "outputs", "PecFinAnglesFINAL_wFitted.csv"), row.names = F)
+
+# Plots:
+ggplot(dfangle, aes(x = DOC, y = fitted, label = lakeID)) + 
+  geom_point(aes(colour = lakeID)) 
+
+# Raw Plot
+ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
