@@ -471,7 +471,7 @@ dfraker <- dfraker %>%
          fitted_C = fittedC)
 
 # Write out the fitted values to a new sheet ------------------------------
-write.csv(dfraker, file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), row.names = F)
+write.csv(dfraker, file = here("data", "outputs", "Gill_Rakers_2018_Final_wFitted.csv"), row.names = F)
 
 # Make plots of the fitted values -----------------------------------------
 ggplot(dfraker, aes(x = lakeDOC, y = fitted_L, label = lakeID)) + 
