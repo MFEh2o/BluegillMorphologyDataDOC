@@ -9,6 +9,13 @@
     ]
   },
   "Packages": {
+    "AICcmodavg": {
+      "Package": "AICcmodavg",
+      "Version": "2.3-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "6142bb2ebc5c663816b9f88b09d8be07"
+    },
     "BH": {
       "Package": "BH",
       "Version": "1.75.0-0",
@@ -127,6 +134,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "dd9d4d29d7fb160aa3312e81175a3697"
+    },
+    "VGAM": {
+      "Package": "VGAM",
+      "Version": "1.1-5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "457a2a08a76cc33cb5510c94d2006e02"
     },
     "ape": {
       "Package": "ape",
@@ -562,18 +576,6 @@
       "Repository": "CRAN",
       "Hash": "fa7f610e7eadfc9c47d501a333e03f1a"
     },
-    "kgUtils": {
-      "Package": "kgUtils",
-      "Version": "0.0.0.9000",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "kgUtils",
-      "RemoteUsername": "kaijagahm",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "8a5680926db0c148207d5b87048b52a33c687555",
-      "Hash": "1124c34f3ef50357ae71fb1d5cea1994"
-    },
     "knitr": {
       "Package": "knitr",
       "Version": "1.30",
@@ -749,6 +751,13 @@
       "Repository": "CRAN",
       "Hash": "a399e4773075fc2375b71f45fca186c4"
     },
+    "openxlsx": {
+      "Package": "openxlsx",
+      "Version": "4.2.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "2253a430965e222d11a2f9277cd34c2e"
+    },
     "phangorn": {
       "Package": "phangorn",
       "Version": "2.5.5",
@@ -790,6 +799,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "09eb987710984fc2905c7129c7d85e65"
+    },
+    "plyr": {
+      "Package": "plyr",
+      "Version": "1.8.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "ec0e5ab4e5f851f6ef32cd1d1984957f"
     },
     "png": {
       "Package": "png",
@@ -994,13 +1010,6 @@
       "Repository": "CRAN",
       "Hash": "9d6831c4c002137d99be6b946ac9da07"
     },
-    "shadow": {
-      "Package": "shadow",
-      "Version": "0.7.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "58ae9aec42ca2d31baa69241f33b6277"
-    },
     "shapes": {
       "Package": "shapes",
       "Version": "1.2.5",
@@ -1049,6 +1058,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0759e6b6c0957edb1311028a49a35e76"
+    },
+    "survival": {
+      "Package": "survival",
+      "Version": "3.2-7",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "39c4ac6d22dad33db0ee37b40810ea12"
     },
     "svgViewR": {
       "Package": "svgViewR",
@@ -1119,6 +1135,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "4a3df844d6d35ca2ba2b7ba95446b955"
+    },
+    "unmarked": {
+      "Package": "unmarked",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c357b86faab8556f269251d86cff2664"
     },
     "utf8": {
       "Package": "utf8",
@@ -1196,6 +1219,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "2826c5d9efb0a88f657c7a679c7106db"
+    },
+    "zip": {
+      "Package": "zip",
+      "Version": "2.1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3bc8405c637d988801ec5ea88372d0c2"
     }
   }
 }
