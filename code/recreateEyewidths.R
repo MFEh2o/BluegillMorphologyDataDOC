@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20201125.db" # name of db
+db <- "MFEdb_20210305.db" # name of db
 
 # Load the original eyewidthsFINAL for comparison -------------------------
 ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
@@ -98,7 +98,7 @@ ewR <- ewR %>%
 ewR$fishStdLength %>% head(10)
 ew$fishStdLength %>% head(10)
 
-# ok, these are the same to 2 decimal places. So not *quite* exactly the same. But it looks like this column actually doesn't get used in the modeling, so that's okay.
+# ok, these are the same to 2 decimal places. So not *quite* exactly the same.
 
 # Size-standardize the eye widths -----------------------------------------
 ## Models to account for/remove fish size
