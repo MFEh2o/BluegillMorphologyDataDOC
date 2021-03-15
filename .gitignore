@@ -7,3 +7,6 @@
 # Ignore shapefiles
 region4/
 region7/
+
+# Ignore database
+*.db
