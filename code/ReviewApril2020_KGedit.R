@@ -9,6 +9,7 @@ library(lmerTest)
 library(ggplot2) # for plots
 library(MuMIn) # for effect sizes
 library(here) # for file paths
+library(gridGraphics) # for base R plots
 
 # Load data ---------------------------------------------------------------
 myData_tps <- readland.tps(here("data", "inputs", "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), specID = "imageID")
@@ -20,16 +21,18 @@ dimnames(myData_tps)[[3]] <- identifiers$imageID
 dimnames(myData_tps)[[1]] <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
 GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
 gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
-                             DOCrange=identifiers$DOCrange,
-                             Lake=identifiers$lakeID,
-                             DOC=identifiers$lakeDOC,
-                             DOCcat=identifiers$DOC,
-                             captureMethod=identifiers$captureMethod, 
-                             cSize=GPA.fish$Csize, 
-                             basin=as.factor(identifiers$Basin))
+                                DOCrange=identifiers$DOCrange,
+                                Lake=identifiers$lakeID,
+                                DOC=identifiers$lakeDOC,
+                                DOCcat=identifiers$DOC,
+                                captureMethod=identifiers$captureMethod, 
+                                cSize=GPA.fish$Csize, 
+                                basin=as.factor(identifiers$Basin))
 
-corePCA <- plotTangentSpace(gdf.fish$shape, groups = as.factor(gdf.fish$DOC), 
+corePCA <- plotTangentSpace(gdf.fish$shape, 
+                            groups = as.factor(gdf.fish$DOC), 
                             legend = TRUE)
+
 PCscores <- corePCA$pc.scores[,1:2]
 idx <- which(gdf.fish$Lake=="Bay")
 Bay <- PCscores[idx,]
@@ -73,37 +76,41 @@ Squaw <- PCscores[idx,]
 idx <- which(gdf.fish$Lake=="Towanda")
 Towanda <- PCscores[idx,]
 
-
 # PC1 plot ----------------------------------------------------------------
-plotRefToTarget(corePCA$pc.shapes$PC1min, 
-                corePCA$pc.shapes$PC1max,
-                method="points", 
-                links = mylinks, 
-                gridPars = gridPar(tar.pt.bg = "black",
-                                   tar.link.col = "black",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
-
+## This will be a portion of figure 3, so we'll save it to use down in the figures section
+pc1Plot <- function(){
+  plotRefToTarget(corePCA$pc.shapes$PC1min, 
+                  corePCA$pc.shapes$PC1max,
+                  method="points", 
+                  links = mylinks, 
+                  gridPars = gridPar(tar.pt.bg = "black",
+                                     tar.link.col = "black",
+                                     tar.link.lwd = 3, 
+                                     tar.pt.size = 1, 
+                                     pt.size = 1, 
+                                     pt.bg = "gray", 
+                                     link.lwd = 3), 
+                  mag=1, 
+                  useRefPts = TRUE)
+}
 
 # PC2 plot ----------------------------------------------------------------
-plotRefToTarget(corePCA$pc.shapes$PC2min, 
-                corePCA$pc.shapes$PC2max,
-                method="points", 
-                links = mylinks, 
-                gridPars = gridPar(tar.pt.bg = "black",
-                                   tar.link.col = "black",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
+## This will be a portion of figure 3, so we'll save it to use down in the figures section
+pc2Plot <- function(){
+  plotRefToTarget(corePCA$pc.shapes$PC2min, 
+                  corePCA$pc.shapes$PC2max,
+                  method="points", 
+                  links = mylinks, 
+                  gridPars = gridPar(tar.pt.bg = "black",
+                                     tar.link.col = "black",
+                                     tar.link.lwd = 3, 
+                                     tar.pt.size = 1, 
+                                     pt.size = 1, 
+                                     pt.bg = "gray", 
+                                     link.lwd = 3), 
+                  mag=1, 
+                  useRefPts = TRUE)
+}
 
 lm_array <- myData_tps
 gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
@@ -297,17 +304,17 @@ plotRefToTarget(corePCA$pc.shapes$PC2min, corePCA$pc.shapes$PC2max,method="point
 
 #DOC allometric slope
 final <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + Lake + log(DOC)*Lake +
-                       log(cSize)*log(DOC) ,SS.type = "II", data = gdf.fish),error= c("Residuals","Residuals","Lake","Residuals"))
+                          log(cSize)*log(DOC) ,SS.type = "II", data = gdf.fish),error= c("Residuals","Residuals","Lake","Residuals"))
 summary(final)
 
 #Lake allometric slope
 final2 <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + Lake + log(DOC)*Lake + 
-                       log(cSize)*Lake, SS.type = "II",data = gdf.fish),error= c("Residuals","Residuals","Lake","Residuals"))
+                           log(cSize)*Lake, SS.type = "II",data = gdf.fish),error= c("Residuals","Residuals","Lake","Residuals"))
 summary(final2)
 
 #Slopes dependent on basin and doc
 ShapeModelNew <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake + log(cSize):log(DOC) +
-                               log(cSize):basin + basin:log(DOC) + log(cSize):basin:log(DOC), SS.type = "II",data = gdf.fish), error= c("Residuals","Residuals","Residuals","Lake", "Residuals", "Residuals", "Residuals"))
+                                  log(cSize):basin + basin:log(DOC) + log(cSize):basin:log(DOC), SS.type = "II",data = gdf.fish), error= c("Residuals","Residuals","Residuals","Lake", "Residuals", "Residuals", "Residuals"))
 summary(ShapeModelNew)
 
 #Shape Model New allows slopes to vary by basin, DOC and basin:DOC 
@@ -339,7 +346,7 @@ summary(fullmodel)
 
 # TPS grids for min and max scores in previous plot
 fit <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake  +
-                log(cSize)*basin*log(DOC), 
+                  log(cSize)*basin*log(DOC), 
                 SS.type = "II", data = gdf.fish)
 plot(fit, type = "diagnostics") 
 
@@ -357,8 +364,8 @@ plot(fit, type = "regression",
 
 # Uses coefficients from the model to find the projected regression scores
 fish.plot <- plot(fit, type = "regression", 
-                 predictor = gdf.fish$cSize, reg.type = "RegScore", 
-                 pch = 21, bg = "yellow") 
+                  predictor = gdf.fish$cSize, reg.type = "RegScore", 
+                  pch = 21, bg = "yellow") 
 
 preds <- shape.predictor(fit$GM$fitted, x = fish.plot$RegScore, 
                          predmin = min(fish.plot$RegScore), 
@@ -579,3 +586,20 @@ ggplot(dfangle, aes(x = DOC, y = fitted, label = lakeID)) +
 # Raw Plot
 ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
+
+# Figures -----------------------------------------------------------------
+## Code reorganized and expanded by Kaija
+
+## Fig 1.: Map
+### I don't think we need code for this one. Can just use the same image she had before.
+
+## Fig 2: Landmarks
+### Likewise, no code needed; can use same image.
+
+## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
+
+## Fig. 4. Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
+
+## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
+
+## Fig. 6. Eye width across DOC gradient. One panel.
