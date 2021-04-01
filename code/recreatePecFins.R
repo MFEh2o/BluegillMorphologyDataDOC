@@ -108,14 +108,14 @@ nrow(fsl) # still 218, good!
 ## Compute lengths
 fsl <- fsl %>%
   mutate(fishStdLength = sqrt((X7-X1)^2+(Y7-Y1)^2)) %>%
-  select(pfImageFile, fishStdLength) %>%
+  select(-c("fishID")) %>%
   rename("fishID" = pfImageFile)
 
 all(fsl$fishID %in% pfR$fishID) # now we have body lengths for all of the fish! Yay!
 
 ## join
 pfR <- pfR %>%
-  left_join(fsl, by = "fishID")
+  left_join(fsl %>% select(fishID, fishStdLength), by = "fishID")
 
 ## Check
 pfR$fishStdLength %>% head(10)
@@ -132,7 +132,7 @@ summary(length.rem) # now we can extract the common within-group slope, which is
 commonWithinGroupSlope <- coef(length.rem)[2] %>% unname() # programmatically grab that coefficient
 meanFishSize <- mean(pfR$fishStdLength) # compute the mean `fishStdLength` across all fish in the data set
 
-## Now add a column to ewR for size-standardized eye width
+## Now add a column to pfR for size-standardized eye width
 pfR <- pfR %>%
   mutate(finLengthSS = pecFinLength*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
 
@@ -148,7 +148,7 @@ summary(width.rem) # now we can extract the common within-group slope, which is 
 commonWithinGroupSlope <- coef(width.rem)[2] %>% unname() # programmatically grab that coefficient
 # meanFishSize is the same as it was above.
 
-## Now add a column to ewR for size-standardized eye width
+## Now add a column to pfR for size-standardized eye width
 pfR <- pfR %>%
   mutate(finBaseSS = pecFinBaseWidth*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
 
@@ -160,3 +160,14 @@ head(pf$finBaseSS) # These are pretty close, but a bit off. Differences almost c
 
 # Write out the data ------------------------------------------------------
 write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), row.names = F)
+
+# Write out comparison fish sizes for Chelsea to look at ------------------
+comp <- fsl %>%
+  left_join(pf %>% select(fishID, "originalStdLength" = fishStdLength), by = "fishID") %>%
+  rename("recomputedStdLength" = fishStdLength)
+write.csv(comp, file = here("data", "outputs", "fslComparison.20210320.csv"), row.names = F)
+
+comp <- comp %>%
+  mutate(diff = abs(recomputedStdLength - originalStdLength))
+
+comp %>% filter(diff > 2) %>% pull(fishID)
