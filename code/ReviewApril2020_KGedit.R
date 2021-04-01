@@ -76,41 +76,79 @@ Squaw <- PCscores[idx,]
 idx <- which(gdf.fish$Lake=="Towanda")
 Towanda <- PCscores[idx,]
 
-# PC1 plot ----------------------------------------------------------------
-## This will be a portion of figure 3, so we'll save it to use down in the figures section
-pc1Plot <- function(){
-  plotRefToTarget(corePCA$pc.shapes$PC1min, 
-                  corePCA$pc.shapes$PC1max,
-                  method="points", 
-                  links = mylinks, 
-                  gridPars = gridPar(tar.pt.bg = "black",
-                                     tar.link.col = "black",
-                                     tar.link.lwd = 3, 
-                                     tar.pt.size = 1, 
-                                     pt.size = 1, 
-                                     pt.bg = "gray", 
-                                     link.lwd = 3), 
-                  mag=1, 
-                  useRefPts = TRUE)
-}
+# PC1 plots ----------------------------------------------------------------
+# Open an svg file
+svg(here("figures", "fishShapes_pc1_pc2", "pc1Min.svg")) 
+# plot
+plotRefToTarget(corePCA$pc.shapes$PC1min, 
+                corePCA$pc.shapes$PC1max,
+                method="points", 
+                links = mylinks, 
+                gridPars = gridPar(tar.pt.bg = "darkorange3",
+                                   tar.link.col = "darkorange3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off() # close the device
 
-# PC2 plot ----------------------------------------------------------------
-## This will be a portion of figure 3, so we'll save it to use down in the figures section
-pc2Plot <- function(){
-  plotRefToTarget(corePCA$pc.shapes$PC2min, 
-                  corePCA$pc.shapes$PC2max,
-                  method="points", 
-                  links = mylinks, 
-                  gridPars = gridPar(tar.pt.bg = "black",
-                                     tar.link.col = "black",
-                                     tar.link.lwd = 3, 
-                                     tar.pt.size = 1, 
-                                     pt.size = 1, 
-                                     pt.bg = "gray", 
-                                     link.lwd = 3), 
-                  mag=1, 
-                  useRefPts = TRUE)
-}
+# Open an svg file
+svg(here("figures", "fishShapes_pc1_pc2", "pc1Max.svg")) 
+# plot
+plotRefToTarget(corePCA$pc.shapes$PC1max,
+                corePCA$pc.shapes$PC1min, 
+                method="points", 
+                links = mylinks, 
+                gridPars = gridPar(tar.pt.bg = "darkorange3",
+                                   tar.link.col = "darkorange3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off() # close the device
+
+# PC2 plots ----------------------------------------------------------------
+# Open an svg file
+svg(here("figures", "fishShapes_pc1_pc2", "pc2Min.svg")) 
+# plot
+plotRefToTarget(corePCA$pc.shapes$PC2min, 
+                corePCA$pc.shapes$PC2max,
+                method="points", 
+                links = mylinks, 
+                gridPars = gridPar(tar.pt.bg = "green3",
+                                   tar.link.col = "green3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off()
+
+# Open an svg file
+svg(here("figures", "fishShapes_pc1_pc2", "pc2Max.svg")) 
+# plot
+plotRefToTarget(corePCA$pc.shapes$PC2max, 
+                corePCA$pc.shapes$PC2min,
+                method="points", 
+                links = mylinks, 
+                gridPars = gridPar(tar.pt.bg = "green3",
+                                   tar.link.col = "green3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off()
 
 lm_array <- myData_tps
 gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
@@ -282,6 +320,10 @@ plot_fish_lateral <- function(xy, coor, size=1, col="black"){
 # Set PCs to plot
 pcs <- 1:2
 
+# Make Fig 3 --------------------------------------------------------------
+# Open an svg file
+svg(here("figures", "fishShapes_pc1_pc2", "mainPlot.svg")) 
+# plot
 # Create plot box with axes and axis labels
 plot(scores[, pcs], type="n", main="Backtransform morphospace",
      xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
@@ -289,20 +331,21 @@ plot(scores[, pcs], type="n", main="Backtransform morphospace",
 
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral, 
-         pcs=pcs, n=c(4,4), m=dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
-         pc.margin=c(0.06,0.06), size=0.018, col=gray(0.7))
+btShapes(scores=scores, vectors=-(resEig$vectors), 
+         fcn=plot_fish_lateral, 
+         pcs=pcs, n=c(4,4), m=dim(lm_array)[2], 
+         row.names=dimnames(lm_array)[[1]], 
+         pc.margin=c(0.06,0.06), 
+         size=0.018, 
+         col=gray(0.7))
 points(scores [,1], scores[,2], col="#41C6EC", pch=19,cex=2)
 text(scores [,1], scores [,2], labels=levels(gpa_df$Lake), cex= 0.7)
+dev.off()
 
-##Ref to Target Figures
-plotRefToTarget(corePCA$pc.shapes$PC1min, corePCA$pc.shapes$PC1max,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
-plotRefToTarget(corePCA$pc.shapes$PC2min, corePCA$pc.shapes$PC2max,method="points", links = mylinks, gridPars = gridPar(tar.pt.bg = "black",tar.link.col = "black",tar.link.lwd = 3, tar.pt.size = 1, pt.size = 1, pt.bg = "gray", link.lwd = 3), mag=1, useRefPts = TRUE)
+# For ref to Target Figures that go along the axes: see pc1Plot and pc2Plot.
 
-
-##RE-RUN STATS FOR SHAPE TO CHECK THEM
-
-#DOC allometric slope
+# Re-run stats for shape to check them ------------------------------------
+# DOC allometric slope
 final <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + Lake + log(DOC)*Lake +
                           log(cSize)*log(DOC) ,SS.type = "II", data = gdf.fish),error= c("Residuals","Residuals","Lake","Residuals"))
 summary(final)
