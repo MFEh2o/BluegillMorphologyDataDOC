@@ -10,6 +10,7 @@ library(ggplot2) # for plots
 library(MuMIn) # for effect sizes
 library(here) # for file paths
 library(gridGraphics) # for base R plots
+library(ggtext) # for ggplots
 
 # Load data ---------------------------------------------------------------
 myData_tps <- readland.tps(here("data", "inputs", "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), specID = "imageID")
@@ -385,7 +386,7 @@ summary(reduced_DOC_basin_model)
 #Full model below includes size*DOC*basin interaction which is significant so it seems like it is a better choice??
 fullmodel <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake + log(DOC)*Lake + log(DOC)*basin + basin*Lake + log(DOC)*Lake*basin + log(cSize)*log(DOC)*basin,SS.type = "II",data = gdf.fish), error=c("Residuals","Residuals","Residuals","Lake","Residuals","Residuals","Residuals"))
 summary(fullmodel)
-# NOTE:Same result from full model as "SHAPE MODEL NEW" used above and in thesis! So, I think what I did in my thesis was correct
+# NOTE: Same result from full model as "SHAPE MODEL NEW" used above and in thesis! So, I think what I did in my thesis was correct
 
 # TPS grids for min and max scores in previous plot
 fit <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake  +
@@ -633,6 +634,24 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
 # Figures -----------------------------------------------------------------
 ## Code reorganized and expanded by Kaija
 
+# Define lake color values:
+lakeColors <- c("Lost" = rgb(205, 249, 239, maxColorValue = 255),
+                "Little Crooked" = rgb(168, 243, 233, maxColorValue = 255),
+                "Crampton" = rgb(117, 219, 239, maxColorValue = 255),
+                "Found" = rgb(111, 139, 229, maxColorValue = 255),
+                "Towanda" = rgb(96, 144, 229, maxColorValue = 255),
+                "Papoose" = rgb(47, 78, 195, maxColorValue = 255),
+                "Muskellunge" = rgb(49, 81, 187, maxColorValue = 255),
+                "Bay" = rgb(43, 67, 139, maxColorValue = 255),
+                "Birch" = rgb(236, 202, 159, maxColorValue = 255),
+                "Oxbow" = rgb(207, 168, 159, maxColorValue = 255),
+                "McCullough" = rgb(161, 139, 96, maxColorValue = 255),
+                "Red Bass" = rgb(137, 106, 64, maxColorValue = 255),
+                "Squaw" = rgb(116, 85, 49, maxColorValue = 255),
+                "Hummingbird" = rgb(106, 77, 50, maxColorValue = 255))
+
+lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
+
 ## Fig 1.: Map
 ### I don't think we need code for this one. Can just use the same image she had before.
 
@@ -647,3 +666,21 @@ cowplot::plot_grid(pc1Plot, pc2Plot)
 ## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
 
 ## Fig. 6. Eye width across DOC gradient. One panel.
+dfeye %>%
+  mutate(lakeID = str_replace(lakeID, "_", " ")) %>%
+  mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
+                           basin == "7" ~ "Mississippi Watershed"),
+         lakeID = factor(lakeID, levels = names(lakeColors))) %>%
+  ggplot(aes(x = DOC, y = fitted))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColors,
+                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(x = "Dissolved Organic Carbon (mg/L)",
+       y = "Eye Width (mm)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"))
