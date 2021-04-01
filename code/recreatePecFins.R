@@ -164,7 +164,10 @@ write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), ro
 # Write out comparison fish sizes for Chelsea to look at ------------------
 comp <- fsl %>%
   left_join(pf %>% select(fishID, "originalStdLength" = fishStdLength), by = "fishID") %>%
-  rename("recomputedStdLength" = fishStdLength)
+  rename("recomputedStdLength" = fishStdLength) %>%
+  mutate(diff = recomputedStdLength-originalStdLength,
+         largeDiff = case_when(abs(diff) > 2 ~ T,
+                               TRUE ~ F))
 write.csv(comp, file = here("data", "outputs", "fslComparison.20210320.csv"), row.names = F)
 
 comp <- comp %>%
