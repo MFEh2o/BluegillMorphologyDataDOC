@@ -597,6 +597,7 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
 ### Likewise, no code needed; can use same image.
 
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
+cowplot::plot_grid(pc1Plot, pc2Plot)
 
 ## Fig. 4. Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
 
