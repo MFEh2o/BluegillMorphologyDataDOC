@@ -660,7 +660,7 @@ lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 ### Likewise, no code needed; can use same image.
 
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
-### Saved components of this figure above
+### Saved components of this figure above, in sections "PC1 plots" and "PC2 plots"
 
 # Figure 4 ----------------------------------------------------------------
 ## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
@@ -777,3 +777,12 @@ eyePlot <- dfeye %>%
        y = "Eye Width (mm)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"))
+
+# Tables ------------------------------------------------------------------
+
+# Table 1 -----------------------------------------------------------------
+## Summary of lake characteristics and sampling for survey lakes. DOC is the mean dissolved organic carbon concentration.
+### Don't need to re-create this table: it should be the same.
+
+# Table 2 -----------------------------------------------------------------
+## Multivariate analysis of covariance for bluegill shape data. Significant results are bold.
