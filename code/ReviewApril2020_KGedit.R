@@ -728,13 +728,20 @@ panelC <- dfraker %>%
 legend <- cowplot::get_legend(panelA)
 
 ## make the three stacked plots
-allPlots <- cowplot::plot_grid(panelA + 
+allPanels <- cowplot::plot_grid(panelA + 
                                  theme(legend.position = "none"),
                                panelB, panelC, ncol = 1, align = "v")
 
-## Add the legend
-allPlots_wLegend <- cowplot::plot_grid(allPlots, legend, nrow = 1)
-allPlots_wLegend
+## Save the main plot panels
+svg(here("figures", "gillRakers", "plotPanels.svg"), height = 13, width = 7)
+allPanels
+dev.off()
+
+## Save the legend separately
+legendPlot <- cowplot::plot_grid(legend)
+svg(here("figures", "gillRakers", "legend.svg"), height = 10, width = 4)
+legendPlot
+dev.off()
 
 # Figure 6 ----------------------------------------------------------------
 ## Eye width across DOC gradient. One panel.
