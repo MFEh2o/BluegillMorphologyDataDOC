@@ -659,14 +659,78 @@ lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 ### Likewise, no code needed; can use same image.
 
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
-cowplot::plot_grid(pc1Plot, pc2Plot)
+### Saved components of this figure above
 
 ## Fig. 4. Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
 
 ## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
+dfraker <- dfraker %>%
+  mutate(lakeID = str_replace(lakeID, "_", " "),
+         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
+                           basin == "7" ~ "Mississippi Watershed"),
+         lakeID = factor(lakeID, levels = names(lakeColors)))
+
+panelA <- dfraker %>%
+  ggplot(aes(x = lakeDOC, y = fitted_L))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColors,
+                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(y = "Average Gill Raker Length (mm)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank())
+
+panelB <- dfraker %>%
+  ggplot(aes(x = lakeDOC, y = fitted_S))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColors,
+                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(y = "Average Gill Raker Space Width (mm)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+
+panelC <- dfraker %>%
+  ggplot(aes(x = lakeDOC, y = fitted_C))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColors,
+                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(x = "Dissolved Organic Carbon (mg/L)",
+       y = "Gill Raker number")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        legend.position = "none")
+
+## extract the legend
+legend <- cowplot::get_legend(panelA)
+
+## make the three stacked plots
+allPlots <- cowplot::plot_grid(panelA + 
+                                 theme(legend.position = "none"),
+                               panelB, panelC, ncol = 1, align = "v")
+
+## Add the legend
+allPlots_wLegend <- cowplot::plot_grid(allPlots, legend, nrow = 1)
+allPlots_wLegend
 
 ## Fig. 6. Eye width across DOC gradient. One panel.
-dfeye %>%
+eyePlot <- dfeye %>%
   mutate(lakeID = str_replace(lakeID, "_", " ")) %>%
   mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
