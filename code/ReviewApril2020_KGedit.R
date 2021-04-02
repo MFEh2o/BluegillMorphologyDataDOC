@@ -668,6 +668,7 @@ lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 # Figure 5 ----------------------------------------------------------------
 ## Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
 ## some modifications to the data so it plots properly
+## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
 dfraker <- dfraker %>%
   mutate(lakeID = str_replace(lakeID, "_", " "),
          basin = case_when(basin == "4" ~ "Great Lakes Watershed",
@@ -745,6 +746,19 @@ dev.off()
 
 # Figure 6 ----------------------------------------------------------------
 ## Eye width across DOC gradient. One panel.
+## extract the legend
+legend <- cowplot::get_legend(panelA)
+
+## make the three stacked plots
+allPlots <- cowplot::plot_grid(panelA + 
+                                 theme(legend.position = "none"),
+                               panelB, panelC, ncol = 1, align = "v")
+
+## Add the legend
+allPlots_wLegend <- cowplot::plot_grid(allPlots, legend, nrow = 1)
+allPlots_wLegend
+
+## Fig. 6. Eye width across DOC gradient. One panel.
 eyePlot <- dfeye %>%
   mutate(lakeID = str_replace(lakeID, "_", " ")) %>%
   mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
