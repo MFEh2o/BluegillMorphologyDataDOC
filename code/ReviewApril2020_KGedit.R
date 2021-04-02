@@ -652,6 +652,7 @@ lakeColors <- c("Lost" = rgb(205, 249, 239, maxColorValue = 255),
 
 lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 
+# Figures 1, 2, 3 ---------------------------------------------------------
 ## Fig 1.: Map
 ### I don't think we need code for this one. Can just use the same image she had before.
 
@@ -661,15 +662,19 @@ lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
 ### Saved components of this figure above
 
-## Fig. 4. Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
+# Figure 4 ----------------------------------------------------------------
+## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
 
-## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
+# Figure 5 ----------------------------------------------------------------
+## Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
+## some modifications to the data so it plots properly
 dfraker <- dfraker %>%
   mutate(lakeID = str_replace(lakeID, "_", " "),
          basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
          lakeID = factor(lakeID, levels = names(lakeColors)))
 
+## make panel A, with legend (we'll remove the legend when we plot it)
 panelA <- dfraker %>%
   ggplot(aes(x = lakeDOC, y = fitted_L))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
@@ -685,6 +690,7 @@ panelA <- dfraker %>%
         text = element_text(family = "Helvetica"),
         axis.title.x = element_blank())
 
+## make panel B
 panelB <- dfraker %>%
   ggplot(aes(x = lakeDOC, y = fitted_S))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
@@ -701,6 +707,7 @@ panelB <- dfraker %>%
         axis.title.x = element_blank(),
         legend.position = "none")
 
+## Make panel C, with x-axis label
 panelC <- dfraker %>%
   ggplot(aes(x = lakeDOC, y = fitted_C))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
@@ -717,7 +724,7 @@ panelC <- dfraker %>%
         text = element_text(family = "Helvetica"),
         legend.position = "none")
 
-## extract the legend
+## extract the legend from panel A
 legend <- cowplot::get_legend(panelA)
 
 ## make the three stacked plots
@@ -729,7 +736,8 @@ allPlots <- cowplot::plot_grid(panelA +
 allPlots_wLegend <- cowplot::plot_grid(allPlots, legend, nrow = 1)
 allPlots_wLegend
 
-## Fig. 6. Eye width across DOC gradient. One panel.
+# Figure 6 ----------------------------------------------------------------
+## Eye width across DOC gradient. One panel.
 eyePlot <- dfeye %>%
   mutate(lakeID = str_replace(lakeID, "_", " ")) %>%
   mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
