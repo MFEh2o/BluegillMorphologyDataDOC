@@ -78,8 +78,8 @@ idx <- which(gdf.fish$Lake=="Towanda")
 Towanda <- PCscores[idx,]
 
 # PC1 plots ----------------------------------------------------------------
-# Open an svg file
-svg(here("figures", "fishShapes_pc1_pc2", "pc1Min.svg")) 
+# Open an pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf")) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1min, 
                 corePCA$pc.shapes$PC1max,
@@ -96,8 +96,8 @@ plotRefToTarget(corePCA$pc.shapes$PC1min,
                 useRefPts = TRUE)
 dev.off() # close the device
 
-# Open an svg file
-svg(here("figures", "fishShapes_pc1_pc2", "pc1Max.svg")) 
+# Open an pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf")) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1max,
                 corePCA$pc.shapes$PC1min, 
@@ -115,8 +115,8 @@ plotRefToTarget(corePCA$pc.shapes$PC1max,
 dev.off() # close the device
 
 # PC2 plots ----------------------------------------------------------------
-# Open an svg file
-svg(here("figures", "fishShapes_pc1_pc2", "pc2Min.svg")) 
+# Open an pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf")) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2min, 
                 corePCA$pc.shapes$PC2max,
@@ -133,8 +133,8 @@ plotRefToTarget(corePCA$pc.shapes$PC2min,
                 useRefPts = TRUE)
 dev.off()
 
-# Open an svg file
-svg(here("figures", "fishShapes_pc1_pc2", "pc2Max.svg")) 
+# Open an pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf")) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2max, 
                 corePCA$pc.shapes$PC2min,
@@ -322,8 +322,8 @@ plot_fish_lateral <- function(xy, coor, size=1, col="black"){
 pcs <- 1:2
 
 # Make Fig 3 --------------------------------------------------------------
-# Open an svg file
-svg(here("figures", "fishShapes_pc1_pc2", "mainPlot.svg")) 
+# Open an pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf")) 
 # plot
 # Create plot box with axes and axis labels
 plot(scores[, pcs], type="n", main="Backtransform morphospace",
@@ -670,7 +670,7 @@ lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 ## some modifications to the data so it plots properly
 ## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
 dfraker <- dfraker %>%
-  mutate(lakeID = str_replace(lakeID, "_", " "),
+  mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
          lakeID = factor(lakeID, levels = names(lakeColors)))
@@ -734,33 +734,20 @@ allPanels <- cowplot::plot_grid(panelA +
                                panelB, panelC, ncol = 1, align = "v")
 
 ## Save the main plot panels
-svg(here("figures", "gillRakers", "plotPanels.svg"), height = 13, width = 7)
+pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 13, width = 7)
 allPanels
 dev.off()
 
 ## Save the legend separately
 legendPlot <- cowplot::plot_grid(legend)
-svg(here("figures", "gillRakers", "legend.svg"), height = 10, width = 4)
+pdf(here("figures", "gillRakers", "legend.pdf"), height = 10, width = 4)
 legendPlot
 dev.off()
 
 # Figure 6 ----------------------------------------------------------------
-## Eye width across DOC gradient. One panel.
-## extract the legend
-legend <- cowplot::get_legend(panelA)
-
-## make the three stacked plots
-allPlots <- cowplot::plot_grid(panelA + 
-                                 theme(legend.position = "none"),
-                               panelB, panelC, ncol = 1, align = "v")
-
-## Add the legend
-allPlots_wLegend <- cowplot::plot_grid(allPlots, legend, nrow = 1)
-allPlots_wLegend
-
-## Fig. 6. Eye width across DOC gradient. One panel.
+# Eye width across DOC gradient. One panel.
 eyePlot <- dfeye %>%
-  mutate(lakeID = str_replace(lakeID, "_", " ")) %>%
+  mutate(lakeID = stringr::str_replace(lakeID, "_", " ")) %>%
   mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
          lakeID = factor(lakeID, levels = names(lakeColors))) %>%
@@ -776,7 +763,18 @@ eyePlot <- dfeye %>%
   labs(x = "Dissolved Organic Carbon (mg/L)",
        y = "Eye Width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"))
+        text = element_text(family = "Helvetica"),
+        legend.position = "none")
+
+## Save the main plot panel
+pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 4, width = 7)
+eyePlot
+dev.off()
+
+## Save the legend separately (same legend as in the previous plot, scaled down a bit)
+pdf(here("figures", "eyeWidths", "legend.pdf"), height = 4, width = 2)
+legendPlot
+dev.off()
 
 # Tables ------------------------------------------------------------------
 
