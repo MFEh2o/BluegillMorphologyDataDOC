@@ -14,7 +14,7 @@ dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210305.db" # name of db
 
 # Load the original pec fin data for comparison ---------------------------
-pf <- read.csv(here("data", "unclassified", "PecFinDataNovember.csv")) %>%
+pf <- read.csv(here("data", "unclassified", "PecFinDataNovember_ORIGINAL.csv")) %>%
   select(-imageID)
 
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
@@ -120,7 +120,7 @@ pfR <- pfR %>%
 ## Check
 pfR$fishStdLength %>% head(10)
 pf$fishStdLength %>% head(10)
-# These are more different than I'd like. We seem to be off, consistently, by about 2mm. # XXX ASK CHELSEA
+# These lengths are pretty far off. However, Chelsea and I both scrutinized them in March-April 2021, and Chelsea says she trusts the recomputed values more than the older values (per her 4/7 email). So I'm going to proceed with these recomputed values, even though that will change the model outputs.
 
 # Size-standardize the pec fins -----------------------------------------
 #finLengthSS, finBaseSS
@@ -138,7 +138,7 @@ pfR <- pfR %>%
 
 ## check it against the original
 head(pfR$finLengthSS)
-head(pf$finLengthSS) # These are pretty close, but a bit off. Differences almost certainly stem from the slight differences in fish size that I found above. Talk to Chelsea. 
+head(pf$finLengthSS) # These are a bit off, but note that the differences come from the discrepancies in fish lengths. As described above, we're proceeding with the re-computed values.
 
 ## Pec Fin Base Width
 ## To get the common within-group slope to be used in size-standardization, we fit a model without an interaction effect with lakeID
@@ -154,23 +154,24 @@ pfR <- pfR %>%
 
 ## check it against the original
 head(pfR$finBaseSS)
-head(pf$finBaseSS) # These are pretty close, but a bit off. Differences almost certainly stem from the slight differences in fish size that I found above. Talk to Chelsea. 
+head(pf$finBaseSS) # Once again, there are discrepancies here, with the differences coming from the differences in fish length described above. We're going with the re-computed values.
 
-# At this point, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
+# At this point in her original scripts, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
 
 # Write out the data ------------------------------------------------------
 write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), row.names = F)
 
-# Write out comparison fish sizes for Chelsea to look at ------------------
-comp <- fsl %>%
-  left_join(pf %>% select(fishID, "originalStdLength" = fishStdLength), by = "fishID") %>%
-  rename("recomputedStdLength" = fishStdLength) %>%
-  mutate(diff = recomputedStdLength-originalStdLength,
-         largeDiff = case_when(abs(diff) > 2 ~ T,
-                               TRUE ~ F))
-write.csv(comp, file = here("data", "outputs", "fslComparison.20210320.csv"), row.names = F)
-
-comp <- comp %>%
-  mutate(diff = abs(recomputedStdLength - originalStdLength))
-
-comp %>% filter(diff > 2) %>% pull(fishID)
+# (Below: I wrote out the old and new fish std length values for Chelsea to look at; this helped her determine which values we should trust.)
+# # Write out comparison fish sizes for Chelsea to look at ------------------
+# comp <- fsl %>%
+#   left_join(pf %>% select(fishID, "originalStdLength" = fishStdLength), by = "fishID") %>%
+#   rename("recomputedStdLength" = fishStdLength) %>%
+#   mutate(diff = recomputedStdLength-originalStdLength,
+#          largeDiff = case_when(abs(diff) > 2 ~ T,
+#                                TRUE ~ F))
+# write.csv(comp, file = here("data", "outputs", "fslComparison.20210320.csv"), row.names = F)
+# 
+# comp <- comp %>%
+#   mutate(diff = abs(recomputedStdLength - originalStdLength))
+# 
+# comp %>% filter(diff > 2) %>% pull(fishID)
