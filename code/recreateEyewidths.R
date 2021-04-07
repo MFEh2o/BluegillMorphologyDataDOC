@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210305.db" # name of db
+db <- "MFEdb_20210402.db" # name of db
 
 # Load the original eyewidthsFINAL for comparison -------------------------
 ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
@@ -127,3 +127,4 @@ head(ew$sizeStandardize) # these are very close but slightly different. I think 
 
 # Write out the data ------------------------------------------------------
 write.csv(ewR, file = here("data", "outputs", "eyewidthsFINAL.csv"), row.names = F)
+

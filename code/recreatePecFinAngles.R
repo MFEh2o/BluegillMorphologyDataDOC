@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210305.db" # name of db
+db <- "MFEdb_20210402.db" # name of db
 
 # Load the original pec fin angle data for comparison ---------------------
 pfa <- read.csv(here("data", "unclassified", "Pec Fin Angles_ORIGINAL.csv"))
@@ -28,7 +28,7 @@ pfaR <- fm %>%
   rename("fishID" = imageFile) %>%
   filter(parameter %in% c("X13", "Y13", "X14", "Y14", "pecFinInsertionAngle")) %>%
   group_by(fishID, parameter) %>%
-  slice(1) %>% # take the first measurement when there were multiple measurements.
+  slice(1) %>% # take the first measurement when the fish was measured more than once.
   pivot_wider(id_cols = fishID, names_from = "parameter", values_from = "parameterValue")
 
 # Are all the fish represented?
@@ -37,16 +37,6 @@ all(pfa$fishID %in% pfaR$fishID) # good!
 # Limit it to the fish contained in the original file
 pfaR <- pfaR %>%
   filter(fishID %in% pfa$fishID)
-
-nrow(pfaR) == nrow(pfa)
-all(pfaR$fishID == pfa$fishID)
-round(pfaR$X13, 2) == round(pfa$X13, 2) # still many not equal.
-tail(pfa$X13)
-tail(pfaR$X13) # hm... Could this be another case of the multiple-fish problem?
-fm %>% filter(imageFile == "TW FN 015.jpg", parameter == "X13") # huh, no, there's only one X13 for e.g. this one.
-fm %>% filter(imageFile == "TW FN 014.jpg", parameter == "X13") # only one for this one too. So why are these different?
-
-# XXX START HERE
 
 # lakeID ------------------------------------------------------------------
 pfaR <- pfaR %>%
@@ -83,42 +73,23 @@ pfaR <- pfaR %>%
 all(pfaR$DOC == pfa$DOC) # yay!
 
 # Calculate fish standard length ------------------------------------------
-# Because the photo names are different for the pec fins vs. for the full fish bodies, I need to join through FISH_MORPHOMETRICS. We need a three-way lookup table...
-
-## Get pec fin image file names
-pecFinPhotos <- pfaR$fishID
-
-## Get fishID's for those image files
-fishIDs <- fm %>%
-  filter(parameter == "pecFinInsertionAngle",
-         imageFile %in% pecFinPhotos) %>%
-  select(fishID, imageFile) %>%
-  rename("pfaImageFile" = imageFile) %>%
-  distinct()
-
 ## Now use those same fishID's to grab the bodyImageFiles and the parameters we need
 params <- fm %>%
   filter(parameter %in% c("X7", "Y7", "X1", "Y1"),
-         fishID %in% fishIDs$fishID) %>%
-  select(fishID, imageFile, parameter, parameterValue) %>%
+         imageFile %in% pfaR$fishID) %>%
+  select(imageFile, parameter, parameterValue) %>%
   group_by(imageFile, parameter) %>%
   slice(1) %>%
   ungroup() %>%
-  pivot_wider(names_from = parameter, values_from = parameterValue) %>%
-  rename("bodyImageFile" = imageFile)
+  pivot_wider(names_from = parameter, values_from = parameterValue)
 
-nrow(params) == nrow(fishIDs)
-nrow(params) # 417
-
-## Join the two together
-fsl <- left_join(fishIDs, params, by = "fishID")
-nrow(fsl) # still 417, good!
+nrow(params) == nrow(pfaR)
+all(pfaR$fishID %in% params$imageFile) # okay, good.
 
 ## Compute lengths
-fsl <- fsl %>%
+fsl <- params %>%
   mutate(fishStdLength = sqrt((X7-X1)^2+(Y7-Y1)^2)) %>%
-  select(pfaImageFile, fishStdLength) %>%
-  rename("fishID" = pfaImageFile)
+  rename("fishID" = imageFile)
 
 all(fsl$fishID %in% pfaR$fishID) # now we have body lengths for all of the fish! Yay!
 
@@ -131,10 +102,10 @@ pfaR$fishStdLength %>% head(10)
 pfa$fishStdLength %>% head(10)
 # Ok good, these are really really similar.
 
-# Maybe we don't need the X and Y parameters?
+# Maybe I don't need the X and Y parameters to calculate the insertion angle--can just use the one that Chelsea already computed.
 head(pfa$ang_deg)
 head(pfaR$pecFinInsertionAngle) 
-all(pfa$ang_deg == pfaR$pecFinInsertionAngle) # ok yeah these are identical. So presumably the angle measure was taken from this document and put into notoriousBLG. But if that's the case, it was presumably calculated from the X and Y landmarks, so I would like to be able to recreate that. XXX ASK CHELSEA!
+all(pfa$ang_deg == pfaR$pecFinInsertionAngle) # ok yeah these are identical. So presumably the angle measure was taken from this document and put into notoriousBLG. But if that's the case, it was presumably calculated from the X and Y landmarks, so I would like to be able to recreate that. See "landmarksToMeasurements.R".
 
 # Check to see if relationship with size to see if the angle needs to be size-standardized
 ggplot(pfaR, aes(x = fishStdLength, 

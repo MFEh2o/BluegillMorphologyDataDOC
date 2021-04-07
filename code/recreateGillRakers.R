@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210305.db" # name of db
+db <- "MFEdb_20210402.db" # name of db
 
 # Load the original Gill_Rakers_2018_Final.csv for comparison -------------
 gr <- read.csv(here("data", "unclassified", "Gill_Rakers_2018_Final_ORIGINAL.csv")) 
