@@ -6,7 +6,6 @@ library(dplyr) # for data wrangling
 library(tidyr) # for data wrangling
 library(stringr) # for text string manipulation
 library(here) # for file paths
-source(here("code", "dbUtil.R")) # for the dbTable() function
 library(openxlsx)
 
 # Load the original Identifiers_Update_2020.txt for comparison ------------
