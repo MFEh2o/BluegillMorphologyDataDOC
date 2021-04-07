@@ -10,7 +10,6 @@ library(here)
 library(dplyr)
 
 # make coordinates into sf object
-setwd("~/Documents/Research/People/Students/current/Bishop_Chelsea/lakeWatersheds/")
 d <- read.csv(here("data", "inputs", "lakeInfo.csv"), 
               header = T, stringsAsFactors = F)
 dsf <- st_as_sf(d[,c("lat", "long")], 
