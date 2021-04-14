@@ -1,5 +1,5 @@
-# BluegillShapeData
-DOC-Geometric Morphometrics Analyses
+# Bluegill Shape Data
+Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
 
 ### Abstract
 This repo contains code and data related to Chelsea Bishop's project on Bluegill morphometrics. The data, including a version of the MFE database (where the original landmark data resides) can be found in the data/ folder. Code is in the code/ folder. Archived scripts, which didn't end up being necessary to the complete minimal reproducible pipeline (e.g. earlier drafts of Chelsea's analysis) are thrown into the archived/ folder. The [renv](https://rstudio.github.io/renv/articles/renv.html)/ folder preserves package versions used in this analysis, including older versions of packages that may not be current on CRAN. The resources/ folder has various relevant literature documents and manuscript drafts. The figures/ folder contains some drafts
