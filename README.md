@@ -1,5 +1,5 @@
-# BluegillShapeData
-DOC-Geometric Morphometrics Analyses
+# Bluegill Shape Data
+Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
 
 ### Abstract
 This repo contains code and data related to Chelsea Bishop's project on Bluegill morphometrics. The data, including a version of the MFE database (where the original landmark data resides) can be found in the data/ folder. Code is in the code/ folder. Archived scripts, which didn't end up being necessary to the complete minimal reproducible pipeline (e.g. earlier drafts of Chelsea's analysis) are thrown into the archived/ folder. The [renv](https://rstudio.github.io/renv/articles/renv.html)/ folder preserves package versions used in this analysis, including older versions of packages that may not be current on CRAN. The resources/ folder has various relevant literature documents and manuscript drafts. The figures/ folder contains some drafts
@@ -9,6 +9,14 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 ![2ChelseaDataSchematic (1)](https://user-images.githubusercontent.com/37053323/113429309-4ec01f00-93a6-11eb-99d3-bc1b5de15085.png)
 
 ### Directory structure
+- archived/ contains older scripts and data files that aren't part of the final reproducible workflow. Experimentation etc.
+- code/ contains final R code files, represented in the schema above.
+- data/ contains final data files, including minimal necessary inputs and outputs. 
+     - unclassified/ contains a few data files carried over from the archived data folder, to use as comparison for the recreated data files. Where there are discrepancies between these files and the final files in outputs/, they are noted in the recreate*.R scripts.
+- figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in ReviewApril2020_KGedit.R. When further editing is needed, these can be loaded into Photoshop or similar and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files.
+- renv/ contains data about package versions used in preparing this project, to facilitate re-running the analyses at a later date even if packages have been updated.
+- resources/ contains various manuscripts and literature that was helpful in preparing these analyses.
+
 
 ```
 .
