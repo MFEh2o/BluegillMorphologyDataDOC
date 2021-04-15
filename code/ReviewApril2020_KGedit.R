@@ -1,11 +1,18 @@
-library(geomorph)
-library(shapes)
-library(Morpho)
-library(StereoMorph)
-library(phangorn)
-library(dplyr) # pipes etc
+# Main analysis script
+# Created by Chelsea Bishop. Edits/reorganization by Kaija Gahm
+# Contains main fish size model, as well as models for eye widths, gill raker lengths/spaces, pectoral fin lengths/widths, and pectoral fin insertion angles. Also contains code for figures and tables.
+
+
+# Load packages -----------------------------------------------------------
+# versions can be found in the renv lock file
+library(geomorph) # for morphometric analysis
+library(shapes) # for morphometric analysis
+library(Morpho) # for morphometric analysis
+library(StereoMorph) # for morphometric analysis
+library(phangorn) # for morphometric analysis?
+library(dplyr) # for pipes etc
 library(lme4) # for mixed models
-library(lmerTest)
+library(lmerTest) # to calculate stats on mixed models
 library(ggplot2) # for plots
 library(MuMIn) # for effect sizes
 library(here) # for file paths
@@ -16,7 +23,7 @@ library(ggtext) # for ggplots
 myData_tps <- readland.tps(here("data", "inputs", "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), specID = "imageID")
 mylinks <- read.table(here("data", "inputs", "Full_body_links.txt"))
 identifiers <- read.table(here("data", "outputs", "Identifiers_Update_2020.txt"), 
-                          sep = ",", header = TRUE) # reading in the version that I created from inputs
+                          sep = ",", header = TRUE)
 
 dimnames(myData_tps)[[3]] <- identifiers$imageID
 dimnames(myData_tps)[[1]] <- c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19") 
