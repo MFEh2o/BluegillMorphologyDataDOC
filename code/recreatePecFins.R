@@ -158,6 +158,13 @@ head(pf$finBaseSS) # Once again, there are discrepancies here, with the differen
 
 # At this point in her original scripts, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
 
+# Compute size-standardized length:width ratio ----------------------------
+pfR$finRatioSS <- pfR$finLengthSS/pfR$finBaseSS
+
+## compare with original
+head(pfR$finRatioSS)
+head(pf$ss_ratio) # similar, but not the same, due to ss body length differences.
+
 # Write out the data ------------------------------------------------------
 write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), row.names = F)
 
