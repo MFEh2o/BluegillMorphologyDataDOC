@@ -741,9 +741,10 @@ dfraker <- dfraker %>%
                            basin == "7" ~ "Mississippi Watershed"),
          lakeID = factor(lakeID, levels = names(lakeColors)))
 
+## Exponentiate the fitted values to convert them back to real mm units # 
 ## make panel A, with legend (we'll remove the legend when we plot it)
 panelA <- dfraker %>%
-  ggplot(aes(x = lakeDOC, y = fitted_L))+
+  ggplot(aes(x = lakeDOC, y = exp(fitted_L)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
@@ -759,7 +760,7 @@ panelA <- dfraker %>%
 
 ## make panel B
 panelB <- dfraker %>%
-  ggplot(aes(x = lakeDOC, y = fitted_S))+
+  ggplot(aes(x = lakeDOC, y = exp(fitted_S)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
@@ -775,6 +776,7 @@ panelB <- dfraker %>%
         legend.position = "none")
 
 ## Make panel C, with x-axis label
+### not exponentiating the fitted values on this one because they weren't log-transformed.
 panelC <- dfraker %>%
   ggplot(aes(x = lakeDOC, y = fitted_C))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
