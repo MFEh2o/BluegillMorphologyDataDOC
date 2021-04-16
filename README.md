@@ -59,6 +59,16 @@ Here is a diagram illustrating the reproducible data and code pipeline.
     ├── LandmarkDiagrams.pdf
     └── Manuscript Draft_FiguresInText.docx
 ```
+### Data sources
+- **MFEdb_20210402.db** Many of the recreate*.R scripts draw from data in the FISH_MORPHOMETRICS table of the MFE database. The database version that is used in this analysis is version 4.5.2, from 2021-04-02. It can be downloaded from [the MFE Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598) as Figshare v4 (https://doi.org/10.25390/caryinstitute.7438598.v4).
+- **Bishop_NotoriousBLG.xlsx** manually-created file with raw landmark measurements, mostly copied/exported from the [tpsDIG program](http://www.sbmorphometrics.org/soft-dataacq.html).
+- **fishBodyPhotos_fileNames.txt** created by running `ls()` on the folder "fishBodyPhotos", stored in the MFE Box drive under "MFE/notoriousBLGPhotoArchive".
+- **FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS** created by tpsDIG
+- **Full_body_links.txt** created manually by Chelsea Bishop, based on knowledge of how the body landmarks interact. This file serves as a precursor to geometric morphometric analyses.
+- **lakeInfo.csv** mostly pulled from LAKES in the database, but with DOC values originating elsewhere. #XXX need to flesh this out and create a full workflow!
+- **PecFins2018.TPS** created by tpsDIG
+- **proposedFishScapeLakeList_20180327.csv** # XXX flesh out the DOC workflow here.
+- **region4/** and **region7/** shapefiles are from the USGS NHDPlus Version 2 dataset. Source links: [region 4 (Great Lakes)](https://nhdplus.com/NHDPlus/NHDPlusV2_04.php), [region 7 (Upper Mississippi)](https://nhdplus.com/NHDPlus/NHDPlusV2_07.php), [general NHDPlus page](https://nhdplus.com/NHDPlus/NHDPlusV2_data.php)
 
 ### Contributions
 Repository created by Chelsea Bishop and Kaija Gahm in 2020-21. 
