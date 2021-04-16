@@ -23,36 +23,35 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 .
 ├── BluegillMorphologyDataDOC.Rproj
 ├── README.md
-├── archived
-│   ├── code
-│   └── data
-├── code
+├── archived/
+│   ├── code/
+│   └── data/
+├── code/
 │   ├── DOC_binning.R
 │   ├── ReviewApril2020_KGedit.R
 │   ├── createIdentifiersUpdated.R
 │   ├── dbUtil.R
 │   ├── hucIDforLakes.R
-│   ├── map.R
 │   ├── recreateEyewidths.R
 │   ├── recreateGillRakers.R
 │   ├── recreatePecFinAngles.R
 │   └── recreatePecFins.R
-├── data
+├── data/
 │   ├── MFEdb_20210402.db
-│   ├── inputs
-│   ├── outputs
-│   └── unclassified
-├── figures
-│   ├── eyeWidths
-│   ├── fishShapes_pc1_pc2
-│   ├── gillRakers
-│   └── pecFins
-├── renv
+│   ├── inputs/
+│   ├── outputs/
+│   └── unclassified/
+├── figures/
+│   ├── eyeWidths/
+│   ├── fishShapes_pc1_pc2/
+│   ├── gillRakers/
+│   └── pecFins/
+├── renv/
 │   ├── activate.R
-│   ├── library
+│   ├── library/
 │   └── settings.dcf
 ├── renv.lock
-└── resources
+└── resources/
     ├── BISHOP_THESIS2020_FINALSUBMISSION.pdf
     ├── Craigetal2017_Ecology&Evolution.pdf
     ├── Kaeuffer_et_al_2012.pdf
