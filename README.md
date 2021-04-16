@@ -38,7 +38,7 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 │   ├── recreatePecFinAngles.R
 │   └── recreatePecFins.R
 ├── data
-│   ├── MFEdb_20210305.db
+│   ├── MFEdb_20210402.db
 │   ├── inputs
 │   ├── outputs
 │   └── unclassified
