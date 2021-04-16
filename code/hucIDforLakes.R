@@ -52,5 +52,30 @@ d$basin[in07$row.id]="07"
 # hummingbird drains into Bay so using its huc for hummingbird
 d$basin[5]="04"
 
-d
-write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"),row.names=FALSE)
+# Define lake colors and shapes -------------------------------------------
+lakeColors <- data.frame("Lost" = rgb(205, 249, 239, maxColorValue = 255),
+                "Little_Crooked" = rgb(168, 243, 233, maxColorValue = 255),
+                "Crampton" = rgb(117, 219, 239, maxColorValue = 255),
+                "Found" = rgb(111, 139, 229, maxColorValue = 255),
+                "Towanda" = rgb(96, 144, 229, maxColorValue = 255),
+                "Papoose" = rgb(47, 78, 195, maxColorValue = 255),
+                "Muskellunge" = rgb(49, 81, 187, maxColorValue = 255),
+                "Bay" = rgb(43, 67, 139, maxColorValue = 255),
+                "Birch" = rgb(236, 202, 159, maxColorValue = 255),
+                "Oxbow" = rgb(207, 168, 159, maxColorValue = 255),
+                "McCullough" = rgb(161, 139, 96, maxColorValue = 255),
+                "Red Bass" = rgb(137, 106, 64, maxColorValue = 255),
+                "Squaw" = rgb(116, 85, 49, maxColorValue = 255),
+                "Hummingbird" = rgb(106, 77, 50, maxColorValue = 255)) %>%
+  pivot_longer(cols = everything(), names_to = "lakeName", values_to = "colorHex")
+
+d <- d %>%
+  left_join(lakeColors, by = "lakeName")
+
+# Assign shapes by basin
+d <- d %>%
+  mutate(shape = case_when(basin == "04" ~ 21,
+                           TRUE ~ 22))
+
+# Write out the final file ------------------------------------------------
+write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"), row.names=FALSE)

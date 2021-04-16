@@ -611,7 +611,7 @@ finLModel <- lmer(log(finLengthSS)~ 1 + log(DOC) + (1|lakeID), data = dfFin) # X
 
 finLModel <- lmer(finLengthSS ~ 1 + log(DOC) + (1|lakeID), data = dfFin) ## log removed
 finWModel <- lmer(log(finBaseSS) ~ 1 + log(DOC) + (1|lakeID), data = dfFin)
-finRModel <- lmer(log(finRss) ~ 1 + log(DOC) + (1|lakeID), data = dfFin)
+finRModel <- lmer(log(finRatioSS) ~ 1 + log(DOC) + (1|lakeID), data = dfFin)
 
 summary(finLModel)
 summary(finWModel)
@@ -622,48 +622,61 @@ fitted(finWModel)
 fitted(finRModel)
 
 # New models with basin
-FinLModelNew <- lmer(finLengthSS ~ 1 + log(DOC) + basin.fin + basin.fin:log(DOC) + 
+FinLModelNew <- lmer(finLengthSS ~ 1 + log(DOC) + basin + basin:log(DOC) + 
                     (1|lakeID), data = dfFin)
-summary(FinLModelNew) #Still singular had to remove log
-#Fin Length now Significant!!
-FinWModelNew=lmer(log(finWss) ~ 1 + log(DOC) + basin.fin + basin.fin:log(DOC) + (1|lakeID), data = dfFin)
+summary(FinLModelNew) #Still singular had to remove log # XXX the log version is no longer singular--can we add the log back in?
+
+FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + 
+                       (1|lakeID), data = dfFin)
 summary(FinWModelNew)
-#Still no effect on base width
-FinRModelNew=lmer(log(finRss) ~ 1 + log(DOC) + basin.fin + basin.fin:log(DOC) + (1|lakeID), data = dfFin)
+#Still no effect on base width  XXX does this comment still make sense?
+
+FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + 
+                       basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinRModelNew)
-#Still no effect on fin ratio
+#Still no effect on fin ratio # XXX does this comment still make sense?
 
-fitted(FinLModelNew)
-fitted(FinWModelNew)
-fitted(FinRModelNew)
+dfFin$fitted_PL <- fitted(FinLModelNew)
+dfFin$fitted_PW <- fitted(FinWModelNew)
+dfFin$fitted_PR <- fitted(FinRModelNew)
 
-ggplot(dfFin,aes(x = DOC, y = fitted_PL, label= lakeID)) + 
+# Plots of fitted values
+ggplot(dfFin, aes(x = DOC, y = fitted_PL, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
-ggplot(dfFin,aes(x = DOC, y = fitted_PW, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = fitted_PW, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
 
-ggplot(dfFin,aes(x = DOC, y = fitted_PR, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = fitted_PR, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
-ggplot(dfFin,aes(x = DOC, y = PecFinLength, label= lakeID)) + 
+# Plots of non-fitted values
+## raw
+ggplot(dfFin, aes(x = DOC, y = pecFinLength, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
-ggplot(dfFin,aes(x = DOC, y = PecFinBase, label= lakeID)) + 
+
+ggplot(dfFin,aes(x = DOC, y = pecFinBaseWidth, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
-ggplot(dfFin,aes(x = DOC, y = finLss, label= lakeID)) + 
+
+## size-standardized
+ggplot(dfFin,aes(x = DOC, y = finLengthSS, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
-ggplot(dfFin,aes(x = DOC, y = finWss, label= lakeID)) + 
+
+ggplot(dfFin,aes(x = DOC, y = finBaseSS, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
-ggplot(dfFin,aes(x = DOC, y = finRss, label= lakeID)) + 
+
+ggplot(dfFin,aes(x = DOC, y = finRatioSS, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
 
 # Pec Fin Angles ----------------------------------------------------------
 dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
   rename("finangle" = "pecFinInsertionAngle")
 
-finAModel <- lmer(log(finangle) ~ 1 + log(DOC) + (1|lakeID), data = dfangle)
-summary(finAModel)
+# Without basin
+# finAModel <- lmer(log(finangle) ~ 1 + log(DOC) + (1|lakeID), data = dfangle)
+# summary(finAModel)
 
+# With basin
 FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID),
                      data = dfangle)
 summary(FinAModelNew)
@@ -674,7 +687,7 @@ fitted(FinAModelNew) # yep, these are the right values to use.
 dfangle$fitted <- fitted(FinAModelNew)
 
 ## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
-write.csv(dfangle, file = here("data", "outputs", "PecFinAnglesFINAL_wFitted.csv"), row.names = F)
+# write.csv(dfangle, file = here("data", "outputs", "PecFinAnglesFINAL_wFitted.csv"), row.names = F)
 
 # Plots:
 ggplot(dfangle, aes(x = DOC, y = fitted, label = lakeID)) + 
@@ -686,24 +699,6 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
 
 # Figures -----------------------------------------------------------------
 ## Code reorganized and expanded by Kaija
-
-# Define lake color values:
-lakeColors <- c("Lost" = rgb(205, 249, 239, maxColorValue = 255),
-                "Little Crooked" = rgb(168, 243, 233, maxColorValue = 255),
-                "Crampton" = rgb(117, 219, 239, maxColorValue = 255),
-                "Found" = rgb(111, 139, 229, maxColorValue = 255),
-                "Towanda" = rgb(96, 144, 229, maxColorValue = 255),
-                "Papoose" = rgb(47, 78, 195, maxColorValue = 255),
-                "Muskellunge" = rgb(49, 81, 187, maxColorValue = 255),
-                "Bay" = rgb(43, 67, 139, maxColorValue = 255),
-                "Birch" = rgb(236, 202, 159, maxColorValue = 255),
-                "Oxbow" = rgb(207, 168, 159, maxColorValue = 255),
-                "McCullough" = rgb(161, 139, 96, maxColorValue = 255),
-                "Red Bass" = rgb(137, 106, 64, maxColorValue = 255),
-                "Squaw" = rgb(116, 85, 49, maxColorValue = 255),
-                "Hummingbird" = rgb(106, 77, 50, maxColorValue = 255))
-
-lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
 
 # Figures 1, 2, 3 ---------------------------------------------------------
 ## Fig 1.: Map
