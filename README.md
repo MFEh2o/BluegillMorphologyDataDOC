@@ -28,6 +28,8 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 │   └── data/
 ├── code/
 │   ├── DOC_binning.R
+|   ├── calculateDOC.R
+|   ├── landmarksToMeasurements.R
 │   ├── ReviewApril2020_KGedit.R
 │   ├── createIdentifiersUpdated.R
 │   ├── dbUtil.R
