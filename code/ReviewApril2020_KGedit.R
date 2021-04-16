@@ -107,7 +107,7 @@ Towanda <- PCscores[idx,]
 
 # Save plots of the PC1 extremes ------------------------------------------
 # Open an pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf")) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1min, 
                 corePCA$pc.shapes$PC1max,
@@ -125,7 +125,7 @@ plotRefToTarget(corePCA$pc.shapes$PC1min,
 dev.off() # close the device
 
 # Open an pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf")) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1max,
                 corePCA$pc.shapes$PC1min, 
@@ -144,7 +144,7 @@ dev.off() # close the device
 
 # Save plots of the PC2 extremes ------------------------------------------
 # Open an pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf")) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2min, 
                 corePCA$pc.shapes$PC2max,
@@ -162,7 +162,7 @@ plotRefToTarget(corePCA$pc.shapes$PC2min,
 dev.off()
 
 # Open an pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf")) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2max, 
                 corePCA$pc.shapes$PC2min,
@@ -310,7 +310,7 @@ per_var <- (resEig$values / sum(resEig$values))*100
 
 # Make Fig 3 --------------------------------------------------------------
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf")) 
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9, height = 9) 
 # plot
 # Create plot box with axes and axis labels
 plot(scores[, pcs], type="n", main="Backtransform morphospace",
@@ -814,12 +814,13 @@ dev.off()
 
 # Figure 6 ----------------------------------------------------------------
 # Eye width across DOC gradient. One panel.
+## exponentiating these values to undo the log-transformation
 eyePlot <- dfeye %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " ")) %>%
   mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
          lakeID = factor(lakeID, levels = names(lakeColors))) %>%
-  ggplot(aes(x = DOC, y = fitted))+
+  ggplot(aes(x = DOC, y = exp(fitted)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
