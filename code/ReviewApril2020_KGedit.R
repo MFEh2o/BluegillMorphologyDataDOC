@@ -700,6 +700,24 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
 # Figures -----------------------------------------------------------------
 ## Code reorganized and expanded by Kaija
 
+# Define lake color values:
+lakeColors <- c("Lost" = rgb(205, 249, 239, maxColorValue = 255),
+                "Little Crooked" = rgb(168, 243, 233, maxColorValue = 255),
+                "Crampton" = rgb(117, 219, 239, maxColorValue = 255),
+                "Found" = rgb(111, 139, 229, maxColorValue = 255),
+                "Towanda" = rgb(96, 144, 229, maxColorValue = 255),
+                "Papoose" = rgb(47, 78, 195, maxColorValue = 255),
+                "Muskellunge" = rgb(49, 81, 187, maxColorValue = 255),
+                "Bay" = rgb(43, 67, 139, maxColorValue = 255),
+                "Birch" = rgb(236, 202, 159, maxColorValue = 255),
+                "Oxbow" = rgb(207, 168, 159, maxColorValue = 255),
+                "McCullough" = rgb(161, 139, 96, maxColorValue = 255),
+                "Red Bass" = rgb(137, 106, 64, maxColorValue = 255),
+                "Squaw" = rgb(116, 85, 49, maxColorValue = 255),
+                "Hummingbird" = rgb(106, 77, 50, maxColorValue = 255))
+
+lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
+
 # Figures 1, 2, 3 ---------------------------------------------------------
 ## Fig 1.: Map
 ### I don't think we need code for this one. Can just use the same image she had before.
