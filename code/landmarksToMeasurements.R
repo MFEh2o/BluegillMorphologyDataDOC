@@ -19,7 +19,6 @@ db <- "MFEdb_20210402.db" # name of db
 fm <- dbTable("fish_morphometrics")
 
 # Define a function to compute Euclidean distance -------------------------
-# There is probably already a function for this, but I didn't feel like loading extra packages and it was simple enough to write!
 eudist <- function(x1, x2, y1, y2){ # takes four vectors as input
   deltax <- x2-x1
   deltay <- y2-y1
@@ -62,13 +61,16 @@ pfa <- fm %>%
   pivot_wider(id_cols = c("imageFile", "replicate"), names_from = parameter, values_from = parameterValue) %>%
   filter(!is.na(X13), !is.na(X14))
 
-pfa$pecFinInsertionAngleRecomputed <- NA # initialize column
-## Attempt to use angle.calc function from Morpho package to compute angles
-for(i in 1:nrow(pfa)){
-  pfa$pecFinInsertionAngleRecomputed[i] <- angle.calc(x = c(pfa$X14[i], pfa$Y14[i]),
-                                                  y = c(pfa$X13[i], pfa$Y13[i]))*(180/pi) # divide by 180/pi to convert from radians to degrees
+pfa <- pfa %>%
+  mutate(pecFinInsertionAngleRecomputed = 
+           asin( # arcsin(opposite/hypotenuse) = angle (see diagram in Resources/ folder)
+             (Y14-Y13)/ # Vertical distance between 14 and 14 (opposite)
+               eudist(X13, X14, Y13, Y14) # eudist function defined above to compute linear distance between two points. Arguments in the following order: X1, X2, Y1, Y2. (hypotenuse)
+             )*
+           (180/pi) # multiply by 180/pi to convert from radians to degrees
+         )
 
-} # XXX THIS ISN'T WORKING--angles don't make sense. Where could I find the original angle calculation?
+head(pfa %>% select(contains("pecFinInsertionAngle")), 10) %>% mutate(sum = pecFinInsertionAngle + pecFinInsertionAngleRecomputed) # wow, this does not match up at all with pecFinInsertionAngle!
 
 
 # pecFinLength ------------------------------------------------------------
