@@ -12,7 +12,7 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 - archived/ contains older scripts and data files that aren't part of the final reproducible workflow. Experimentation etc.
 - code/ contains final R code files, represented in the schema above.
 - data/ contains final data files, including minimal necessary inputs and outputs. 
-     - This analysis draws from MFEdb_20210402.db, which is version 4.5.2 of the database. This is the same version that's stored on [the MFE Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598) as Figshare v4 (https://doi.org/10.25390/caryinstitute.7438598.v4).
+     - This analysis draws from MFEdb_20210423.db, which is version 4.5.2 of the database. This is the same version that's stored on [the MFE Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598) as Figshare v4 (https://doi.org/10.25390/caryinstitute.7438598.v4).
      - unclassified/ contains a few data files carried over from the archived data folder, to use as comparison for the recreated data files. Where there are discrepancies between these files and the final files in outputs/, they are noted in the recreate*.R scripts.
 - figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in ReviewApril2020_KGedit.R. When further editing is needed, these can be loaded into Photoshop or similar and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files.
 - renv/ contains data about package versions used in preparing this project, to facilitate re-running the analyses at a later date even if packages have been updated.
@@ -39,7 +39,7 @@ Here is a diagram illustrating the reproducible data and code pipeline.
 │   ├── recreatePecFinAngles.R
 │   └── recreatePecFins.R
 ├── data/
-│   ├── MFEdb_20210402.db
+│   ├── MFEdb_20210423.db
 │   ├── inputs/
 │   ├── outputs/
 │   └── unclassified/
@@ -61,7 +61,7 @@ Here is a diagram illustrating the reproducible data and code pipeline.
     └── Manuscript Draft_FiguresInText.docx
 ```
 ### Data sources
-- **MFEdb_20210402.db** Many of the recreate*.R scripts draw from data in the FISH_MORPHOMETRICS table of the MFE database. The database version that is used in this analysis is version 4.5.2, from 2021-04-02. It can be downloaded from [the MFE Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598) as Figshare v4 (https://doi.org/10.25390/caryinstitute.7438598.v4).
+- **MFEdb_20210402.db** Many of the recreate*.R scripts draw from data in the FISH_MORPHOMETRICS table of the MFE database. The database version that is used in this analysis is version 4.5.4, from 2021-04-23. It can be downloaded from [the MFE Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598) as Figshare v4 (https://doi.org/10.25390/caryinstitute.7438598.v4).
 - **Bishop_NotoriousBLG.xlsx** manually-created file with raw landmark measurements, mostly copied/exported from the [tpsDIG program](http://www.sbmorphometrics.org/soft-dataacq.html).
 - **fishBodyPhotos_fileNames.txt** created by running `ls()` on the folder "fishBodyPhotos", stored in the MFE Box drive under "MFE/notoriousBLGPhotoArchive".
 - **FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS** created by tpsDIG
