@@ -13,7 +13,7 @@ library(Morpho) # for angles
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210402.db" # name of db
+db <- "MFEdb_20210423.db" # name of db
 
 # Load the FISH_MORPHOMETRICS data ----------------------------------------
 fm <- dbTable("fish_morphometrics")
@@ -45,45 +45,47 @@ ew %>%
 
 
 # pecFinBaseWidth ---------------------------------------------------------
-# Distance between landmark 13 and landmark 14 (defined in Chelsea's thesis)
-fm %>%
-  group_by(imageFile) %>%
-  filter("pecFinBaseWidth" %in% parameter) %>%
-  pull(parameter) %>% 
-  unique()
-# XXX question here: even though landmarks 13 and 14 are marked on the diagram of the pec fins alone, we don't have data for landmarks 13 and 14 for the pec-fin-only photos. Because of that, where did the pecFinBaseWidth measurements come from? Did they come from the full-body photos, or were they taken with the ruler in imageJ, or were landmarks 13 and 14 measured on the pec-fin-only photos but not recorded?
+# Distance between landmark 13 and landmark 14, computed on PEC FIN photos
+recomp <- fm %>%
+  filter(imageType == "pec_fin_only",
+         parameter %in% c("pecFinBaseWidth", "X13", "Y13", "X14", "Y14")) %>%
+  pivot_wider(id_cols = c("imageFile", "replicate"),
+              names_from = "parameter",
+              values_from = "parameterValue") %>%
+  mutate(pecFinBaseWidthRecomputed = eudist(X13, X14, Y13, Y14),
+         diff = pecFinBaseWidthRecomputed - pecFinBaseWidth)
+
+# Visualize the differences
+recomp %>%
+  ggplot(aes(x = diff))+
+  geom_density() # yeah, these are all basically zero--rounding differences. Not a concern. Good!
 
 # pecFinInsertionAngle ----------------------------------------------------
-# Angle between landmark 13 and landmark 14
-pfa <- fm %>%
-  filter(parameter %in% c("pecFinInsertionAngle", "X13", "Y13", "X14", "Y14")) %>%
-  select(imageFile, replicate, parameter, parameterValue) %>%
-  pivot_wider(id_cols = c("imageFile", "replicate"), names_from = parameter, values_from = parameterValue) %>%
-  filter(!is.na(X13), !is.na(X14))
+# I'm not going to go through the steps of recomputing this because I just computed the angles now, and I'd just be rehashing my old code. 
 
-pfa <- pfa %>%
-  mutate(pecFinInsertionAngleRecomputed = 
-           asin( # arcsin(opposite/hypotenuse) = angle (see diagram in Resources/ folder)
-             (Y14-Y13)/ # Vertical distance between 14 and 14 (opposite)
-               eudist(X13, X14, Y13, Y14) # eudist function defined above to compute linear distance between two points. Arguments in the following order: X1, X2, Y1, Y2. (hypotenuse)
-             )*
-           (180/pi) # multiply by 180/pi to convert from radians to degrees
-         )
+# "pecFinAngleDiagram.png" in Resources/ shows how this angle was computed--it's the angle marked in red.
+# The formula is (code copied from "gh142_pecFinPhotoLandmarks.R" for the MFE database--version 4.5.4, 2021-04-23:
 
-head(pfa %>% select(contains("pecFinInsertionAngle")), 10) %>% mutate(sum = pecFinInsertionAngle + pecFinInsertionAngleRecomputed) # wow, this does not match up at all with pecFinInsertionAngle!
+# angle = 
+#   asin( # arcsin(opposite/hypotenuse) = angle (see diagram in Resources/ folder)
+#     (Y14-Y13)/ # Vertical distance between 14 and 14 (opposite)
+#       eudist(X13, X14, Y13, Y14) # eudist function defined above to compute linear distance between two points. Arguments in the following order: X1, X2, Y1, Y2. (hypotenuse)
+#   )*
+#   (180/pi) # multiply by 180/pi to convert from radians to degrees
 
+# The function "eudist" is defined above. Euclidean distance between landmarks 13 and 14, in this case.
 
 # pecFinLength ------------------------------------------------------------
 # Distance between landmark 14 and landmark 21
-# XXX same question here as for the pecFinBaseWidth.
-fm %>%
-  group_by(imageFile) %>%
-  filter("pecFinLength" %in% parameter) %>%
-  pull(parameter) %>% 
-  unique()
+# Likewise, I'm not going to bother here, because I recomputed these lengths already and found some discrepancies. I used that to make updates to FISH_MORPHOMETRICS in the gh142_pecFinPhotoLandmarks.R script in the MFE database pipeline. So they've been recently checked.
+
+# pecFinRatioSizeStd ------------------------------------------------------
+  
 
 
 # pecFinRatioSizeStd: "width of the insertion point of the fin divided by its total length." (size-standardized)
+
+
 # raker lengths: measured with the ruler in imageJ or tpsDig
 # raker spaces: measured with the ruler in imageJ or tpsDig
 
