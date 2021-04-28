@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210402.db" # name of db
+db <- "MFEdb_20210423.db" # name of db
 
 # Load the original eyewidthsFINAL for comparison -------------------------
 ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
@@ -77,6 +77,7 @@ all(ewR$DOC == ew$DOC) # yay!
 # Not adding capture method because it doesn't get used in analyses.
 
 # Calculate fish standard length ------------------------------------------
+# XXX Soon, will be able to pull this directly from FISH_MORPHOMETRICS
 # Standard length is the distance between landmarks 1 and 7
 fsl <- fm %>%
   filter(parameter %in% c("X7", "Y7", "X1", "Y1")) %>%
@@ -101,27 +102,30 @@ ew$fishStdLength %>% head(10)
 # ok, these are the same to 2 decimal places. So not *quite* exactly the same.
 
 # Size-standardize the eye widths -----------------------------------------
-## Models to account for/remove fish size
-## First, a model that includes an interaction effect with `lakeID`:
-size.rem <- lm(log10(eyeWidth) ~ log10(fishStdLength)*lakeID, data = ewR)
-summary(size.rem) # we note that there is an interaction effect for CR, LT, and MS.
+# First, let's compute the mean fishStdLength across all fish
+meanFishSize <- mean(ewR$fishStdLength)
 
-## To get the common within-group slope to be used in size-standardization, we need to remove that interaction effect. So we'll fit a second model:
-size.rem2 <- lm(log10(eyeWidth) ~ log10(fishStdLength)+lakeID, data = ewR)
-summary(size.rem2) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishStdLength)`: 0.626646.
+# Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
+moda <- lm(log(eyeWidth) ~ log(fishStdLength), data = ewR)
+modb <- lm(log(eyeWidth) ~ log(fishStdLength)+lakeID, data = ewR)
+modc <- lm(log(eyeWidth) ~ log(fishStdLength)*lakeID, data = ewR)
+summary(modc) # we note that there is an interaction effect for CR, LT, and MS.
 
-commonWithinGroupSlope <- coef(size.rem2)[2] %>% unname() # programmatically grab that coefficient
-meanFishSize <- mean(ewR$fishStdLength) # compute the mean `fishStdLength` across all fish in the data set
+# Compare models to determine which coefficient to use
+anova(modc, modb) # model c is significantly better than model b
 
-## Now add a column to ewR for size-standardized eye width
+# We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
+coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
+coef #  0.6266465 
+
+# Now compute size-standardized eye width, adding the column to `ewR`
+## We're using the Kaeuffer version of the formula here (see notes doc)
 ewR <- ewR %>%
-  mutate(eyewidth.ss = eyeWidth*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
+  mutate(eyewidth.ss = eyeWidth*(meanFishSize/fishStdLength)^coef)
 
 ## check it against the original
 head(ewR$eyewidth.ss)
 head(ew$sizeStandardize) # these are very close but slightly different. I think that's because Chelsea said she rounded the commonWithinGroupSlope parameter to 0.62, whereas I'm using the whole thing. Indeed, I tried it out with the parameter rounded to 0.62, and then they're the same out to like 3 decimals.
-
-# At this point, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
 
 # I think that this file is now ready to write out and use in other analyses.
 
