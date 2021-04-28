@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210402.db" # name of db
+db <- "MFEdb_20210423.db" # name of db
 
 # Load the original pec fin angle data for comparison ---------------------
 pfa <- read.csv(here("data", "unclassified", "Pec Fin Angles_ORIGINAL.csv"))
@@ -26,7 +26,7 @@ lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
 pfaR <- fm %>%
   select(imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%
-  filter(parameter %in% c("X13", "Y13", "X14", "Y14", "pecFinInsertionAngle")) %>%
+  filter(parameter == "pecFinInsertionAngle") %>%
   group_by(fishID, parameter) %>%
   slice(1) %>% # take the first measurement when the fish was measured more than once.
   pivot_wider(id_cols = fishID, names_from = "parameter", values_from = "parameterValue")
@@ -73,6 +73,7 @@ pfaR <- pfaR %>%
 all(pfaR$DOC == pfa$DOC) # yay!
 
 # Calculate fish standard length ------------------------------------------
+# XXX will need to update this with the new standard lengths
 ## Now use those same fishID's to grab the bodyImageFiles and the parameters we need
 params <- fm %>%
   filter(parameter %in% c("X7", "Y7", "X1", "Y1"),
@@ -101,11 +102,6 @@ pfaR <- pfaR %>%
 pfaR$fishStdLength %>% head(10)
 pfa$fishStdLength %>% head(10)
 # Ok good, these are really really similar.
-
-# Maybe I don't need the X and Y parameters to calculate the insertion angle--can just use the one that Chelsea already computed.
-head(pfa$ang_deg)
-head(pfaR$pecFinInsertionAngle) 
-all(pfa$ang_deg == pfaR$pecFinInsertionAngle) # ok yeah these are identical. So presumably the angle measure was taken from this document and put into notoriousBLG. But if that's the case, it was presumably calculated from the X and Y landmarks, so I would like to be able to recreate that. See "landmarksToMeasurements.R".
 
 # Check to see if relationship with size to see if the angle needs to be size-standardized
 ggplot(pfaR, aes(x = fishStdLength, 
