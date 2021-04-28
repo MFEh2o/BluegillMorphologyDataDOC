@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210402.db" # name of db
+db <- "MFEdb_20210423.db" # name of db
 
 # Load the original pec fin data for comparison ---------------------------
 pf <- read.csv(here("data", "unclassified", "PecFinDataNovember_ORIGINAL.csv")) %>%
@@ -24,6 +24,7 @@ fm <- dbTable("fish_morphometrics")
 lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
 
 # Initialize recreated df -------------------------------------------------
+# XXX will need to re-run this with the fixed lengths/widths
 pfR <- fm %>%
   select(imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%
@@ -39,8 +40,8 @@ pfR <- pfR %>%
 
 nrow(pfR) == nrow(pf)
 all(pfR$fishID == pf$fishID)
-all(pfR$pecFinLength == pf$PecFinLengths) # all right, these match!
-all(pfR$pecFinBaseWidth == pf$baseWidth) # these also match. Good!
+all(pfR$pecFinLength == pf$PecFinLengths) # these don't quite match because I recomputed a few of them in the database update
+all(pfR$pecFinBaseWidth == pf$baseWidth) # these do match.
 
 # lakeID ------------------------------------------------------------------
 pfR <- pfR %>%
@@ -75,6 +76,7 @@ pfR <- pfR %>%
 all(pfR$DOC == pf$DOC) # yay!
 
 # Calculate fish standard length ------------------------------------------
+# XXX will need to update this once the standard lengths are in the database
 # Because the photo names are different for the pec fins vs. for the full fish bodies, I need to join through FISH_MORPHOMETRICS. We need a three-way lookup table...
 
 ## Get pec fin image file names
@@ -123,40 +125,52 @@ pf$fishStdLength %>% head(10)
 # These lengths are pretty far off. However, Chelsea and I both scrutinized them in March-April 2021, and Chelsea says she trusts the recomputed values more than the older values (per her 4/7 email). So I'm going to proceed with these recomputed values, even though that will change the model outputs.
 
 # Size-standardize the pec fins -----------------------------------------
-#finLengthSS, finBaseSS
-## Pec Fin Length
-## To get the common within-group slope to be used in size-standardization, we fit a model without an interaction effect with lakeID
-length.rem <- lm(log10(pecFinLength) ~ log10(fishStdLength)+lakeID, data = pfR)
-summary(length.rem) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishStdLength)`: 0.771971.
+# First, let's compute the mean fishStdLength across all fish
+meanFishSize <- mean(pfR$fishStdLength)
 
-commonWithinGroupSlope <- coef(length.rem)[2] %>% unname() # programmatically grab that coefficient
-meanFishSize <- mean(pfR$fishStdLength) # compute the mean `fishStdLength` across all fish in the data set
+# Pec Fin Lengths
+# Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
+moda <- lm(log(pecFinLength) ~ log(fishStdLength), data = pfR)
+modb <- lm(log(pecFinLength) ~ log(fishStdLength)+lakeID, data = pfR)
+modc <- lm(log(pecFinLength) ~ log(fishStdLength)*lakeID, data = pfR)
 
-## Now add a column to pfR for size-standardized eye width
+# Compare models to determine which coefficient to use
+anova(modc, modb) # model c is significantly better than model b
+
+# We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
+coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
+coef # 0.7673796
+
+# Now compute size-standardized fin length, adding the column to `pfR`
+## We're using the Kaeuffer version of the formula here (see notes doc)
 pfR <- pfR %>%
-  mutate(finLengthSS = pecFinLength*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
+  mutate(finLengthSS = pecFinLength*(meanFishSize/fishStdLength)^coef)
 
 ## check it against the original
 head(pfR$finLengthSS)
-head(pf$finLengthSS) # These are a bit off, but note that the differences come from the discrepancies in fish lengths. As described above, we're proceeding with the re-computed values.
+head(pf$finLengthSS) # pretty close!
 
-## Pec Fin Base Width
-## To get the common within-group slope to be used in size-standardization, we fit a model without an interaction effect with lakeID
-width.rem <- lm(log10(pecFinBaseWidth) ~ log10(fishStdLength)+lakeID, data = pfR)
-summary(width.rem) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishStdLength)`: 0.863176.
+## Pec Fin Base Widths
+# Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
+moda <- lm(log(pecFinBaseWidth) ~ log(fishStdLength), data = pfR)
+modb <- lm(log(pecFinBaseWidth) ~ log(fishStdLength)+lakeID, data = pfR)
+modc <- lm(log(pecFinBaseWidth) ~ log(fishStdLength)*lakeID, data = pfR)
 
-commonWithinGroupSlope <- coef(width.rem)[2] %>% unname() # programmatically grab that coefficient
-# meanFishSize is the same as it was above.
+# Compare models to determine which coefficient to use
+anova(modc, modb) # model c is significantly better than model b
 
-## Now add a column to pfR for size-standardized eye width
+# We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
+coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
+coef # 0.8631758
+
+# Now compute size-standardized fin base width, adding the column to `pfR`
+## We're using the Kaeuffer version of the formula here (see notes doc)
 pfR <- pfR %>%
-  mutate(finBaseSS = pecFinBaseWidth*(meanFishSize/fishStdLength)^commonWithinGroupSlope)
+  mutate(finBaseSS = pecFinBaseWidth*(meanFishSize/fishStdLength)^coef)
 
 ## check it against the original
 head(pfR$finBaseSS)
-head(pf$finBaseSS) # Once again, there are discrepancies here, with the differences coming from the differences in fish length described above. We're going with the re-computed values.
-
-# At this point in her original scripts, Chelsea also created a model for lake-specific size-standardized values. But she says that those values were not used in future calculations, so I'm going to skip doing that for now.
+head(pf$finBaseSS) # pretty close!
 
 # Compute size-standardized length:width ratio ----------------------------
 pfR$finRatioSS <- pfR$finLengthSS/pfR$finBaseSS
