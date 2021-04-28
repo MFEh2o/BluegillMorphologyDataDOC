@@ -11,7 +11,7 @@ library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
-db <- "MFEdb_20210402.db" # name of db
+db <- "MFEdb_20210423.db" # name of db
 
 # Load the original Gill_Rakers_2018_Final.csv for comparison -------------
 gr <- read.csv(here("data", "unclassified", "Gill_Rakers_2018_Final_ORIGINAL.csv")) 
@@ -129,36 +129,51 @@ head(gr$avgL_4.7) # okay, great! These look good. I also checked all of them, an
 # So, I'm only going to perform size-standardizations for those columns.
 
 # Average Raker Length (Rakers 4-7)
-## To get the common within-group slope to be used in size-standardization, we need to exclude an interaction effect with lakeID. So we'll fit this model:
-size.rem.avgL <- lm(log10(avgL_4.7) ~ log10(fishSL)+lakeID, data = grR)
-summary(size.rem.avgL) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishSL)`: 0.398793
+# First, let's compute the mean fishStdLength across all fish
+meanFishSize <- mean(grR$fishSL) # XXX this is different from the eyeWidths one. That's not good! The fishSL column is probably not right. Need to update this once I have the standard length values from FISH_MORPHOMETRICS directly.
 
-commonWithinGroupSlope <- coef(size.rem.avgL)[2] %>% unname() # programmatically grab that coefficient
-meanFishSize <- mean(grR$fishSL) # compute the mean `fishSL` across all fish in the data set
+# Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
+moda <- lm(log(avgL_4.7) ~ log(fishSL), data = grR)
+modb <- lm(log(avgL_4.7) ~ log(fishSL)+lakeID, data = grR)
+modc <- lm(log(avgL_4.7) ~ log(fishSL)*lakeID, data = grR)
 
-## Now add a column to grR for size-standardized avgL_4.7
+# Compare models to determine which coefficient to use
+anova(modc, modb) # model c is significantly better than model b
+
+# We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
+coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
+coef # 0.398793
+
+# Now compute size-standardized raker length, adding the column to `grR`
+## We're using the Kaeuffer version of the formula here (see notes doc)
 grR <- grR %>%
-  mutate(avgL2_ss = avgL_4.7*(meanFishSize/fishSL)^commonWithinGroupSlope)
+  mutate(avgL2_ss = avgL_4.7*(meanFishSize/fishSL)^coef)
 
 ## check it against the original
 head(grR$avgL2_ss)
-head(gr$avgL2_ss) # These values are slightly different than the values in Chelsea's csv. She looked into it, and explains that she accidentally used coef(size.rem.avgL)[1] (the intercept value) instead of coef(size.rem.avgL)[2] (the log10(fishSL) value) as the commonWithinGroupSlope value Since the former is 0.424219 and the latter is 0.398793, the resulting values are only slightly different. The same mistake was made for the raker spaces (see below), resulting in a much greater difference in values since the intercept and slope values were much more different in that model.
+head(gr$avgL2_ss) # Slightly different, due to Chelsea using the wrong coefficient previously. Not a concern.
 
-# Average Raker Space (Spaces 4-6)
-## To get the common within-group slope to be used in size-standardization, we need to exclude an interaction effect with lakeID. So we'll fit this model:
-size.rem.avgS <- lm(log10(avgS_4.6) ~ log10(fishSL)+lakeID, data = grR)
-summary(size.rem.avgS) # now we can extract the common within-group slope, which is the `Estimate` parameter for `log10(fishSL)`: 0.72846
+# Same thing for the Average Raker Space (Spaces 4-6)
+# Make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
+moda <- lm(log(avgS_4.6) ~ log(fishSL), data = grR)
+modb <- lm(log(avgS_4.6) ~ log(fishSL)+lakeID, data = grR)
+modc <- lm(log(avgS_4.6) ~ log(fishSL)*lakeID, data = grR)
 
-commonWithinGroupSlope <- coef(size.rem.avgS)[2] %>% unname() # programmatically grab that coefficient
-# We don't need to re-compute meanFishSize, since it'll just be the same as above.
+# Compare models to determine which coefficient to use
+anova(modc, modb) # model c is significantly better than model b
 
-## Now add a column to grR for size-standardized avgS_4.6
+# We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
+coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
+coef # 0.72846
+
+# Now compute size-standardized raker space, adding the column to `grR`
+## We're using the Kaeuffer version of the formula here (see notes doc)
 grR <- grR %>%
-  mutate(avgS2_ss = avgS_4.6*(meanFishSize/fishSL)^commonWithinGroupSlope)
+  mutate(avgS2_ss = avgS_4.6*(meanFishSize/fishSL)^coef)
 
 ## check it against the original
 head(grR$avgS2_ss)
-head(gr$avgS2_ss) # These values are extremely different. See the explanation above for raker lengths: in her original work, Chelsea took the wrong coefficient, the intercept instead of the slope. Since the former, for this model, is -0.59703633 and the latter is 0.72846002, the values are understandably hugely different.
+head(gr$avgS2_ss) # These values are extremely different. See the explanation above for raker lengths: in her original work, Chelsea took the wrong coefficient, the intercept instead of the slope. 
 
 # Check names between grR and gr.
 names(gr)[!(names(gr) %in% names(grR))]
