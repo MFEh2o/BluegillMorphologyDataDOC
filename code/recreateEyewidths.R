@@ -21,7 +21,7 @@ ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
 fm <- dbTable("fish_morphometrics")
 
 # Grab lakeInfo -----------------------------------------------------------
-lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 ewR <- fm %>%
@@ -66,13 +66,8 @@ table(ew$lakeID, exclude = NULL) # good, the counts line up and there are no NA'
 # Add DOC and basin ------------------------------------------------------
 ewR <- ewR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC, DOClevel, basin,
-                     "area" = surface_Area.ha., 
-                     "max_Depth" = max_Depth.m.),
+              select(lakeName, DOC, basin),
             by = c("lakeID" = "lakeName"))
-
-## Check that the DOC values went through
-all(ewR$DOC == ew$DOC) # yay!
 
 # Not adding capture method because it doesn't get used in analyses.
 
