@@ -20,7 +20,7 @@ gr <- read.csv(here("data", "unclassified", "Gill_Rakers_2018_Final_ORIGINAL.csv
 fm <- dbTable("fish_morphometrics")
 
 # Grab lakeInfo -----------------------------------------------------------
-lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 grR <- fm %>%
@@ -77,13 +77,8 @@ table(gr$lakeID, exclude = NULL) # good, the counts line up and there are no NA'
 # Add DOC and basin ------------------------------------------------------
 grR <- grR %>%
   left_join(lakeInfo %>%
-              select(lakeName, "lakeDOC" = DOC, DOClevel, basin, DOCbin,
-                     "area" = surface_Area.ha., 
-                     "max_Depth" = max_Depth.m.),
+              select(lakeName, "lakeDOC" = DOC, basin),
             by = c("lakeID" = "lakeName"))
-
-## Check that the DOC values went through
-all(grR$lakeDOC == gr$lakeDOC) # yay!
 
 # Not adding capture method because it doesn't get used in analysis.
 
@@ -122,7 +117,6 @@ grR <- grR %>%
 ## check that these averages look good
 head(grR$avgL_4.7)
 head(gr$avgL_4.7) # okay, great! These look good. I also checked all of them, and some are off by slight amounts, but it's definitely just a rounding thing.
-# KG: double check that this is actually just a rounding error. 
 
 # Size-standardize the averages -------------------------------------------
 # Looking at the Review April 2020 script, it seems that the only size-standardized measurements that are actually used in the model are the avgL_4.7 measurement and the avgS_4.6 measurement, both size-standardized independent of lakeID (so, size-standardized using the full data set, as seen in recreateEyewidths.R).

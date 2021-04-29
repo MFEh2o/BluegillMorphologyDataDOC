@@ -20,7 +20,7 @@ pfa <- read.csv(here("data", "unclassified", "Pec Fin Angles_ORIGINAL.csv"))
 fm <- dbTable("fish_morphometrics")
 
 # Grab lakeInfo -----------------------------------------------------------
-lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 pfaR <- fm %>%
@@ -68,9 +68,6 @@ pfaR <- pfaR %>%
   left_join(lakeInfo %>%
               select(lakeName, DOC, basin),
             by = c("lakeID" = "lakeName"))
-
-## Check that the DOC values went through
-all(pfaR$DOC == pfa$DOC) # yay!
 
 # Calculate fish standard length ------------------------------------------
 # XXX will need to update this with the new standard lengths

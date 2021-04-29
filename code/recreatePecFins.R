@@ -21,7 +21,7 @@ pf <- read.csv(here("data", "unclassified", "PecFinDataNovember_ORIGINAL.csv")) 
 fm <- dbTable("fish_morphometrics")
 
 # Grab lakeInfo -----------------------------------------------------------
-lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"))
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 # XXX will need to re-run this with the fixed lengths/widths
@@ -68,12 +68,8 @@ table(pf$lakeID, exclude = NULL) # good, the counts line up and there are no NA'
 # Add DOC and basin ------------------------------------------------------
 pfR <- pfR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC, 
-                     "DOCbin" = DOClevel, basin),
+              select(lakeName, DOC),
             by = c("lakeID" = "lakeName"))
-
-## Check that the DOC values went through
-all(pfR$DOC == pf$DOC) # yay!
 
 # Calculate fish standard length ------------------------------------------
 # XXX will need to update this once the standard lengths are in the database
