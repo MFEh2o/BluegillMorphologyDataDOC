@@ -10,7 +10,7 @@ library(here)
 library(dplyr)
 
 # make coordinates into sf object
-d <- read.csv(here("data", "inputs", "lakeInfo.csv"), 
+d <- read.csv(here("data", "outputs", "lakeInfo.csv"), 
               header = T, stringsAsFactors = F)
 dsf <- st_as_sf(d[,c("lat", "long")], 
                 coords = c("long", "lat"), crs = 4269)
@@ -27,30 +27,30 @@ d$basin <- ""
 shape <- readOGR(dsn = here("data", "inputs", "region4", "NHDSnapshot", "Hydrography"), layer = "NHDWaterbody")
 
 # makes sf version of shapefile I think...
-z=st_as_sf(shape)
+z <- st_as_sf(shape)
 
 # find intersection of lake polygons and coordinate
-int04=st_intersects(dsf,z)
+int04 <- st_intersects(dsf,z)
 
 # repeat  process for region 07
 #load waterbody shape file
-shape<-readOGR(dsn=here("data", "inputs", "region7", "NHDSnapshot", "Hydrography"),layer="NHDWaterbody")
+shape <- readOGR(dsn = here("data", "inputs", "region7", "NHDSnapshot", "Hydrography"), layer = "NHDWaterbody")
 
 # makes sf version of shapefile I think...
-z=st_as_sf(shape)
+z <- st_as_sf(shape)
 
 # find intersection of lake polygons and coordinate
-int07=st_intersects(dsf,z)
+int07 <- st_intersects(dsf, z)
 
-in04=as.data.frame(int04)
-in07=as.data.frame(int07)
+in04 <- as.data.frame(int04)
+in07 <- as.data.frame(int07)
 
-d$basin[in04$row.id]="04"
-d$basin[in07$row.id]="07"
+d$basin[in04$row.id] <- "04"
+d$basin[in07$row.id] <- "07"
 
 # hummingbird may not be in NHD or the point is missing the polygon
 # hummingbird drains into Bay so using its huc for hummingbird
-d$basin[5]="04"
+d$basin[5] <- "04"
 
 # Write out the final file ------------------------------------------------
-write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"), row.names=FALSE)
+write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"), row.names = FALSE)
