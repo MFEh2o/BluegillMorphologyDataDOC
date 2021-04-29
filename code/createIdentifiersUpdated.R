@@ -9,7 +9,7 @@ library(here) # for file paths
 library(openxlsx)
 
 # Load the original Identifiers_Update_2020.txt for comparison ------------
-iu <- read.table(here("data", "dontNeed", "Identifiers_Update_2020_ORIGINAL.txt"), sep = "\t", header = T)
+iu <- read.table(here("archived", "data", "Identifiers_Update_2020_ORIGINAL.txt"), sep = "\t", header = T)
 
 ## Remove the underscores in the file names
 iu <- iu %>%
@@ -20,7 +20,7 @@ filenames <- read.table(here("data", "inputs", "fishBodyPhotos_fileNames.txt"), 
   filter(V1 != "fishBodyPhotos_fileNames.txt") %>%
   pull(V1)
 
-lakeInfo <- read.csv(here("data", "outputs", "lakeInfo_wBins.csv"), header = T)
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"), header = T)
 
 # Check that these match up with the ones in iu
 all(filenames %in% iu$imageID) & all(iu$imageID %in% filenames) # awesome!
@@ -55,25 +55,8 @@ all(iuR$lakeID == iu$lakeID) # good!
 iuR <- iuR %>%
   left_join(lakeInfo %>%
               select(lakeName, "lakeDOC" = DOC, 
-                     "DOC" = DOClevel, 
-                     "DOCrange" = DOCbin,
                      "Basin" = basin),
             by = c("lakeID" = "lakeName"))
-
-## Check that the DOC values went through
-all(iuR$lakeDOC == iu$lakeDOC)
-iuR %>% filter(lakeDOC != iu$lakeDOC)
-data.frame(iuR$lakeDOC, iu$lakeDOC) %>%
-  distinct() # ok, this ends up being the same, just with different precision. But I don't think we actually really use the DOC values from the identifiers sheet anyway, so it shouldn't be a problem.
-
-## Check the ranges
-iuR %>%
-  select(lakeID, lakeDOC, DOC, DOCrange) %>%
-  distinct()
-
-iu %>%
-  select(lakeID, lakeDOC, DOC, DOCrange) %>%
-  distinct() # looks good!
 
 # Add capture method ------------------------------------------------------
 iuR <- iuR %>%
