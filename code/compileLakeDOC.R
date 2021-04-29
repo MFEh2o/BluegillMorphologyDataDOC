@@ -37,6 +37,7 @@ lakeInfo <- lakeInfo %>%
          DOCSource = case_when(!is.na(DOC) ~ "Craig et al"))
 
 # Load NTL Biocomplexity data ---------------------------------------------
+# Downloaded from https://lter.limnology.wisc.edu/dataset/biocomplexity-north-temperate-lakes-lter-coordinated-field-studies-chemical-limnology-2001-2 (the "Download csv" option)
 biocomp <- read.csv(here("data", "inputs", "ntl41_v1_0.csv"))
 
 # The lakeID's here are not necessarily the same as ours.
