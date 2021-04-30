@@ -25,10 +25,10 @@ lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 pfR <- fm %>%
-  select(fishID, imageFile, parameter, parameterValue, replicate) %>%
+  select(lakeID, fishID, imageFile, parameter, parameterValue, replicate) %>%
   filter(replicate == "NA") %>%
   filter(parameter %in% c("pecFinLength", "pecFinBaseWidth", "stdLength")) %>%
-  pivot_wider(id_cols = c("fishID", "imageFile"), names_from = "parameter", values_from = "parameterValue")
+  pivot_wider(id_cols = c("lakeID", "fishID", "imageFile"), names_from = "parameter", values_from = "parameterValue")
 
 # Are all the fish represented?
 all(pf$fishID %in% pfR$imageFile) # good!
@@ -43,32 +43,14 @@ all(pfR$pecFinLength == pf$PecFinLengths) # these don't quite match because I re
 all(pfR$pecFinBaseWidth == pf$baseWidth) # these do match.
 
 # lakeID ------------------------------------------------------------------
-pfR <- pfR %>%
-  mutate(lakeID = word(fishID, 1, 1, sep = "_")) %>%
-  mutate(lakeID = forcats::fct_recode(lakeID,
-                                      "Bay" = "BA",
-                                      "Birch" = "BH",
-                                      "Crampton" = "CR",
-                                      "Found" = "FD",
-                                      "Hummingbird" = "HB",
-                                      "Little_Crooked" = "LC",
-                                      "Lost" = "LT",
-                                      "McCullough" = "MC",
-                                      "Muskellunge" = "MS",
-                                      "Oxbow" = "OB",
-                                      "Papoose" = "PS",
-                                      "Red_Bass" = "RS",
-                                      "Squaw" = "SQ",
-                                      "Towanda" = "TO"))
-
 table(pfR$lakeID, exclude = NULL) # looks good.
-table(pf$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
+table(pf$lakeID, exclude = NULL) # good, the counts line up and there are no NA's.
 
 # Add DOC and basin ------------------------------------------------------
 pfR <- pfR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC),
-            by = c("lakeID" = "lakeName"))
+              select(lakeID, DOC),
+            by = "lakeID")
 
 # Join std lengths from whole-body photos ---------------------------------
 l <- fm %>%
@@ -138,3 +120,4 @@ head(pf$ss_ratio) # similar, but not the same, due to ss body length differences
 
 # Write out the data ------------------------------------------------------
 write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), row.names = F)
+
