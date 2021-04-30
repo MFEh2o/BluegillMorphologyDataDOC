@@ -24,12 +24,12 @@ lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 pfaR <- fm %>%
-  select(imageFile, parameter, parameterValue) %>%
+  select(lakeID, imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%
   filter(parameter %in% c("pecFinInsertionAngle", "stdLength")) %>%
-  group_by(fishID, parameter) %>%
+  group_by(lakeID, fishID, parameter) %>%
   slice(1) %>% # take the first measurement when the fish was measured more than once.
-  pivot_wider(id_cols = fishID, names_from = "parameter", values_from = "parameterValue")
+  pivot_wider(id_cols = c("lakeID", "fishID"), names_from = "parameter", values_from = "parameterValue")
 
 # Are all the fish represented?
 all(pfa$fishID %in% pfaR$fishID) # good!
@@ -39,41 +39,20 @@ pfaR <- pfaR %>%
   filter(fishID %in% pfa$fishID)
 
 # lakeID ------------------------------------------------------------------
-pfaR <- pfaR %>%
-  mutate(lakeID = factor(str_extract(fishID, "^[A-Z]+(?=\\s)"))) %>%
-  mutate(lakeID = forcats::fct_recode(lakeID,
-                                      "Papoose" = "PP",
-                                      "Bay" = "BA",
-                                      "Birch" = "BH",
-                                      "Crampton" = "CR",
-                                      "Found" = "FD",
-                                      "Hummingbird" = "HB",
-                                      "Little_Crooked" = "LC",
-                                      "Lost" = "LT",
-                                      "McCullough" = "MC",
-                                      "Muskellunge" = "MK",
-                                      "Oxbow" = "OB",
-                                      "Papoose" = "PS",
-                                      "Red_Bass" = "RB",
-                                      "Red_Bass" = "RS",
-                                      "Squaw" = "SQ",
-                                      "Towanda" = "TO",
-                                      "Towanda" = "TW"))
-
 table(pfaR$lakeID, exclude = NULL) # looks good.
 table(pfa$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
 
 # Add DOC and basin ------------------------------------------------------
 pfaR <- pfaR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC, basin),
-            by = c("lakeID" = "lakeName"))
+              select(lakeID, DOC, basin),
+            by = "lakeID")
 
 # Check for size relationship between angle and fish length ---------------
 # Does the angle need to be size-standardized?
 ggplot(pfaR, aes(x = stdLength, 
                  y = pecFinInsertionAngle)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(col = lakeID)) 
 
 # No size relationship; can leave it as is. No size-standardization needed.
 
