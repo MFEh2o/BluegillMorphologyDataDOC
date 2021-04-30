@@ -26,10 +26,10 @@ lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 # Initialize recreated df -------------------------------------------------
 ewR <- fm %>%
   filter(replicate == "NA") %>%
-  select(imageFile, parameter, parameterValue) %>%
+  select(lakeID, imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%
   filter(parameter %in% c("eyeWidth", "stdLength")) %>%
-  pivot_wider(id_cols = fishID, names_from = "parameter", values_from = "parameterValue")
+  pivot_wider(id_cols = c("lakeID", "fishID"), names_from = "parameter", values_from = "parameterValue")
 
 # Are all the fish represented?
 all(ew$fishID %in% ewR$fishID) # good!
@@ -43,32 +43,17 @@ all(ewR$fishID == ew$fishID)
 all(ewR$eyeWidth == ew$eyeWidth) # all right, these match!
 
 # lakeID ------------------------------------------------------------------
-ewR <- ewR %>%
-  mutate(lakeID = factor(str_extract(fishID, "^[A-Z]+(?=\\s)"))) %>%
-  mutate(lakeID = forcats::fct_recode(lakeID,
-                                      "Bay" = "BA",
-                                      "Birch" = "BH",
-                                      "Crampton" = "CR",
-                                      "Found" = "FD",
-                                      "Hummingbird" = "HB",
-                                      "Little_Crooked" = "LC",
-                                      "Lost" = "LT",
-                                      "McCullough" = "MC",
-                                      "Muskellunge" = "MK",
-                                      "Oxbow" = "OB",
-                                      "Papoose" = "PP",
-                                      "Red_Bass" = "RB",
-                                      "Squaw" = "SQ",
-                                      "Towanda" = "TW"))
-
 table(ewR$lakeID, exclude = NULL)
 table(ew$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
 
 # Add DOC and basin ------------------------------------------------------
 ewR <- ewR %>%
   left_join(lakeInfo %>%
-              select(lakeName, DOC, basin),
-            by = c("lakeID" = "lakeName"))
+              select(lakeID, DOC, basin),
+            by = "lakeID")
+
+sum(is.na(ewR$lakeID)) # no NA's
+sum(is.na(ewR$basin)) # no NA's
 
 # Size-standardize the eye widths -----------------------------------------
 # First, let's compute the mean fishStdLength across all fish
