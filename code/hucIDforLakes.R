@@ -14,8 +14,8 @@ d <- read.csv(here("data", "outputs", "lakeInfo.csv"),
               header = T, stringsAsFactors = F)
 dsf <- st_as_sf(d[,c("lat", "long")], 
                 coords = c("long", "lat"), crs = 4269)
-d$basin <- ""
 
+d$basin <- ""
 
 # Assign lakes to regions -------------------------------------------------
 # check whether each lake point is in NHD region 04 or 07
@@ -30,7 +30,7 @@ shape <- readOGR(dsn = here("data", "inputs", "region4", "NHDSnapshot", "Hydrogr
 z <- st_as_sf(shape)
 
 # find intersection of lake polygons and coordinate
-int04 <- st_intersects(dsf,z)
+int04 <- st_intersects(dsf, z)
 
 # repeat  process for region 07
 #load waterbody shape file
@@ -50,7 +50,13 @@ d$basin[in07$row.id] <- "07"
 
 # hummingbird may not be in NHD or the point is missing the polygon
 # hummingbird drains into Bay so using its huc for hummingbird
-d$basin[5] <- "04"
+d$basin[d$lakeID == "HB"] <- "04"
+
+# Now that I've gone through and pulled perhaps-updated lake coordinates from the database, some of the lakes aren't intersecting.
+# Towanda should be in basin 07
+# Oxbow should be in basin 04
+d$basin[d$lakeID == "TO"] <- "07"
+d$basin[d$lakeID == "OB"] <- "04"
 
 # Write out the final file ------------------------------------------------
 write.csv(d, here("data", "outputs", "Lake_Info_2020wBasins.csv"), row.names = FALSE)
