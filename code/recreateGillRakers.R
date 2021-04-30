@@ -52,23 +52,7 @@ all(grR$length_Raker1 == gr$length_Raker1)
 all(grR$space1 == gr$space1) # all good!
 
 # lakeID ------------------------------------------------------------------
-grR <- grR %>%
-  mutate(lakeID = factor(str_extract(fishID, "^[A-Z]+(?=\\s)"))) %>%
-  mutate(lakeID = forcats::fct_recode(lakeID,
-                                      "Bay" = "BA",
-                                      "Birch" = "BH",
-                                      "Crampton" = "CR",
-                                      "Found" = "FD",
-                                      "Hummingbird" = "HB",
-                                      "Little_Crooked" = "LC",
-                                      "Lost" = "LT",
-                                      "McCullough" = "MC",
-                                      "Muskellunge" = "MK",
-                                      "Oxbow" = "OB",
-                                      "Papoose" = "PP",
-                                      "Red_Bass" = "RB",
-                                      "Squaw" = "SQ",
-                                      "Towanda" = "TW"))
+sum(is.na(grR$lakeID))
 
 table(grR$lakeID, exclude = NULL)
 table(gr$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
@@ -76,8 +60,10 @@ table(gr$lakeID, exclude = NULL) # good, the counts line up and there are no NA'
 # Add DOC and basin ------------------------------------------------------
 grR <- grR %>%
   left_join(lakeInfo %>%
-              select(lakeName, "lakeDOC" = DOC, basin),
-            by = c("lakeID" = "lakeName"))
+              select(lakeID, "lakeDOC" = DOC, basin),
+            by = "lakeID")
+sum(is.na(grR$lakeID))
+sum(is.na(grR$basin))
 
 # Compute average raker lengths and spaces --------------------------------
 grR <- grR %>%
@@ -148,3 +134,4 @@ names(gr)[!(names(gr) %in% names(grR))]
 
 # Write out the data ------------------------------------------------------
 write.csv(grR, file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), row.names = F)
+
