@@ -45,10 +45,8 @@ GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)
 
 ## convert results of Procrustes analysis into a usable data frame
 gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
-                                DOCrange=identifiers$DOCrange,
                                 Lake=identifiers$lakeID,
                                 DOC=identifiers$lakeDOC,
-                                DOCcat=identifiers$DOC,
                                 captureMethod=identifiers$captureMethod, 
                                 cSize=GPA.fish$Csize, 
                                 basin=as.factor(identifiers$Basin))
@@ -62,46 +60,46 @@ corePCA <- plotTangentSpace(gdf.fish$shape,
 PCscores <- corePCA$pc.scores[,1:2]
 
 ## Split PC scores into individual objects by lake
-idx <- which(gdf.fish$Lake=="Bay")
+idx <- which(gdf.fish$Lake=="BA")
 Bay <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Birch")
+idx <- which(gdf.fish$Lake=="BH")
 Birch <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Crampton")
+idx <- which(gdf.fish$Lake=="CR")
 Crampton <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Found")
+idx <- which(gdf.fish$Lake=="FD")
 Found <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Hummingbird")
+idx <- which(gdf.fish$Lake=="HB")
 Hummingbird <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Little_Crooked")
+idx <- which(gdf.fish$Lake=="LC")
 Little_Crooked <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Lost")
+idx <- which(gdf.fish$Lake=="LT")
 Lost <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="McCullough")
+idx <- which(gdf.fish$Lake=="MC")
 McCullough <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Muskellunge")
+idx <- which(gdf.fish$Lake=="MS")
 Muskellunge <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Oxbow")
+idx <- which(gdf.fish$Lake=="OB")
 Oxbow <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Papoose")
+idx <- which(gdf.fish$Lake=="PS")
 Papoose <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Red_Bass")
+idx <- which(gdf.fish$Lake=="RS")
 Red_Bass <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Squaw")
+idx <- which(gdf.fish$Lake=="SQ")
 Squaw <- PCscores[idx,]
 
-idx <- which(gdf.fish$Lake=="Towanda")
+idx <- which(gdf.fish$Lake=="TO")
 Towanda <- PCscores[idx,]
 
 
@@ -462,12 +460,9 @@ dfeye <- dfeye %>%
   select("eyewidth" = eyeWidth, 
          "fishIDeye" = fishID,
          lakeID,
-         "fishLength" = fishStdLength,
-         DOClevel,
+         "fishLength" = stdLength,
          DOC,
          basin,
-         area,
-         "maxDepth" = max_Depth,
          eyewidth.ss)
 
 # Original Model 
@@ -491,12 +486,12 @@ dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitt
 # Get R2 effect sizes
 r.squaredGLMM(EyeModelNew, by_group = TRUE)
 #           R2m       R2c
-#[1,] 0.02491908 0.3809909 # (ish--may vary slightly)
+#[1,] 0.08229317 0.4030357 # (ish--may vary slightly)
 # R2m is marginal variance which shows variance explained by fixed effects
 # R2c is conditional variance which shows variance explained by total model
 
 # Some plots:
-ggplot(dfeye,aes(x = DOC, y = fitted, label = lakeID)) + 
+ggplot(dfeye, aes(x = DOC, y = fitted, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 # Other Plots to Compare (raw eye widths and size-standardized eye widths)
 ggplot(dfeye,aes(x = DOC, y = eyewidth, label = lakeID)) + 
@@ -607,6 +602,15 @@ ggplot(dfraker, aes(x = lakeDOC, y = avgS2_ss, label= lakeID)) +
 
 # Pectoral Fins -----------------------------------------------------------
 dfFin <- read.csv(here("data", "outputs", "PecFinDataNovemberFINAL.csv"))
+
+## Add basins
+nrow(dfFin) # 218
+dfFin <- dfFin %>%
+  left_join(lakeInfo %>%
+              select(lakeID, basin),
+            by = "lakeID")
+nrow(dfFin) # 218
+
 finLModel <- lmer(log(finLengthSS)~ 1 + log(DOC) + (1|lakeID), data = dfFin) # XXX Chelsea: since this model is no longer singular, can we keep the log?
 
 finLModel <- lmer(finLengthSS ~ 1 + log(DOC) + (1|lakeID), data = dfFin) ## log removed
@@ -700,23 +704,24 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
 # Figures -----------------------------------------------------------------
 ## Code reorganized and expanded by Kaija
 
-# Define lake color values:
-lakeColors <- c("Lost" = rgb(205, 249, 239, maxColorValue = 255),
-                "Little Crooked" = rgb(168, 243, 233, maxColorValue = 255),
-                "Crampton" = rgb(117, 219, 239, maxColorValue = 255),
-                "Found" = rgb(111, 139, 229, maxColorValue = 255),
-                "Towanda" = rgb(96, 144, 229, maxColorValue = 255),
-                "Papoose" = rgb(47, 78, 195, maxColorValue = 255),
-                "Muskellunge" = rgb(49, 81, 187, maxColorValue = 255),
-                "Bay" = rgb(43, 67, 139, maxColorValue = 255),
-                "Birch" = rgb(236, 202, 159, maxColorValue = 255),
-                "Oxbow" = rgb(207, 168, 159, maxColorValue = 255),
-                "McCullough" = rgb(161, 139, 96, maxColorValue = 255),
-                "Red Bass" = rgb(137, 106, 64, maxColorValue = 255),
-                "Squaw" = rgb(116, 85, 49, maxColorValue = 255),
-                "Hummingbird" = rgb(106, 77, 50, maxColorValue = 255))
+# Define manual vector of lake shapes to use in the plots
+# we want shape 21 (circle) for great lakes (4) and shape 22 (square) for mississippi (7)
+lakeShapes <- lakeInfo %>%
+  select(lakeID, DOC, basin) %>%
+  arrange(-DOC) %>%
+  mutate(shape = case_when(basin == 4 ~ 21,
+                           basin == 7 ~ 22)) %>%
+  pull(shape)
 
-lakeShapes <- c(22, 22, 21, 22, 22, 22, 22, 21, 22, 21, 21, 21, 22, 21)
+# Define a few colors to create a gradient through. We have to make sure that brown maps to higher DOC values and light blue maps to lower DOC values.
+brown <- rgb(113, 83, 55, maxColorValue = 255)
+tan <- rgb(223, 182, 131, maxColorValue = 255)
+dkblue <- rgb(48, 76, 170, maxColorValue = 255)
+medblue <- rgb(121, 221, 238, maxColorValue = 255)
+ltblue <- rgb(194, 242, 238, maxColorValue = 255)
+
+colfunc <- colorRampPalette(c(ltblue, medblue, dkblue, tan, brown))
+lakeColors <- colfunc(14) # get a hex code for each lake
 
 # Figures 1, 2, 3 ---------------------------------------------------------
 ## Fig 1.: Map
@@ -739,7 +744,7 @@ dfraker <- dfraker %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
-         lakeID = factor(lakeID, levels = names(lakeColors)))
+         lakeID = fct_reorder(lakeID, lakeDOC, .desc = T))
 
 ## Exponentiate the fitted values to convert them back to real mm units # 
 ## make panel A, with legend (we'll remove the legend when we plot it)
@@ -802,7 +807,7 @@ allPanels <- cowplot::plot_grid(panelA +
                                panelB, panelC, ncol = 1, align = "v")
 
 ## Save the main plot panels
-pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 13, width = 7)
+pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 13, width = 5)
 allPanels
 dev.off()
 
@@ -811,6 +816,18 @@ legendPlot <- cowplot::plot_grid(legend)
 pdf(here("figures", "gillRakers", "legend.pdf"), height = 10, width = 4)
 legendPlot
 dev.off()
+
+# Make the gradient legend alone
+gradientLegend <- cowplot::plot_grid(cowplot::get_legend(dfraker %>%
+  ggplot(aes(x = lakeDOC, y = avgS_4.6, col = lakeDOC))+
+  geom_point()+
+  scale_color_gradientn(colors = lakeColors, name = "DOC")))
+
+## Save the gradient legend alone in the main figures folder
+pdf(here("figures", "gradientLegend.pdf"), height = 10, width = 4)
+gradientLegend
+dev.off()
+#XXX START HERE
 
 # Figure 6 ----------------------------------------------------------------
 # Eye width across DOC gradient. One panel.
