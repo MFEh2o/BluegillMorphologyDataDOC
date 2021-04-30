@@ -31,32 +31,22 @@ iuR <- data.frame(imageID = filenames)
 
 # Create the lakeID column ------------------------------------------------
 iuR <- iuR %>%
-  mutate(lakeID = factor(str_extract(imageID, "^[A-Z]+(?=\\s)"))) %>%
+  mutate(lakeID = word(imageID, 1, 1, sep = "\\s")) %>%
   mutate(lakeID = forcats::fct_recode(lakeID,
-                                      "Bay" = "BA",
-                                      "Birch" = "BH",
-                                      "Crampton" = "CR",
-                                      "Found" = "FD",
-                                      "Hummingbird" = "HB",
-                                      "Little_Crooked" = "LC",
-                                      "Lost" = "LT",
-                                      "McCullough" = "MC",
-                                      "Muskellunge" = "MK",
-                                      "Oxbow" = "OB",
-                                      "Papoose" = "PP",
-                                      "Red_Bass" = "RB",
-                                      "Squaw" = "SQ",
-                                      "Towanda" = "TW"))
-
-## Check that that went through
-all(iuR$lakeID == iu$lakeID) # good!
+                                      "MS" = "MK",
+                                      "PS" = "PP",
+                                      "RS" = "RB",
+                                      "TO" = "TW"))
+table(iuR$lakeID) # looks good
 
 # Add DOC and basin ------------------------------------------------------
 iuR <- iuR %>%
   left_join(lakeInfo %>%
-              select(lakeName, "lakeDOC" = DOC, 
+              select(lakeID, "lakeDOC" = DOC, 
                      "Basin" = basin),
-            by = c("lakeID" = "lakeName"))
+            by = "lakeID")
+
+table(iuR$lakeDOC, exclude = NULL)
 
 # Add capture method ------------------------------------------------------
 iuR <- iuR %>%
