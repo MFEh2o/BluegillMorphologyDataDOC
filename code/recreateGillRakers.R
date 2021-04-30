@@ -20,24 +20,23 @@ gr <- read.csv(here("data", "unclassified", "Gill_Rakers_2018_Final_ORIGINAL.csv
 fm <- dbTable("fish_morphometrics")
 
 # Grab lakeInfo -----------------------------------------------------------
-lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBins.csv"))
+lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
 # Initialize recreated df -------------------------------------------------
 grR <- fm %>%
-  select(imageFile, parameter, parameterValue) %>%
+  select(lakeID, replicate, imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile)
 
 ## filter to include only the gill raker parameters, and recode them to match the column names in the original Gill_Rakers_2018 sheet
 grR <- grR %>%
-  filter(grepl("Raker", parameter)) %>%
+  filter(replicate == "NA") %>%
+  filter(grepl("Raker", parameter)|parameter == "stdLength") %>%
   mutate(parameter = str_replace(parameter, "length", "length_"),
          parameter = str_replace(parameter, "spaceRaker", "space")) %>%
-  pivot_wider(id_cols = "fishID",
+  pivot_wider(id_cols = c("fishID", "lakeID"),
               names_from = "parameter",
               values_from = "parameterValue") %>%
   rename("total_RakerNum" = "totalRakerCount")
-
-all(names(grR) %in% names(gr)) # yes, all names show up.
 
 # Are all the fish represented?
 all(gr$fishID %in% grR$fishID) # good!
@@ -80,32 +79,6 @@ grR <- grR %>%
               select(lakeName, "lakeDOC" = DOC, basin),
             by = c("lakeID" = "lakeName"))
 
-# Not adding capture method because it doesn't get used in analysis.
-
-# Calculate fish standard length ------------------------------------------
-# Standard length is the distance between landmarks 1 and 7
-fsl <- fm %>%
-  filter(parameter %in% c("X7", "Y7", "X1", "Y1")) %>%
-  select(imageFile, parameter, parameterValue) %>%
-  group_by(imageFile, parameter) %>% # because standard length was calculated based on just the first measurement, we group by imageFile and parameter and select the first row.
-  slice(1) %>%
-  ungroup() %>%
-  pivot_wider(names_from = parameter, values_from = parameterValue) %>%
-  rename("fishID" = imageFile) %>%
-  mutate(fishStdLength = sqrt((X7-X1)^2+(Y7-Y1)^2)) %>%
-  select(fishID, fishStdLength) %>%
-  filter(fishID %in% grR$fishID)
-
-## join
-grR <- grR %>%
-  left_join(fsl %>%
-              rename("fishSL" = "fishStdLength"), 
-            by = "fishID")
-
-## Check
-grR$fishSL %>% head(10)
-gr$fishSL %>% head(10)# very close! Good enough.
-
 # Compute average raker lengths and spaces --------------------------------
 grR <- grR %>%
   rowwise() %>%
@@ -124,12 +97,12 @@ head(gr$avgL_4.7) # okay, great! These look good. I also checked all of them, an
 
 # Average Raker Length (Rakers 4-7)
 # First, let's compute the mean fishStdLength across all fish
-meanFishSize <- mean(grR$fishSL) # XXX this is different from the eyeWidths one. That's not good! The fishSL column is probably not right. Need to update this once I have the standard length values from FISH_MORPHOMETRICS directly.
+meanFishSize <- mean(grR$stdLength) # XXX this is different from the eyeWidths one. That's not good! The fishSL column is probably not right. Need to update this once I have the standard length values from FISH_MORPHOMETRICS directly.
 
 # Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
-moda <- lm(log(avgL_4.7) ~ log(fishSL), data = grR)
-modb <- lm(log(avgL_4.7) ~ log(fishSL)+lakeID, data = grR)
-modc <- lm(log(avgL_4.7) ~ log(fishSL)*lakeID, data = grR)
+moda <- lm(log(avgL_4.7) ~ log(stdLength), data = grR)
+modb <- lm(log(avgL_4.7) ~ log(stdLength)+lakeID, data = grR)
+modc <- lm(log(avgL_4.7) ~ log(stdLength)*lakeID, data = grR)
 
 # Compare models to determine which coefficient to use
 anova(modc, modb) # model c is significantly better than model b
@@ -141,7 +114,7 @@ coef # 0.398793
 # Now compute size-standardized raker length, adding the column to `grR`
 ## We're using the Kaeuffer version of the formula here (see notes doc)
 grR <- grR %>%
-  mutate(avgL2_ss = avgL_4.7*(meanFishSize/fishSL)^coef)
+  mutate(avgL2_ss = avgL_4.7*(meanFishSize/stdLength)^coef)
 
 ## check it against the original
 head(grR$avgL2_ss)
@@ -149,9 +122,9 @@ head(gr$avgL2_ss) # Slightly different, due to Chelsea using the wrong coefficie
 
 # Same thing for the Average Raker Space (Spaces 4-6)
 # Make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
-moda <- lm(log(avgS_4.6) ~ log(fishSL), data = grR)
-modb <- lm(log(avgS_4.6) ~ log(fishSL)+lakeID, data = grR)
-modc <- lm(log(avgS_4.6) ~ log(fishSL)*lakeID, data = grR)
+moda <- lm(log(avgS_4.6) ~ log(stdLength), data = grR)
+modb <- lm(log(avgS_4.6) ~ log(stdLength)+lakeID, data = grR)
+modc <- lm(log(avgS_4.6) ~ log(stdLength)*lakeID, data = grR)
 
 # Compare models to determine which coefficient to use
 anova(modc, modb) # model c is significantly better than model b
@@ -163,7 +136,7 @@ coef # 0.72846
 # Now compute size-standardized raker space, adding the column to `grR`
 ## We're using the Kaeuffer version of the formula here (see notes doc)
 grR <- grR %>%
-  mutate(avgS2_ss = avgS_4.6*(meanFishSize/fishSL)^coef)
+  mutate(avgS2_ss = avgS_4.6*(meanFishSize/stdLength)^coef)
 
 ## check it against the original
 head(grR$avgS2_ss)

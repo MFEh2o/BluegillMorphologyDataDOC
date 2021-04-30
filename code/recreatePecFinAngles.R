@@ -26,7 +26,7 @@ lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 pfaR <- fm %>%
   select(imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%
-  filter(parameter == "pecFinInsertionAngle") %>%
+  filter(parameter %in% c("pecFinInsertionAngle", "stdLength")) %>%
   group_by(fishID, parameter) %>%
   slice(1) %>% # take the first measurement when the fish was measured more than once.
   pivot_wider(id_cols = fishID, names_from = "parameter", values_from = "parameterValue")
@@ -69,39 +69,9 @@ pfaR <- pfaR %>%
               select(lakeName, DOC, basin),
             by = c("lakeID" = "lakeName"))
 
-# Calculate fish standard length ------------------------------------------
-# XXX will need to update this with the new standard lengths
-## Now use those same fishID's to grab the bodyImageFiles and the parameters we need
-params <- fm %>%
-  filter(parameter %in% c("X7", "Y7", "X1", "Y1"),
-         imageFile %in% pfaR$fishID) %>%
-  select(imageFile, parameter, parameterValue) %>%
-  group_by(imageFile, parameter) %>%
-  slice(1) %>%
-  ungroup() %>%
-  pivot_wider(names_from = parameter, values_from = parameterValue)
-
-nrow(params) == nrow(pfaR)
-all(pfaR$fishID %in% params$imageFile) # okay, good.
-
-## Compute lengths
-fsl <- params %>%
-  mutate(fishStdLength = sqrt((X7-X1)^2+(Y7-Y1)^2)) %>%
-  rename("fishID" = imageFile)
-
-all(fsl$fishID %in% pfaR$fishID) # now we have body lengths for all of the fish! Yay!
-
-## join
-pfaR <- pfaR %>%
-  left_join(fsl, by = "fishID")
-
-## Check
-pfaR$fishStdLength %>% head(10)
-pfa$fishStdLength %>% head(10)
-# Ok good, these are really really similar.
-
-# Check to see if relationship with size to see if the angle needs to be size-standardized
-ggplot(pfaR, aes(x = fishStdLength, 
+# Check for size relationship between angle and fish length ---------------
+# Does the angle need to be size-standardized?
+ggplot(pfaR, aes(x = stdLength, 
                  y = pecFinInsertionAngle)) + 
   geom_point(aes(colour = lakeID)) 
 
