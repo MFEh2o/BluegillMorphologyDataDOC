@@ -5,6 +5,7 @@
 library(dplyr) # for data wrangling
 library(tidyr) # for data wrangling
 library(stringr) # for text string manipulation
+library(ggplot2) # for plotting
 library(here) # for file paths
 source(here("code", "dbUtil.R")) # for the dbTable() function
 library(RSQLite) # for db connection
@@ -66,6 +67,19 @@ modc <- lm(log(eyeWidth) ~ log(stdLength)*lakeID, data = ewR)
 
 # Compare models to determine which coefficient to use
 anova(modc, modb) # model c is significantly better than model b (p = 0.00229)
+
+# Plot of model C
+ewR %>%
+  arrange(-DOC) %>% # arrange from highest to lowest DOC
+  # reorder the `lakeID` variable from highest to lowest DOC
+  mutate(lakeID = factor(lakeID, levels = unique(lakeID))) %>%
+  ggplot(aes(x = log(stdLength), y = log(eyeWidth), col = lakeID))+
+  geom_point(alpha = 0.5)+
+  geom_smooth(method = "lm", alpha = 0.2)+
+  scale_color_manual(values = lakeColorsReverse)+
+  theme_minimal()+
+  labs(title = "Eye width vs body length, log-transformed")
+ggsave(filename = "eyeWidthsAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
 
 # We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
 coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model

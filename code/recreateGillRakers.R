@@ -93,6 +93,19 @@ modc <- lm(log(avgL_4.7) ~ log(stdLength)*lakeID, data = grR)
 # Compare models to determine which coefficient to use
 anova(modc, modb) # model c is significantly better than model b
 
+# Plot of model C
+p <- grR %>%
+  arrange(-lakeDOC) %>% # arrange from highest to lowest DOC
+  # reorder the `lakeID` variable from highest to lowest DOC
+  mutate(lakeID = factor(lakeID, levels = unique(lakeID))) %>%
+  ggplot(aes(x = log(stdLength), y = log(avgL_4.7), col = lakeID))+
+  geom_point(alpha = 0.5)+
+  geom_smooth(method = "lm", alpha = 0.2)+
+  scale_color_manual(values = lakeColorsReverse)+
+  theme_minimal()+
+  labs(title = "Raker length vs body length, log-transformed")
+ggsave(p, filename = "rakerLengthAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
+
 # We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
 coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
 coef # 0.398793
@@ -114,6 +127,19 @@ modc <- lm(log(avgS_4.6) ~ log(stdLength)*lakeID, data = grR)
 
 # Compare models to determine which coefficient to use
 anova(modc, modb) # model c is significantly better than model b
+
+# Plot of model C
+p <- grR %>%
+  arrange(-lakeDOC) %>% # arrange from highest to lowest DOC
+  # reorder the `lakeID` variable from highest to lowest DOC
+  mutate(lakeID = factor(lakeID, levels = unique(lakeID))) %>%
+  ggplot(aes(x = log(stdLength), y = log(avgS_4.6), col = lakeID))+
+  geom_point(alpha = 0.5)+
+  geom_smooth(method = "lm", alpha = 0.2)+
+  scale_color_manual(values = lakeColorsReverse)+
+  theme_minimal()+
+  labs(title = "Raker space vs body length, log-transformed")
+ggsave(p, filename = "rakerSpaceAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
 
 # We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
 coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model

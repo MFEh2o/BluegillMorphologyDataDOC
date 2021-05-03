@@ -6,4 +6,6 @@ medblue <- rgb(121, 221, 238, maxColorValue = 255)
 ltblue <- rgb(194, 242, 238, maxColorValue = 255)
 
 colfunc <- colorRampPalette(c(ltblue, medblue, dkblue, tan, brown))
+colfuncreverse <- colorRampPalette(c(brown, tan, dkblue, medblue, ltblue))
 lakeColors <- colfunc(14)
+lakeColorsReverse <- colfuncreverse(14)
