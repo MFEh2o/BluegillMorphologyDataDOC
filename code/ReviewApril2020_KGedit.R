@@ -18,6 +18,7 @@ library(MuMIn) # for effect sizes
 library(here) # for file paths
 library(gridGraphics) # for base R plots
 library(ggtext) # for ggplots
+source(here("code", "defs.R"))
 
 # Load data ---------------------------------------------------------------
 ## landmark data
@@ -714,14 +715,6 @@ lakeShapes <- lakeInfo %>%
   pull(shape)
 
 # Define a few colors to create a gradient through. We have to make sure that brown maps to higher DOC values and light blue maps to lower DOC values.
-brown <- rgb(113, 83, 55, maxColorValue = 255)
-tan <- rgb(223, 182, 131, maxColorValue = 255)
-dkblue <- rgb(48, 76, 170, maxColorValue = 255)
-medblue <- rgb(121, 221, 238, maxColorValue = 255)
-ltblue <- rgb(194, 242, 238, maxColorValue = 255)
-
-colfunc <- colorRampPalette(c(ltblue, medblue, dkblue, tan, brown))
-lakeColors <- colfunc(14) # get a hex code for each lake
 
 # Figures 1, 2, 3 ---------------------------------------------------------
 ## Fig 1.: Map
