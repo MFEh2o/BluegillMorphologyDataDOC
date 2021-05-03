@@ -6,7 +6,7 @@ This repo contains code and data related to Chelsea Bishop's project on Bluegill
 
 Here is a diagram illustrating the reproducible data and code pipeline.
 
-![2ChelseaDataSchematic (1)](https://user-images.githubusercontent.com/37053323/113429309-4ec01f00-93a6-11eb-99d3-bc1b5de15085.png)
+![](https://docs.google.com/drawings/d/e/2PACX-1vTEP9I5EuLxzX9hGX9sKzH35NbnyMQLg7ndA6maboKz3uW1_UmA13QyY7cssFAbMCt5Q2UDPTgbF9kv/pub?w=4315&h=1212)
 
 ### Directory structure
 - archived/ contains older scripts and data files that aren't part of the final reproducible workflow. Experimentation etc.
