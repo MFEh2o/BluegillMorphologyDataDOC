@@ -331,126 +331,24 @@ dev.off()
 # For ref-to-Target Figures that go along the axes in figure 3: see pc1Plot and pc2Plot, above.
 
 # Stats for shape ---------------------------------------------------------
-# DOC allometric slope
-final <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + Lake + log(DOC)*Lake +
-                          log(cSize)*log(DOC), SS.type = "II", data = gdf.fish), 
-               error= c("Residuals", "Residuals", "Lake", "Residuals"))
-summary(final)
 
-# Lake allometric slope
-final2 <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + Lake + log(DOC)*Lake + 
-                           log(cSize)*Lake, SS.type = "II", data = gdf.fish), 
-                error= c("Residuals", "Residuals", "Lake", "Residuals"))
-summary(final2)
+#Model structure similar to univariate analyses
 
-# Slopes dependent on basin and DOC
-ShapeModelNew <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + basin + 
-                                  Lake + log(cSize):log(DOC) +
-                                  log(cSize):basin + basin:log(DOC) + 
-                                  log(cSize):basin:log(DOC), SS.type = "II",
-                                data = gdf.fish), 
-                       error= c("Residuals", "Residuals", "Residuals", "Lake", 
-                                "Residuals", "Residuals", "Residuals"))
-summary(ShapeModelNew)
-# ShapeModelNew allows slopes to vary by basin, DOC, and basin:DOC 
-# I believe this is the closest multivariate shape model to the one we are using for univariate variables. -CB
-# Note, output does not include the interaction between basin and DOC. Not sure why this is omitted, perhaps because it is explained by three-way interaction?
+#Check that basin is a factor
+str(gdf.fish)
 
-# ShapeModel2 gives the exact same output but is much shorter to write. 
-ShapeModel2 <- anova(procD.lm(shape ~ log(cSize) * basin * log(DOC) + 
-                                Lake,SS.type = "II", data = gdf.fish),
-                     error= c("Residuals", "Residuals", "Residuals", 
-                              "Lake", "Residuals", "Residuals", "Residuals"))
-summary(ShapeModel2)
+#Fit model
+#shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data=gdf.fish, SS.type="II")
 
-# Common slope ------------------------------------------------------------
-# unique DOC allometries
-fit.DOC.unique<- procD.lm(shape ~ log(cSize)*log(DOC)*Lake, 
-                          data = gdf.fish) 
+#Because this is not a hierarchical model, the log(DOC):basin term is redundant with the Lake term. Drop the former.
+shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, data=gdf.fish, SS.type="II",iter=10000)
 
-# common DOC allometries
-fit.DOC.common<- procD.lm(shape ~ log(cSize) + log(DOC)*Lake, 
-                          data = gdf.fish) 
+#Diagnostic plot
+plot(shapeModel)
 
-# compare the two
-fitcompare <- anova(fit.DOC.common, fit.DOC.unique, 
-                    error = c("Residuals", "Residuals", "DOC:Lake"))
-summary(fitcompare)
+#ANOVA
+anova(shapeModel,error=c("Residuals","Residuals","Residuals","Lake"))
 
-# Basin common slope test
-fit.basin.unique <- procD.lm(shape ~ log(cSize)*basin, data = gdf.fish)
-fit.basin.common <- procD.lm(shape ~ log(cSize) + basin, data = gdf.fish)
-aov.fit.basin <- anova(fit.basin.common, fit.basin.unique)
-summary(aov.fit.basin)
-
-# Full vs.  reduced models -----------------------------------------------
-reduced_DOC_basin_model <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + 
-                                            basin + Lake + log(DOC)*Lake + 
-                                            log(cSize)*log(DOC) + basin*Lake + 
-                                            log(cSize)*basin, SS.type = "II",
-                                          data = gdf.fish), 
-                                 error= c("Residuals", "Residuals", "Residuals", 
-                                          "Lake", "Residuals", "Residuals"))
-summary(reduced_DOC_basin_model)  
-
-# Full model below includes size*DOC*basin interaction, which is significant, so it seems like it is a better choice?? -CB
-fullmodel <- anova(procD.lm(shape ~ log(cSize) + log(DOC) + basin + 
-                              Lake + log(DOC)*Lake + log(DOC)*basin + 
-                              basin*Lake + log(DOC)*Lake*basin + 
-                              log(cSize)*log(DOC)*basin, SS.type = "II",
-                            data = gdf.fish), 
-                   error=c("Residuals", "Residuals", "Residuals", "Lake", 
-                           "Residuals", "Residuals", "Residuals"))
-summary(fullmodel)
-# NOTE: Same result from full model as "ShapeModelNew" used above and in thesis! So, I think what I did in my thesis was correct -CB
-# XXX KG question: is "fullmodel" the final one?
-
-# [needs title] -----------------------------------------------------------
-# TPS grids for min and max scores in previous plot
-fit <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake  +
-                  log(cSize)*basin*log(DOC), 
-                SS.type = "II", data = gdf.fish)
-plot(fit, type = "diagnostics") 
-
-# diagnostic plots, including plotOutliers
-plot(fit, type = "diagnostics", outliers = TRUE) 
-
-# PC plot rotated to major axis of fitted values
-plot(fit, type = "PC", pch = 19, col = "blue") 
-
-# Regression-type plots
-# Use fitted values from the model to make prediction lines
-plot(fit, type = "regression", 
-     predictor = gdf.fish$cSize, reg.type = "RegScore", 
-     pch = 19, col = "green")
-
-# Uses coefficients from the model to find the projected regression scores
-fish.plot <- plot(fit, type = "regression", 
-                  predictor = gdf.fish$cSize, reg.type = "RegScore", 
-                  pch = 21, bg = "yellow") 
-
-preds <- shape.predictor(fit$GM$fitted, x = fish.plot$RegScore, 
-                         predmin = min(fish.plot$RegScore), 
-                         predmax = max(fish.plot$RegScore))
-
-#To Get Mean Configuration For All (Doesn't really have anything to do with fitted values from model) # XXX can this section header be clarified? -KG
-M <- GPA.fish$consensus
-plotRefToTarget(M, preds$predmin, mag = 2)
-plotRefToTarget(M, preds$predmax, mag = 2)
-
-attributes(fit)
-fit$fitted[1:3, ] # the fitted values (first three specimens)
-fit$GM$fitted[,, 1:3] # the fitted values as Procrustes coordinates (same specimens)
-
-#Fitted Values Allometry colored by basin
-# plotAllometry(fit, size=gdf.fish$cSize, logsz = TRUE, method = "PredLine", pch=19, col=rainbow(2)[gdf.fish$basin], main="Predicted PC1 Values From Model vs. Size (Colored By Basin)") # This was code that was just used for checking--maybe associated with an older version of geomorph? No longer runs, but also not super critical. -KG
-
-# Predicted/Fitted PC1 max and min from Model
-plotRefToTarget(preds$predmin, preds$predmax,method="points", links = mylinks, 
-                gridPars = gridPar(tar.pt.bg = "black", tar.link.col = "black", 
-                                   tar.link.lwd = 3, tar.pt.size = 1, 
-                                   pt.size = 1, pt.bg = "gray", link.lwd = 3), 
-                mag=1, useRefPts = TRUE)
 
 # Univariate Data Check and Run -------------------------------------------
 # Eye Widths --------------------------------------------------------------
