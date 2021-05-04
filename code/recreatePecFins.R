@@ -9,9 +9,6 @@ library(here) # for file paths
 source(here("code", "dbUtil.R")) # for the dbTable() function
 source(here("code", "defs.R"))
 library(RSQLite) # for db connection
-source(here("code", "defs.R"))
-
-source(here("code", "defs.R"))
 
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored

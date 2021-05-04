@@ -10,8 +10,6 @@ source(here("code", "dbUtil.R")) # for the dbTable() function
 source(here("code", "defs.R"))
 library(RSQLite) # for db connection
 
-source(here("code", "defs.R"))
-
 # Connect to the database -------------------------------------------------
 dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210423.db" # name of db
