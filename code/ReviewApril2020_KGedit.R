@@ -364,19 +364,16 @@ dfeye <- dfeye %>%
          basin,
          eyewidth.ss)
 
-# Original Model 
-# EyeModel <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + (1|lakeID), data=dfeye)
-# summary(EyeModel)
+#Check structure of dfeye
+str(dfeye)
+#Set basin to factor
+dfeye$basin <- as.factor(dfeye$basin)
 
 # New Model with Basin
 EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfeye)
 summary(EyeModelNew)
 
-# Get fitted values and add to data frame. Note only one value for each lake, so only 14 different fitted values.
-# fitted(EyeModel) # fitted values for the first model
-fitted(EyeModelNew) # fitted values for the model that includes basins. These are the ones we want to save.
-
-# ## Add the basin-model fitted values to dfeye
+# Add the fitted values to dfeye
 dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitted values.
 
 # ## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
@@ -401,15 +398,14 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) +
 # Gill Rakers -------------------------------------------------------------
 dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
 
+#Check structure of dfraker
+str(dfraker)
+#Set basin to factor
+dfraker$basin <- as.factor(dfraker$basin)
+
 # Without Basin
 # avgL2_ss is size standardizations for average length for rakers 4-7
-# rakerLModel <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + (1|lakeID), data=dfraker)
-# summary(rakerLModel)
-# 
-# rakerSModel <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + (1|lakeID), data=dfraker)
-# summary(rakerSModel)
 
-# With Basin
 ## lengths
 RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerLModelNew)
@@ -423,29 +419,15 @@ fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
-## Without Basins
-# rakerCModel <- glmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + (1|lakeID),
-#                      family = poisson,
-#                      nAGQ = 0,
-#                      control = glmerControl(optimizer = "nloptwrap"), 
-#                      data = dfraker)
-# summary(rakerCModel)
 
-## With Basins
-# RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID),
-#                        family = poisson,
-#                        nAGQ = 0,
-#                        control = glmerControl(optimizer = "nloptwrap"), 
-#                        data = dfraker)
-# summary(RakerCModelNew)
-# fitted(RakerCModelNew)
-#Still Singular! -CB (KG: Well, it isn't anymore, because of the changes I made to the coefficients; see script recreateGillRakers.R for a more detailed explanation.)
+# With Basins
+RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID),
+                       family = poisson,
+                       nAGQ = 0,
+                       control = glmerControl(optimizer = "nloptwrap"),
+                       data = dfraker)
+summary(RakerCModelNew)
 
-# Re-try using lmer instead of glmer
-RakerCModelNew <- lmer(total_RakerNum ~ 1 + log(lakeDOC) + 
-                         basin + basin:log(lakeDOC) + 
-                         (1|lakeID), data = dfraker)
-summary(RakerCModelNew) # this is the model we want to use.
 
 ## save fitted vals
 fittedC <- fitted(RakerCModelNew)
@@ -510,34 +492,20 @@ dfFin <- dfFin %>%
             by = "lakeID")
 nrow(dfFin) # 218
 
-finLModel <- lmer(log(finLengthSS)~ 1 + log(DOC) + (1|lakeID), data = dfFin) # XXX Chelsea: since this model is no longer singular, can we keep the log?
-
-finLModel <- lmer(finLengthSS ~ 1 + log(DOC) + (1|lakeID), data = dfFin) ## log removed
-finWModel <- lmer(log(finBaseSS) ~ 1 + log(DOC) + (1|lakeID), data = dfFin)
-finRModel <- lmer(log(finRatioSS) ~ 1 + log(DOC) + (1|lakeID), data = dfFin)
-
-summary(finLModel)
-summary(finWModel)
-summary(finRModel)
-
-fitted(finLModel)
-fitted(finWModel)
-fitted(finRModel)
+#Check structure of dfFin
+str(dfFin)
+#Set basin to factor
+dfFin$basin <- as.factor(dfFin$basin)
 
 # New models with basin
-FinLModelNew <- lmer(finLengthSS ~ 1 + log(DOC) + basin + basin:log(DOC) + 
-                    (1|lakeID), data = dfFin)
-summary(FinLModelNew) #Still singular had to remove log # XXX the log version is no longer singular--can we add the log back in?
+FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+summary(FinLModelNew)
 
-FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + 
-                       (1|lakeID), data = dfFin)
+FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinWModelNew)
-#Still no effect on base width  XXX does this comment still make sense?
 
-FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID), data = dfFin)
+FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinRModelNew)
-#Still no effect on fin ratio # XXX does this comment still make sense?
 
 dfFin$fitted_PL <- fitted(FinLModelNew)
 dfFin$fitted_PW <- fitted(FinWModelNew)
@@ -575,18 +543,16 @@ ggplot(dfFin,aes(x = DOC, y = finRatioSS, label= lakeID)) +
 dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
   rename("finangle" = "pecFinInsertionAngle")
 
-# Without basin
-# finAModel <- lmer(log(finangle) ~ 1 + log(DOC) + (1|lakeID), data = dfangle)
-# summary(finAModel)
+#Check structure of dfFin
+str(dfangle)
+#Set basin to factor
+dfangle$basin <- as.factor(dfangle$basin)
 
 # With basin
-FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID),
-                     data = dfangle)
+FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID),data = dfangle)
 summary(FinAModelNew)
 
 # Get fitted values and add to data frame. 
-fitted(FinAModelNew) # yep, these are the right values to use.
-
 dfangle$fitted <- fitted(FinAModelNew)
 
 ## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
