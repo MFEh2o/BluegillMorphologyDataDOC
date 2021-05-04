@@ -403,7 +403,6 @@ str(dfraker)
 #Set basin to factor
 dfraker$basin <- as.factor(dfraker$basin)
 
-# Without Basin
 # avgL2_ss is size standardizations for average length for rakers 4-7
 
 ## lengths
@@ -419,8 +418,6 @@ fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
-
-# With Basins
 RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID),
                        family = poisson,
                        nAGQ = 0,
