@@ -7,6 +7,7 @@ library(tidyr) # for data wrangling
 library(stringr) # for text string manipulation
 library(here) # for file paths
 source(here("code", "dbUtil.R")) # for the dbTable() function
+source(here("code", "defs.R"))
 library(RSQLite) # for db connection
 source(here("code", "defs.R"))
 

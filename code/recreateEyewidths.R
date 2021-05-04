@@ -8,6 +8,7 @@ library(stringr) # for text string manipulation
 library(ggplot2) # for plotting
 library(here) # for file paths
 source(here("code", "dbUtil.R")) # for the dbTable() function
+source(here("code", "defs.R"))
 library(RSQLite) # for db connection
 
 # Connect to the database -------------------------------------------------
