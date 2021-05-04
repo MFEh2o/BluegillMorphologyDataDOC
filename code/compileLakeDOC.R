@@ -90,4 +90,3 @@ lakeInfo[lakeInfo$lakeID == "SQ", c("DOC", "DOCSource")] <- c(wc, "MFE database"
 
 # Write out the lake data
 write.csv(lakeInfo, here("data", "outputs", "lakeInfo.csv"))
-
