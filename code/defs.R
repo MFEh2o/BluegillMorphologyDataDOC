@@ -39,3 +39,24 @@ lakeShapesLowHigh <- lakeInfo %>%
   mutate(shape = case_when(basin == 4 ~ 21,
                            basin == 7 ~ 22)) %>%
   pull(shape)
+
+# Function to create a model summary table ---------------------------------
+makeSummary <- function(model, conf){
+  # Make the table
+  table <- data.frame(parameter = c("intercept", "log(DOC)", "watershed", 
+                                    "log(DOC):watershed", "sigmaLake", "sigmaRes", 
+                                    "R2marginal", "R2conditional"),
+    estimate = c(fixef(model), as.data.frame(VarCorr(model))[1,5], 
+                 sigma(model), as.vector(r.squaredGLMM(model))),
+    lowerCI = c(conf[c(3:6,1:2),1], NA, NA),
+    upperCI = c(conf[c(3:6,1:2),2], NA, NA)
+  ) %>%
+    mutate(across(c("estimate", "lowerCI", "upperCI"), function(x) round(x, 4))) %>%
+    mutate(estimate = case_when(!parameter %in% c("R2marginal", "R2conditional") ~ 
+                                  paste0(estimate, " (", lowerCI, ", ", upperCI, ")"),
+                                TRUE ~ as.character(estimate))) %>%
+    select(-lowerCI, -upperCI)
+  
+  return(table)
+}
+

@@ -339,16 +339,13 @@ dfeye$basin <- as.factor(dfeye$basin)
 EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + 
                       basin:log(DOC) + (1|lakeID), data = dfeye)
 summary(EyeModelNew)
-#Calculate profile CIs for parameter estimates
-confEyeModelNew <- confint(EyeModelNew,level=0.95,method='profile')
 
-#Assemble parameter estimates, CIs, R2
-tableEyeModelNew <- data.frame(
-  parameter=c("intercept","log(DOC)","watershed","log(DOC):watershed","sigmaLake","sigmaRes","R2marginal","R2conditional"),
-  estimate=c(fixef(EyeModelNew),as.data.frame(VarCorr(EyeModelNew))[1,5],sigma(EyeModelNew),as.vector(r.squaredGLMM(EyeModelNew))),
-  lowerCI=c(confEyeModelNew[c(3:6,1:2),1],NA,NA),
-  upperCI=c(confEyeModelNew[c(3:6,1:2),2],NA,NA)
-)
+# Calculate profile CIs for parameter estimates
+confEyeModelNew <- confint(EyeModelNew, level = 0.95, method = 'profile')
+
+# Assemble parameter estimates, CIs, R2
+tableEyeModelNew <- makeSummary(model = EyeModelNew, 
+                                conf = confEyeModelNew)
 tableEyeModelNew
 
 # Add the fitted values to dfeye
@@ -383,6 +380,16 @@ RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin +
                          basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerSModelNew)
 
+# Calculate profile CIs for parameter estimates
+confRakerLModelNew <- confint(RakerLModelNew, level = 0.95, method = 'profile')
+confRakerSModelNew <- confint(RakerSModelNew, level = 0.95, method = 'profile')
+
+# Assemble parameter estimates, CIs, R2
+tableRakerLModelNew <- makeSummary(model = RakerLModelNew, 
+                                   conf = confRakerLModelNew)
+tableRakerSModelNew <- makeSummary(model = RakerSModelNew, 
+                                   conf = confRakerSModelNew)
+
 ## save fitted vals
 fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
@@ -390,12 +397,21 @@ fittedS <- fitted(RakerSModelNew)
 # GLM for raker count data
 
 RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + 
-                       basin:log(lakeDOC) + (1|lakeID),
+                         basin:log(lakeDOC) + (1|lakeID),
                        family = poisson,
                        nAGQ = 0,
                        control = glmerControl(optimizer = "nloptwrap"),
                        data = dfraker)
 summary(RakerCModelNew)
+
+# Calculate profile CIs for parameter estimates
+# XXX this confidence interval calculation isn't working--come back to this.
+# confRakerCModelNew <- confint(RakerCModelNew, level = 0.95, method = 'profile')
+
+# Assemble parameter estimates, CIs, R2
+# XXX not working--depends on confint above.
+# tableRakerCModelNew <- makeSummary(model = RakerCModelNew, 
+#                                    conf = confRakerCModelNew) 
 
 ## save fitted vals
 fittedC <- fitted(RakerCModelNew)
@@ -476,36 +492,50 @@ FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin +
                        basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinRModelNew)
 
+# Calculate profile CIs for parameter estimates
+confFinLModelNew <- confint(FinLModelNew, level = 0.95, method = 'profile')
+confFinWModelNew <- confint(FinWModelNew, level = 0.95, method = 'profile')
+confFinRModelNew <- confint(FinRModelNew, level = 0.95, method = 'profile')
+
+# Assemble parameter estimates, CIs, R2
+tableFinLModelNew <- makeSummary(model = FinLModelNew, 
+                                 conf = confFinWModelNew)
+tableFinWModelNew <- makeSummary(model = FinWModelNew, 
+                                 conf = confFinWModelNew)
+tableFinRModelNew <- makeSummary(model = FinRModelNew, 
+                                 conf = confFinRModelNew)
+
+# Add fitted values to the data frame
 dfFin$fitted_PL <- fitted(FinLModelNew)
 dfFin$fitted_PW <- fitted(FinWModelNew)
 dfFin$fitted_PR <- fitted(FinRModelNew)
 
 # Plots of fitted values
-ggplot(dfFin, aes(x = DOC, y = fitted_PL, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = fitted_PL, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
-ggplot(dfFin, aes(x = DOC, y = fitted_PW, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = fitted_PW, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 
-ggplot(dfFin, aes(x = DOC, y = fitted_PR, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = fitted_PR, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
 # Plots of non-fitted values
 ## raw
-ggplot(dfFin, aes(x = DOC, y = pecFinLength, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = pecFinLength, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
-ggplot(dfFin,aes(x = DOC, y = pecFinBaseWidth, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = pecFinBaseWidth, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 
 ## size-standardized
-ggplot(dfFin,aes(x = DOC, y = finLengthSS, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = finLengthSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) 
 
-ggplot(dfFin,aes(x = DOC, y = finBaseSS, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = finBaseSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 
-ggplot(dfFin,aes(x = DOC, y = finRatioSS, label= lakeID)) + 
+ggplot(dfFin, aes(x = DOC, y = finRatioSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 
 # Pec Fin Angles ----------------------------------------------------------
@@ -520,9 +550,16 @@ dfangle$basin <- as.factor(dfangle$basin)
 
 # With basin
 FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID),data = dfangle)
+                       basin:log(DOC) + (1|lakeID), data = dfangle)
 summary(FinAModelNew)
-plot(fitted(FinAModelNew)~dfangle$DOC,pch=as.numeric(dfangle$basin))
+plot(fitted(FinAModelNew) ~ dfangle$DOC, pch = as.numeric(dfangle$basin))
+
+# Calculate profile CIs for parameter estimates
+confFinAModelNew <- confint(FinAModelNew, level = 0.95, method = 'profile')
+
+# Assemble parameter estimates, CIs, R2
+tableFinAModelNew <- makeSummary(model = FinAModelNew, 
+                                 conf = confFinAModelNew)
 
 # Get fitted values and add to data frame. 
 dfangle$fitted <- fitted(FinAModelNew)
@@ -534,6 +571,30 @@ ggplot(dfangle, aes(x = DOC, y = fitted, label = lakeID)) +
 # Raw Plot
 ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) + 
   geom_point(aes(colour = lakeID)) 
+
+# Combined univariate model summary tables --------------------------------
+tableEyeModelNew <- tableEyeModelNew %>%
+  mutate(type = "eyeWidth")
+tableRakerLModelNew <- tableRakerLModelNew %>%
+  mutate(type = "rakerLength")
+tableRakerSModelNew <- tableRakerSModelNew %>%
+  mutate(type = "rakerSpace")
+# tableRakerCModelNew # XXX not working yet--depends on failed confint function
+tableFinLModelNew <- tableFinLModelNew %>%
+  mutate(type = "pecFinLength")
+tableFinWModelNew <- tableFinWModelNew %>%
+  mutate(type = "pecFinWidth")
+tableFinRModelNew <- tableFinRModelNew %>%
+  mutate(type = "pecFinRatio")
+tableFinAModelNew <- tableFinAModelNew %>%
+  mutate(type = "pecFinAngle")
+
+# combine into one table
+fullTable <- bind_rows(tableEyeModelNew, tableRakerLModelNew, tableRakerSModelNew, tableFinLModelNew, tableFinWModelNew, tableFinRModelNew, tableFinAModelNew) %>%
+  tidyr::pivot_wider(id_cols = "parameter",
+              names_from = "type",
+              values_from = "estimate")
+write.csv(fullTable, here("data", "outputs", "univariateModelSummary.csv"), row.names = F)
 
 # Figures -----------------------------------------------------------------
 # The colors and shapes used in these plots are defined in defs.R
@@ -776,12 +837,3 @@ eyePlot <- df %>%
 pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 4, width = 7)
 eyePlot
 dev.off()
-
-# Tables ------------------------------------------------------------------
-
-# Table 1 -----------------------------------------------------------------
-## Summary of lake characteristics and sampling for survey lakes. DOC is the mean dissolved organic carbon concentration.
-### Don't need to re-create this table: it should be the same.
-
-# Table 2 -----------------------------------------------------------------
-## Multivariate analysis of covariance for bluegill shape data. Significant results are bold.
