@@ -339,16 +339,20 @@ dfeye$basin <- as.factor(dfeye$basin)
 EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + 
                       basin:log(DOC) + (1|lakeID), data = dfeye)
 summary(EyeModelNew)
+#Calculate profile CIs for parameter estimates
+confEyeModelNew <- confint(EyeModelNew,level=0.95,method='profile')
+
+#Assemble parameter estimates, CIs, R2
+tableEyeModelNew <- data.frame(
+  parameter=c("intercept","log(DOC)","watershed","log(DOC):watershed","sigmaLake","sigmaRes","R2marginal","R2conditional"),
+  estimate=c(fixef(EyeModelNew),as.data.frame(VarCorr(EyeModelNew))[1,5],sigma(EyeModelNew),as.vector(r.squaredGLMM(EyeModelNew))),
+  lowerCI=c(confEyeModelNew[c(3:6,1:2),1],NA,NA),
+  upperCI=c(confEyeModelNew[c(3:6,1:2),2],NA,NA)
+)
+tableEyeModelNew
 
 # Add the fitted values to dfeye
 dfeye$fitted <- fitted(EyeModelNew) 
-
-# Get R2 effect sizes
-r.squaredGLMM(EyeModelNew, by_group = TRUE)
-#           R2m       R2c
-#[1,] 0.02923236 0.3854785 # (ish--may vary slightly)
-# R2m is marginal variance which shows variance explained by fixed effects
-# R2c is conditional variance which shows variance explained by total model
 
 # Some plots:
 ggplot(dfeye, aes(x = DOC, y = fitted, label = lakeID)) + 
@@ -367,7 +371,6 @@ str(dfraker)
 # Set basin to factor
 dfraker$basin <- as.factor(dfraker$basin)
 
-# Without Basin
 # avgL2_ss is size standardizations for average length for rakers 4-7
 
 ## lengths
@@ -385,9 +388,9 @@ fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
-# With Basins
+
 RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + 
-                         basin:log(lakeDOC) + (1|lakeID),
+                       basin:log(lakeDOC) + (1|lakeID),
                        family = poisson,
                        nAGQ = 0,
                        control = glmerControl(optimizer = "nloptwrap"),
@@ -463,6 +466,7 @@ dfFin$basin <- as.factor(dfFin$basin)
 FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + 
                        basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinLModelNew)
+plot(fitted(FinLModelNew)~dfFin$DOC,pch=as.numeric(dfFin$basin))
 
 FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + 
                        basin:log(DOC) + (1|lakeID), data = dfFin)
@@ -518,6 +522,7 @@ dfangle$basin <- as.factor(dfangle$basin)
 FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + 
                        basin:log(DOC) + (1|lakeID),data = dfangle)
 summary(FinAModelNew)
+plot(fitted(FinAModelNew)~dfangle$DOC,pch=as.numeric(dfangle$basin))
 
 # Get fitted values and add to data frame. 
 dfangle$fitted <- fitted(FinAModelNew)
