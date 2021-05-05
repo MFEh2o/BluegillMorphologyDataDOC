@@ -22,9 +22,20 @@ dkblue <- rgb(48, 76, 170, maxColorValue = 255)
 medblue <- rgb(121, 221, 238, maxColorValue = 255)
 ltblue <- rgb(194, 242, 238, maxColorValue = 255)
 
-# XXX rename these to specify low to high or high to low, and change the rest of the code accordingly.
 colFuncLowHigh <- colorRampPalette(c(ltblue, medblue, dkblue, tan, brown))
 colFuncHighLow <- colorRampPalette(c(brown, tan, dkblue, medblue, ltblue))
 lakeColorsLowHigh <- colFuncLowHigh(14)
 lakeColorsHighLow <- colFuncHighLow(14)
 
+# Define shapes for lakes
+lakeShapesHighLow <- lakeInfo %>%
+  arrange(-DOC) %>%
+  mutate(shape = case_when(basin == 4 ~ 21,
+                           basin == 7 ~ 22)) %>%
+  pull(shape)
+
+lakeShapesLowHigh <- lakeInfo %>%
+  arrange(DOC) %>%
+  mutate(shape = case_when(basin == 4 ~ 21,
+                           basin == 7 ~ 22)) %>%
+  pull(shape)
