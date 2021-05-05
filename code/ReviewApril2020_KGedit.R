@@ -2,23 +2,19 @@
 # Created by Chelsea Bishop. Edits/reorganization by Kaija Gahm
 # Contains main fish size model, as well as models for eye widths, gill raker lengths/spaces, pectoral fin lengths/widths, and pectoral fin insertion angles. Also contains code for figures and tables.
 
-
 # Load packages -----------------------------------------------------------
 # versions can be found in the renv lock file
-library(geomorph) # for morphometric analysis
-library(shapes) # for morphometric analysis
-library(Morpho) # for morphometric analysis
-library(StereoMorph) # for morphometric analysis
-library(phangorn) # for morphometric analysis?
+library(geomorph) # for morphometric analysis (used)
+library(StereoMorph) # for morphometric analysis (used)
 library(dplyr) # for pipes etc
 library(lme4) # for mixed models
 library(lmerTest) # to calculate stats on mixed models
 library(ggplot2) # for plots
-library(MuMIn) # for effect sizes
+library(MuMIn) # for model effect sizes
 library(here) # for file paths
 library(gridGraphics) # for base R plots
-library(ggtext) # for ggplots
-source(here("code", "defs.R"))
+library(ggtext) # for markdown titles and captions
+source(here("code", "defs.R")) # additional variable/function definitions
 
 # Load data ---------------------------------------------------------------
 ## landmark data
@@ -45,12 +41,12 @@ dimnames(myData_tps)[[1]] <- as.character(1:19)
 GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
 
 ## convert results of Procrustes analysis into a usable data frame
-gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
-                                Lake=identifiers$lakeID,
-                                DOC=identifiers$lakeDOC,
-                                captureMethod=identifiers$captureMethod, 
-                                cSize=GPA.fish$Csize, 
-                                basin=as.factor(identifiers$Basin))
+gdf.fish <- geomorph.data.frame(shape = GPA.fish$coords,
+                                Lake = identifiers$lakeID,
+                                DOC = identifiers$lakeDOC,
+                                captureMethod = identifiers$captureMethod, 
+                                cSize = GPA.fish$Csize, 
+                                basin = as.factor(identifiers$Basin))
 
 ## PCA scoreplot for overall fish shapes, colored by DOC levels (proxy for lakes)
 corePCA <- plotTangentSpace(gdf.fish$shape, 
@@ -61,51 +57,24 @@ corePCA <- plotTangentSpace(gdf.fish$shape,
 PCscores <- corePCA$pc.scores[,1:2]
 
 ## Split PC scores into individual objects by lake
-idx <- which(gdf.fish$Lake=="BA")
-Bay <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="BH")
-Birch <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="CR")
-Crampton <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="FD")
-Found <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="HB")
-Hummingbird <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="LC")
-Little_Crooked <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="LT")
-Lost <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="MC")
-McCullough <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="MS")
-Muskellunge <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="OB")
-Oxbow <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="PS")
-Papoose <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="RS")
-Red_Bass <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="SQ")
-Squaw <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="TO")
-Towanda <- PCscores[idx,]
+Bay <- PCscores[which(gdf.fish$Lake == "BA"),]
+Birch <- PCscores[which(gdf.fish$Lake == "BH"),]
+Crampton <- PCscores[which(gdf.fish$Lake == "CR"),]
+Found <- PCscores[which(gdf.fish$Lake == "FD"),]
+Hummingbird <- PCscores[which(gdf.fish$Lake == "HB"),]
+Little_Crooked <- PCscores[which(gdf.fish$Lake == "LC"),]
+Lost <- PCscores[which(gdf.fish$Lake == "LT"),]
+McCullough <- PCscores[which(gdf.fish$Lake == "MC"),]
+Muskellunge <- PCscores[which(gdf.fish$Lake == "MS"),]
+Oxbow <- PCscores[which(gdf.fish$Lake == "OB"),]
+Papoose <- PCscores[which(gdf.fish$Lake == "PS"),]
+Red_Bass <- PCscores[which(gdf.fish$Lake == "RS"),]
+Squaw <- PCscores[which(gdf.fish$Lake == "SQ"),]
+Towanda <- PCscores[which(gdf.fish$Lake == "TO"),]
 
 
 # Save plots of the PC1 extremes ------------------------------------------
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1min, 
@@ -123,7 +92,7 @@ plotRefToTarget(corePCA$pc.shapes$PC1min,
                 useRefPts = TRUE)
 dev.off() # close the device
 
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1max,
@@ -142,7 +111,7 @@ plotRefToTarget(corePCA$pc.shapes$PC1max,
 dev.off() # close the device
 
 # Save plots of the PC2 extremes ------------------------------------------
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2min, 
@@ -160,7 +129,7 @@ plotRefToTarget(corePCA$pc.shapes$PC2min,
                 useRefPts = TRUE)
 dev.off()
 
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2max, 
@@ -180,7 +149,7 @@ dev.off()
 
 # [needs title] ----------------------------------------------------------------
 lm_array <- myData_tps
-gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
+gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords # takes just the coords
 
 # Convert array to matrix for PCA
 gpa_mat <- t(apply(gpa_array, 3, function(y) matrix(t(y), 1)))
@@ -195,8 +164,7 @@ scores <- gpa_mat %*% -(resEig$vectors)
 # Get percent variance explained along each axis
 per_var <- (resEig$values / sum(resEig$values))*100
 
-plot_fish_lateral <- function(xy, coor, size=1, col="black"){
-  
+plot_fish_lateral <- function(xy, coor, size = 1, col = "black"){
   # If 3D, rotate points about x-axis using 3D rotation matrix
   if(ncol(coor) == 3){
     coor <- coor %*% matrix(c(1,0,0,0,cos(-pi/2),sin(-pi/2), 
@@ -220,60 +188,57 @@ plot_fish_lateral <- function(xy, coor, size=1, col="black"){
   
   # Center about zero based on range of coordinates
   coor <- coor - matrix(colMeans(apply(coor, 2, range)), 
-                        nrow=nrow(coor), ncol=ncol(coor), byrow=TRUE)
+                        nrow=nrow(coor), ncol=ncol(coor), byrow = TRUE)
   
   # Move shape to PC score
-  coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow=TRUE)
+  coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow = TRUE)
   
   # Set order in which to draw points to create polygon
-  polygon_order=c(1,3:12,16,1) # name landmarks in the order you want them connected
+  polygon_order <- c(1,3:12,16,1) # name landmarks in the order you want them connected
   # Create filled polygon
-  polygon(coor[polygon_order, ], col=col, border=col)
+  polygon(coor[polygon_order, ], col = col, border = col)
 }
 # Set PCs to plot
 pcs <- 1:2
 
 # Backtransform morphospace all individuals -------------------------------
 # Create plot box with axes and axis labels
-plot(scores[, pcs], type="n", main="Backtransform morphospace",
-     xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab=paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+     xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral,pcs=pcs,
-         n=c(4,4), m=dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
-         pc.margin=c(0.06,0.05), size=0.038, col=gray(0.7))
+btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
+         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
+         pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
 
 # add points for each lake in a different color
-points(Bay[,1], Bay[,2], col="#6666FF", pch=19,cex=2)
-points(Birch[,1], Birch[,2], col="#3333FF", pch=19,cex=2)
-points(Crampton[,1], Crampton[,2], col="#33FFFF", pch=19,cex=2)
-points(Found[,1], Found[,2], col="#33CCFF", pch=19,cex=2)
-points(Hummingbird[,1], Hummingbird[,2], col="#000033", pch=19,cex=2)
-points(Little_Crooked[,1], Little_Crooked[,2], col="#99FFFF", pch=19,cex=2)
-points(Lost[,1], Lost[,2], col="#CCFFFF", pch=19,cex=2)
-points(McCullough[,1], McCullough[,2], col="#333399", pch=19,cex=2)
-points(Muskellunge[,1], Muskellunge[,2], col="#6699FF", pch=19,cex=2)
-points(Oxbow[,1], Oxbow[,2], col="#3333CC", pch=19,cex=2)
-points(Papoose[,1], Papoose[,2], col="#0099FF", pch=19,cex=2)
-points(Red_Bass[,1], Red_Bass[,2], col="#003366", pch=19,cex=2)
-points(Squaw[,1], Squaw[,2], col="#333366", pch=19,cex=2)
-points(Towanda[,1], Towanda[,2], col="#99CCFF", pch=19,cex=2)
-legend("topright", legend=c("Bay","Birch","Crampton", "Found", "Hummingbird", "Little_Crooked", "Lost", "McCullough", 
-                            "Muskellunge", "Oxbow", "Papoose", "Red_Bass", "Squaw", "Towanda" ), 
-       pch=19, col=c("#6666FF","#3333FF","#33FFFF","#33CCFF","#000033","#99FFFF", "#CCFFFF", "#333399", 
-                     "#6699FF", "#3333CC", "#0099FF", "#003366", "#333366", "#99CCFF", cex=0.30 ))
+points(Hummingbird[,1], Hummingbird[,2], col=lakeColorsHighLow[1], pch=19,cex=2)
+points(Squaw[,1], Squaw[,2], col=lakeColorsHighLow[2], pch=19,cex=2)
+points(Red_Bass[,1], Red_Bass[,2], col=lakeColorsHighLow[3], pch=19,cex=2)
+points(McCullough[,1], McCullough[,2], col=lakeColorsHighLow[4], pch=19,cex=2)
+points(Oxbow[,1], Oxbow[,2], col=lakeColorsHighLow[5], pch=19,cex=2)
+points(Birch[,1], Birch[,2], col=lakeColorsHighLow[6], pch=19,cex=2)
+points(Bay[,1], Bay[,2], col=lakeColorsHighLow[7], pch=19,cex=2)
+points(Muskellunge[,1], Muskellunge[,2], col=lakeColorsHighLow[8], pch=19,cex=2)
+points(Papoose[,1], Papoose[,2], col=lakeColorsHighLow[9], pch=19,cex=2)
+points(Found[,1], Found[,2], col=lakeColorsHighLow[10], pch=19,cex=2)
+points(Towanda[,1], Towanda[,2], col=lakeColorsHighLow[11], pch=19,cex=2)
+points(Crampton[,1], Crampton[,2], col=lakeColorsHighLow[12], pch=19,cex=2)
+points(Little_Crooked[,1], Little_Crooked[,2], col=lakeColorsHighLow[13], pch=19,cex=2)
+points(Lost[,1], Lost[,2], col=lakeColorsHighLow[14], pch=19,cex=2)
+
+legend("topright", legend = lakesHighLow, 
+       pch = 19, col = lakeColorsHighLow, cex = 0.30)
 
 # Add convex hull polygons to the PCA plot, PC1 vs PC2:
-colour = c("#6666FF","#3333FF","#33FFFF","#33CCFF","#000033","#99FFFF", "#CCFFFF", "#333399", 
-           "#6699FF", "#3333CC", "#0099FF", "#003366", "#333366", "#99CCFF")
 for(j in 1:nlevels(as.factor(gdf.fish$DOC))) {
   # Get edge points (used to plot convex hull):
   edge_points <- rownames(PCscores[which(gdf.fish$DOC == levels(as.factor(gdf.fish$DOC))[j]),])[
     chull(PCscores[which(gdf.fish$DOC == levels(as.factor(gdf.fish$DOC))[j]), c(1,2)])]
   # Plot convex hull as polygon:
-  polygon(PCscores[edge_points, c(1,2)], col = adjustcolor(colour[j],
-                                                           alpha.f = 0.3) , border = colour[j])
+  polygon(PCscores[edge_points, c(1,2)], col = adjustcolor(lakeColorsHighLow[j],
+                                                           alpha.f = 0.3) , border = lakeColorsHighLow[j])
 } # alpha gives the degree of transparency of the polygon
 
 
@@ -337,22 +302,22 @@ dev.off()
 #Check that basin is a factor
 str(gdf.fish)
 
-#Fit model
-#shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data=gdf.fish, SS.type="II")
+# Fit model
+# shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data = gdf.fish, SS.type = "II")
 
-#Because this is not a hierarchical model, the log(DOC):basin term is redundant with the Lake term. Drop the former.
-shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, data=gdf.fish, SS.type="II",iter=10000)
+# Because this is not a hierarchical model, the log(DOC):basin term is redundant with the Lake term. Drop the former.
+shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, 
+                       data = gdf.fish, SS.type = "II", iter = 10000)
 
 #Diagnostic plot
 plot(shapeModel)
 
 #ANOVA
-anova(shapeModel,error=c("Residuals","Residuals","Residuals","Lake"))
-
+anova(shapeModel,error = c("Residuals", "Residuals", "Residuals", "Lake"))
 
 # Univariate Data Check and Run -------------------------------------------
 # Eye Widths --------------------------------------------------------------
-dfeye <-read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) # This is the re-created file, generated in recreateEyewidths.R. It does not include by-lake size-standardized values because those values were not used in the subsequent analysis.
+dfeye <-read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) 
 
 # Create a new data frame, changing some of the column names.
 dfeye <- dfeye %>%
@@ -364,13 +329,15 @@ dfeye <- dfeye %>%
          basin,
          eyewidth.ss)
 
-#Check structure of dfeye
+# Check structure of dfeye
 str(dfeye)
-#Set basin to factor
+
+# Set basin to factor
 dfeye$basin <- as.factor(dfeye$basin)
 
 # New Model with Basin
-EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfeye)
+EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + 
+                      basin:log(DOC) + (1|lakeID), data = dfeye)
 summary(EyeModelNew)
 #Calculate profile CIs for parameter estimates
 confEyeModelNew <- confint(EyeModelNew,level=0.95,method='profile')
@@ -385,16 +352,11 @@ tableEyeModelNew <- data.frame(
 tableEyeModelNew
 
 # Add the fitted values to dfeye
-dfeye$fitted <- fitted(EyeModelNew) # one value per lake--only 14 different fitted values.
-
-# ## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
-# write.csv(dfeye, file = here("data", "outputs", "eyewidthsFINAL_wFitted.csv"), row.names = F)
-
+dfeye$fitted <- fitted(EyeModelNew) 
 
 # Some plots:
 ggplot(dfeye, aes(x = DOC, y = fitted, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
-# Other Plots to Compare (raw eye widths and size-standardized eye widths)
 ggplot(dfeye,aes(x = DOC, y = eyewidth, label = lakeID)) + 
   geom_point(aes(colour = lakeID))
 ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) + 
@@ -403,19 +365,22 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) +
 # Gill Rakers -------------------------------------------------------------
 dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
 
-#Check structure of dfraker
+# Check structure of dfraker
 str(dfraker)
-#Set basin to factor
+
+# Set basin to factor
 dfraker$basin <- as.factor(dfraker$basin)
 
 # avgL2_ss is size standardizations for average length for rakers 4-7
 
 ## lengths
-RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
+RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + 
+                         basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerLModelNew)
 
 ## spaces
-RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
+RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + 
+                         basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerSModelNew)
 
 ## save fitted vals
@@ -423,13 +388,14 @@ fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
-RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID),
+
+RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + 
+                       basin:log(lakeDOC) + (1|lakeID),
                        family = poisson,
                        nAGQ = 0,
                        control = glmerControl(optimizer = "nloptwrap"),
                        data = dfraker)
 summary(RakerCModelNew)
-
 
 ## save fitted vals
 fittedC <- fitted(RakerCModelNew)
@@ -440,12 +406,8 @@ dfraker <- dfraker %>%
          fitted_S = fittedS,
          fitted_C = fittedC)
 
-# Write out the fitted values to a new sheet ------------------------------
-# write.csv(dfraker, file = here("data", "outputs", "Gill_Rakers_2018_Final_wFitted.csv"), row.names = F)
-
 # Make plots of the fitted values -----------------------------------------
 # One point per lake
-
 ## raker lengths
 ggplot(dfraker, aes(x = lakeDOC, y = fitted_L, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) 
@@ -481,7 +443,7 @@ ggplot(dfraker, aes(x = lakeDOC, y = avgL2_ss, label= lakeID)) +
 ggplot(dfraker, aes(x = lakeDOC, y = avgS2_ss, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
 
-## size-standardization is not applicable for counts.
+## (size-standardization is not applicable for counts.)
 
 # Pectoral Fins -----------------------------------------------------------
 dfFin <- read.csv(here("data", "outputs", "PecFinDataNovemberFINAL.csv"))
@@ -492,22 +454,26 @@ dfFin <- dfFin %>%
   left_join(lakeInfo %>%
               select(lakeID, basin),
             by = "lakeID")
-nrow(dfFin) # 218
+nrow(dfFin) # still 218
 
-#Check structure of dfFin
+# Check structure of dfFin
 str(dfFin)
-#Set basin to factor
+
+# Set basin to factor
 dfFin$basin <- as.factor(dfFin$basin)
 
 # New models with basin
-FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + 
+                       basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinLModelNew)
 plot(fitted(FinLModelNew)~dfFin$DOC,pch=as.numeric(dfFin$basin))
 
-FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + 
+                       basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinWModelNew)
 
-FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + 
+                       basin:log(DOC) + (1|lakeID), data = dfFin)
 summary(FinRModelNew)
 
 dfFin$fitted_PL <- fitted(FinLModelNew)
@@ -546,21 +512,20 @@ ggplot(dfFin,aes(x = DOC, y = finRatioSS, label= lakeID)) +
 dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
   rename("finangle" = "pecFinInsertionAngle")
 
-#Check structure of dfFin
+# Check structure of dfangle
 str(dfangle)
-#Set basin to factor
+
+# Set basin to factor
 dfangle$basin <- as.factor(dfangle$basin)
 
 # With basin
-FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID),data = dfangle)
+FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + 
+                       basin:log(DOC) + (1|lakeID),data = dfangle)
 summary(FinAModelNew)
 plot(fitted(FinAModelNew)~dfangle$DOC,pch=as.numeric(dfangle$basin))
 
 # Get fitted values and add to data frame. 
 dfangle$fitted <- fitted(FinAModelNew)
-
-## Write out a new csv version that includes the fitted values: will be saved in data/outputs. This is so that Chelsea can use the output fitted values in figures etc. if she needs them.
-# write.csv(dfangle, file = here("data", "outputs", "PecFinAnglesFINAL_wFitted.csv"), row.names = F)
 
 # Plots:
 ggplot(dfangle, aes(x = DOC, y = fitted, label = lakeID)) + 
@@ -571,68 +536,177 @@ ggplot(dfangle, aes(x = DOC, y = finangle, label= lakeID)) +
   geom_point(aes(colour = lakeID)) 
 
 # Figures -----------------------------------------------------------------
-## Code reorganized and expanded by Kaija
-
-# Define manual vector of lake shapes to use in the plots
-# we want shape 21 (circle) for great lakes (4) and shape 22 (square) for mississippi (7)
-lakeShapes <- lakeInfo %>%
-  select(lakeID, DOC, basin) %>%
-  arrange(-DOC) %>%
-  mutate(shape = case_when(basin == 4 ~ 21,
-                           basin == 7 ~ 22)) %>%
-  pull(shape)
-
-# Define a few colors to create a gradient through. We have to make sure that brown maps to higher DOC values and light blue maps to lower DOC values.
+# The colors and shapes used in these plots are defined in defs.R
 
 # Figures 1, 2, 3 ---------------------------------------------------------
-## Fig 1.: Map
-### I don't think we need code for this one. Can just use the same image she had before.
-
-## Fig 2: Landmarks
-### Likewise, no code needed; can use same image.
+# No code needed for Fig. 1 and Fig. 2--we already have a map and the landmark diagram we can use.
 
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
 ### Saved components of this figure above, in sections "PC1 plots" and "PC2 plots"
 
 # Figure 4 ----------------------------------------------------------------
-## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), C (insertion anlge)
+## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), D (insertion anlge)
+# Prepare the data, drawing from dfFin and dfangle
+df1 <- dfFin %>%
+  select(lakeID, DOC, basin, fitted_PL, fitted_PW, fitted_PR) %>%
+  distinct()
+
+df2 <- dfangle %>%
+  select(lakeID, fitted) %>%
+  distinct() %>%
+  rename("fitted_A" = fitted)
+
+df <- left_join(df1, df2, by = "lakeID") %>%
+  mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
+         # Rename basins so they'll show up properly in the legend
+         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
+                           basin == "7" ~ "Mississippi Watershed"),
+         # Arrange lake factor levels from high to low DOC
+         lakeID = forcats::fct_reorder(lakeID, DOC, .desc = T))
+
+# A (pec fin length)
+panelA <- df %>%
+  ggplot(aes(x = DOC, y = exp(fitted_PL)))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(y = "Pectoral fin length, size-standardized (mm)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank())
+
+# B (pec fin base width)
+panelB <- df %>%
+  ggplot(aes(x = DOC, y = exp(fitted_PW)))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(y = "Pectoral fin base width, size-standardized (mm)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+
+# C (length:width ratio)
+panelC <- df %>%
+  ggplot(aes(x = DOC, y = exp(fitted_PR)))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(y = "Pectoral fin length:width ratio, size-standardized")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+
+# D (insertion angle)
+panelD <- df %>%
+  ggplot(aes(x = DOC, y = exp(fitted_A)))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+             col = "black", stroke = 1)+
+  theme_classic()+
+  scale_fill_manual(name = "**Lakes**",
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
+  scale_shape_manual(name = "",
+                     values = c(21, 22))+
+  labs(x = "Dissolved Organic Carbon (mg/L)",
+       y = "Pectoral fin insertion angle (degrees)")+
+  theme(legend.title = element_markdown(),
+        text = element_text(family = "Helvetica"),
+        axis.title.x = element_blank(),
+        legend.position = "none")
+
+## extract the legend from panel A
+legend <- cowplot::get_legend(panelA)
+
+## make the three stacked plots
+allPanels <- cowplot::plot_grid(panelA + 
+                                  theme(legend.position = "none"),
+                                panelB, panelC, panelD, ncol = 1, align = "v")
+
+## Save the main plot panels
+pdf(here("figures", "pecFins", "pecFinsPlotPanels.pdf"), height = 15, width = 5)
+allPanels
+dev.off()
+
+## Save the legend to the main figures folder
+legendPlot <- cowplot::plot_grid(legend)
+pdf(here("figures", "legend.pdf"), height = 10, width = 4)
+legendPlot
+dev.off()
+
+# Make the gradient legend alone
+gradientLegend <- cowplot::plot_grid(cowplot::get_legend(df %>%
+                                                           ggplot(aes(x = DOC, y = fitted_PL, col = DOC))+
+                                                           geom_point()+
+                                                           scale_color_gradientn(colors = lakeColorsLowHigh, name = "DOC")))
+
+## Save the gradient legend alone in the main figures folder
+pdf(here("figures", "gradientLegend.pdf"), height = 10, width = 4)
+gradientLegend
+dev.off()
 
 # Figure 5 ----------------------------------------------------------------
 ## Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
-## some modifications to the data so it plots properly
-## Fig. 5. Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
-dfraker <- dfraker %>%
+df <- dfraker %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
+         # Rename basins so they'll show up properly in the legend
          basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
-         lakeID = fct_reorder(lakeID, lakeDOC, .desc = T))
+         # Arrange lake factor levels from high to low DOC
+         lakeID = forcats::fct_reorder(lakeID, lakeDOC, .desc = T)) %>%
+  select(lakeID, basin, fitted_L, fitted_S, fitted_C, lakeDOC)
 
-## Exponentiate the fitted values to convert them back to real mm units # 
-## make panel A, with legend (we'll remove the legend when we plot it)
-panelA <- dfraker %>%
+## In each plot, we'll exponentiate the fitted values to convert them back to mm units
+
+## Panel A
+panelA <- df %>%
   ggplot(aes(x = lakeDOC, y = exp(fitted_L)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
-                    values = lakeColors,
-                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
   labs(y = "Average Gill Raker Length (mm)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        legend.position = "none")
 
 ## make panel B
-panelB <- dfraker %>%
+panelB <- df %>%
   ggplot(aes(x = lakeDOC, y = exp(fitted_S)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
-                    values = lakeColors,
-                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
   labs(y = "Average Gill Raker Space Width (mm)")+
@@ -643,14 +717,15 @@ panelB <- dfraker %>%
 
 ## Make panel C, with x-axis label
 ### not exponentiating the fitted values on this one because they weren't log-transformed.
-panelC <- dfraker %>%
+panelC <- df %>%
   ggplot(aes(x = lakeDOC, y = fitted_C))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
-                    values = lakeColors,
-                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
   labs(x = "Dissolved Organic Carbon (mg/L)",
@@ -659,52 +734,36 @@ panelC <- dfraker %>%
         text = element_text(family = "Helvetica"),
         legend.position = "none")
 
-## extract the legend from panel A
-legend <- cowplot::get_legend(panelA)
-
 ## make the three stacked plots
-allPanels <- cowplot::plot_grid(panelA + 
-                                 theme(legend.position = "none"),
-                               panelB, panelC, ncol = 1, align = "v")
+allPanels <- cowplot::plot_grid(panelA, panelB, panelC, ncol = 1, align = "v")
 
 ## Save the main plot panels
 pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 13, width = 5)
 allPanels
 dev.off()
 
-## Save the legend separately
-legendPlot <- cowplot::plot_grid(legend)
-pdf(here("figures", "gillRakers", "legend.pdf"), height = 10, width = 4)
-legendPlot
-dev.off()
-
-# Make the gradient legend alone
-gradientLegend <- cowplot::plot_grid(cowplot::get_legend(dfraker %>%
-  ggplot(aes(x = lakeDOC, y = avgS_4.6, col = lakeDOC))+
-  geom_point()+
-  scale_color_gradientn(colors = lakeColors, name = "DOC")))
-
-## Save the gradient legend alone in the main figures folder
-pdf(here("figures", "gradientLegend.pdf"), height = 10, width = 4)
-gradientLegend
-dev.off()
-#XXX START HERE
-
 # Figure 6 ----------------------------------------------------------------
 # Eye width across DOC gradient. One panel.
 ## exponentiating these values to undo the log-transformation
-eyePlot <- dfeye %>%
-  mutate(lakeID = stringr::str_replace(lakeID, "_", " ")) %>%
-  mutate(basin = case_when(basin == "4" ~ "Great Lakes Watershed",
+df <- dfeye %>%
+  mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
+         # Rename basins so they'll show up properly in the legend
+         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
                            basin == "7" ~ "Mississippi Watershed"),
-         lakeID = factor(lakeID, levels = names(lakeColors))) %>%
+         # Arrange lake factor levels from high to low DOC
+         lakeID = forcats::fct_reorder(lakeID, DOC, .desc = T)) %>%
+  select(lakeID, DOC, basin, fitted) %>%
+  distinct()
+
+eyePlot <- df %>%
   ggplot(aes(x = DOC, y = exp(fitted)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
-                    values = lakeColors,
-                    guide = guide_legend(override.aes = list(shape = lakeShapes))) +
+                    values = lakeColorsHighLow,
+                    guide = guide_legend(override.aes = 
+                                           list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
   labs(x = "Dissolved Organic Carbon (mg/L)",
@@ -716,11 +775,6 @@ eyePlot <- dfeye %>%
 ## Save the main plot panel
 pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 4, width = 7)
 eyePlot
-dev.off()
-
-## Save the legend separately (same legend as in the previous plot, scaled down a bit)
-pdf(here("figures", "eyeWidths", "legend.pdf"), height = 4, width = 2)
-legendPlot
 dev.off()
 
 # Tables ------------------------------------------------------------------

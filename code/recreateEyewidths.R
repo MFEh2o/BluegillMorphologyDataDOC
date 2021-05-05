@@ -8,6 +8,7 @@ library(stringr) # for text string manipulation
 library(ggplot2) # for plotting
 library(here) # for file paths
 source(here("code", "dbUtil.R")) # for the dbTable() function
+source(here("code", "defs.R"))
 library(RSQLite) # for db connection
 
 source(here("code", "defs.R"))
@@ -78,7 +79,7 @@ ewR %>%
   ggplot(aes(x = log(stdLength), y = log(eyeWidth), col = lakeID))+
   geom_point(alpha = 0.5)+
   geom_smooth(method = "lm", alpha = 0.2)+
-  scale_color_manual(values = lakeColorsReverse)+
+  scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Eye width vs body length, log-transformed")
 ggsave(filename = "eyeWidthsAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
