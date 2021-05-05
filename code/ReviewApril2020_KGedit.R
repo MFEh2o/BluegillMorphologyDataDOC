@@ -396,22 +396,16 @@ fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
 
-RakerCModelNew = glmer(total_RakerNum ~ 1 + log(lakeDOC) + basin + 
-                         basin:log(lakeDOC) + (1|lakeID),
-                       family = poisson,
-                       nAGQ = 0,
-                       control = glmerControl(optimizer = "nloptwrap"),
-                       data = dfraker)
+RakerCModelNew <- lmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + basin + 
+                        basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerCModelNew)
 
 # Calculate profile CIs for parameter estimates
-# XXX this confidence interval calculation isn't working--come back to this.
-# confRakerCModelNew <- confint(RakerCModelNew, level = 0.95, method = 'profile')
+confRakerCModelNew <- confint(RakerCModelNew, level = 0.95, method = 'profile')
 
 # Assemble parameter estimates, CIs, R2
-# XXX not working--depends on confint above.
-# tableRakerCModelNew <- makeSummary(model = RakerCModelNew, 
-#                                    conf = confRakerCModelNew) 
+tableRakerCModelNew <- makeSummary(model = RakerCModelNew, 
+                                 conf = confRakerCModelNew) 
 
 ## save fitted vals
 fittedC <- fitted(RakerCModelNew)
@@ -579,7 +573,8 @@ tableRakerLModelNew <- tableRakerLModelNew %>%
   mutate(type = "rakerLength")
 tableRakerSModelNew <- tableRakerSModelNew %>%
   mutate(type = "rakerSpace")
-# tableRakerCModelNew # XXX not working yet--depends on failed confint function
+tableRakerCModelNew <- tableRakerCModelNew %>%
+  mutate(type = "rakerCount")
 tableFinLModelNew <- tableFinLModelNew %>%
   mutate(type = "pecFinLength")
 tableFinWModelNew <- tableFinWModelNew %>%
@@ -590,7 +585,7 @@ tableFinAModelNew <- tableFinAModelNew %>%
   mutate(type = "pecFinAngle")
 
 # combine into one table
-fullTable <- bind_rows(tableEyeModelNew, tableRakerLModelNew, tableRakerSModelNew, tableFinLModelNew, tableFinWModelNew, tableFinRModelNew, tableFinAModelNew) %>%
+fullTable <- bind_rows(tableEyeModelNew, tableRakerLModelNew, tableRakerSModelNew, tableRakerCModelNew, tableFinLModelNew, tableFinWModelNew, tableFinRModelNew, tableFinAModelNew) %>%
   tidyr::pivot_wider(id_cols = "parameter",
               names_from = "type",
               values_from = "estimate")
