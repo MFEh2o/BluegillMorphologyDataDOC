@@ -2,23 +2,18 @@
 # Created by Chelsea Bishop. Edits/reorganization by Kaija Gahm
 # Contains main fish size model, as well as models for eye widths, gill raker lengths/spaces, pectoral fin lengths/widths, and pectoral fin insertion angles. Also contains code for figures and tables.
 
-
 # Load packages -----------------------------------------------------------
 # versions can be found in the renv lock file
-library(geomorph) # for morphometric analysis
-library(shapes) # for morphometric analysis
-library(Morpho) # for morphometric analysis
-library(StereoMorph) # for morphometric analysis
-library(phangorn) # for morphometric analysis?
+library(geomorph) # for morphometric analysis (used)
+library(StereoMorph) # for morphometric analysis (used)
 library(dplyr) # for pipes etc
 library(lme4) # for mixed models
 library(lmerTest) # to calculate stats on mixed models
 library(ggplot2) # for plots
-library(MuMIn) # for effect sizes
+library(MuMIn) # for model effect sizes
 library(here) # for file paths
 library(gridGraphics) # for base R plots
-library(ggtext) # for ggplots
-source(here("code", "defs.R"))
+source(here("code", "defs.R")) # additional variable/function definitions
 
 # Load data ---------------------------------------------------------------
 ## landmark data
@@ -45,12 +40,12 @@ dimnames(myData_tps)[[1]] <- as.character(1:19)
 GPA.fish <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE) 
 
 ## convert results of Procrustes analysis into a usable data frame
-gdf.fish <- geomorph.data.frame(shape=GPA.fish$coords,
-                                Lake=identifiers$lakeID,
-                                DOC=identifiers$lakeDOC,
-                                captureMethod=identifiers$captureMethod, 
-                                cSize=GPA.fish$Csize, 
-                                basin=as.factor(identifiers$Basin))
+gdf.fish <- geomorph.data.frame(shape = GPA.fish$coords,
+                                Lake = identifiers$lakeID,
+                                DOC = identifiers$lakeDOC,
+                                captureMethod = identifiers$captureMethod, 
+                                cSize = GPA.fish$Csize, 
+                                basin = as.factor(identifiers$Basin))
 
 ## PCA scoreplot for overall fish shapes, colored by DOC levels (proxy for lakes)
 corePCA <- plotTangentSpace(gdf.fish$shape, 
@@ -61,51 +56,24 @@ corePCA <- plotTangentSpace(gdf.fish$shape,
 PCscores <- corePCA$pc.scores[,1:2]
 
 ## Split PC scores into individual objects by lake
-idx <- which(gdf.fish$Lake=="BA")
-Bay <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="BH")
-Birch <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="CR")
-Crampton <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="FD")
-Found <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="HB")
-Hummingbird <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="LC")
-Little_Crooked <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="LT")
-Lost <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="MC")
-McCullough <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="MS")
-Muskellunge <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="OB")
-Oxbow <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="PS")
-Papoose <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="RS")
-Red_Bass <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="SQ")
-Squaw <- PCscores[idx,]
-
-idx <- which(gdf.fish$Lake=="TO")
-Towanda <- PCscores[idx,]
+Bay <- PCscores[which(gdf.fish$Lake == "BA"),]
+Birch <- PCscores[which(gdf.fish$Lake == "BH"),]
+Crampton <- PCscores[which(gdf.fish$Lake == "CR"),]
+Found <- PCscores[which(gdf.fish$Lake == "FD"),]
+Hummingbird <- PCscores[which(gdf.fish$Lake == "HB"),]
+Little_Crooked <- PCscores[which(gdf.fish$Lake == "LC"),]
+Lost <- PCscores[which(gdf.fish$Lake == "LT"),]
+McCullough <- PCscores[which(gdf.fish$Lake == "MC"),]
+Muskellunge <- PCscores[which(gdf.fish$Lake == "MS"),]
+Oxbow <- PCscores[which(gdf.fish$Lake == "OB"),]
+Papoose <- PCscores[which(gdf.fish$Lake == "PS"),]
+Red_Bass <- PCscores[which(gdf.fish$Lake == "RS"),]
+Squaw <- PCscores[which(gdf.fish$Lake == "SQ"),]
+Towanda <- PCscores[which(gdf.fish$Lake == "TO"),]
 
 
 # Save plots of the PC1 extremes ------------------------------------------
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1min, 
@@ -123,7 +91,7 @@ plotRefToTarget(corePCA$pc.shapes$PC1min,
                 useRefPts = TRUE)
 dev.off() # close the device
 
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC1max,
@@ -142,7 +110,7 @@ plotRefToTarget(corePCA$pc.shapes$PC1max,
 dev.off() # close the device
 
 # Save plots of the PC2 extremes ------------------------------------------
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2min, 
@@ -160,7 +128,7 @@ plotRefToTarget(corePCA$pc.shapes$PC2min,
                 useRefPts = TRUE)
 dev.off()
 
-# Open an pdf file
+# Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(corePCA$pc.shapes$PC2max, 
@@ -180,7 +148,7 @@ dev.off()
 
 # [needs title] ----------------------------------------------------------------
 lm_array <- myData_tps
-gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords ### takes just the coords
+gpa_array <- gpagen(myData_tps, ProcD = TRUE, Proj = TRUE)$coords # takes just the coords
 
 # Convert array to matrix for PCA
 gpa_mat <- t(apply(gpa_array, 3, function(y) matrix(t(y), 1)))
@@ -195,8 +163,7 @@ scores <- gpa_mat %*% -(resEig$vectors)
 # Get percent variance explained along each axis
 per_var <- (resEig$values / sum(resEig$values))*100
 
-plot_fish_lateral <- function(xy, coor, size=1, col="black"){
-  
+plot_fish_lateral <- function(xy, coor, size = 1, col = "black"){
   # If 3D, rotate points about x-axis using 3D rotation matrix
   if(ncol(coor) == 3){
     coor <- coor %*% matrix(c(1,0,0,0,cos(-pi/2),sin(-pi/2), 
@@ -220,29 +187,29 @@ plot_fish_lateral <- function(xy, coor, size=1, col="black"){
   
   # Center about zero based on range of coordinates
   coor <- coor - matrix(colMeans(apply(coor, 2, range)), 
-                        nrow=nrow(coor), ncol=ncol(coor), byrow=TRUE)
+                        nrow=nrow(coor), ncol=ncol(coor), byrow = TRUE)
   
   # Move shape to PC score
-  coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow=TRUE)
+  coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow = TRUE)
   
   # Set order in which to draw points to create polygon
-  polygon_order=c(1,3:12,16,1) # name landmarks in the order you want them connected
+  polygon_order <- c(1,3:12,16,1) # name landmarks in the order you want them connected
   # Create filled polygon
-  polygon(coor[polygon_order, ], col=col, border=col)
+  polygon(coor[polygon_order, ], col = col, border = col)
 }
 # Set PCs to plot
 pcs <- 1:2
 
 # Backtransform morphospace all individuals -------------------------------
 # Create plot box with axes and axis labels
-plot(scores[, pcs], type="n", main="Backtransform morphospace",
-     xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab=paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+     xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes(scores=scores, vectors=-(resEig$vectors), fcn=plot_fish_lateral,pcs=pcs,
-         n=c(4,4), m=dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
-         pc.margin=c(0.06,0.05), size=0.038, col=gray(0.7))
+btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
+         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
+         pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
 
 # add points for each lake in a different color
 points(Bay[,1], Bay[,2], col="#6666FF", pch=19,cex=2)
