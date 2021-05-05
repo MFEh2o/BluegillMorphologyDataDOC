@@ -102,7 +102,7 @@ p <- grR %>%
   ggplot(aes(x = log(stdLength), y = log(avgL_4.7), col = lakeID))+
   geom_point(alpha = 0.5)+
   geom_smooth(method = "lm", alpha = 0.2)+
-  scale_color_manual(values = lakeColorsReverse)+
+  scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Raker length vs body length, log-transformed")
 ggsave(p, filename = "rakerLengthAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
@@ -137,7 +137,7 @@ p <- grR %>%
   ggplot(aes(x = log(stdLength), y = log(avgS_4.6), col = lakeID))+
   geom_point(alpha = 0.5)+
   geom_smooth(method = "lm", alpha = 0.2)+
-  scale_color_manual(values = lakeColorsReverse)+
+  scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Raker space vs body length, log-transformed")
 ggsave(p, filename = "rakerSpaceAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)

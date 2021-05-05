@@ -85,7 +85,7 @@ p <- pfR %>%
   ggplot(aes(x = log(stdLength), y = log(pecFinLength), col = lakeID))+
   geom_point(alpha = 0.5)+
   geom_smooth(method = "lm", alpha = 0.2)+
-  scale_color_manual(values = lakeColorsReverse)+
+  scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Pec fin length vs body length, log-transformed")
 ggsave(p, filename = "pecFinLengthAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
@@ -120,7 +120,7 @@ p <- pfR %>%
   ggplot(aes(x = log(stdLength), y = log(pecFinBaseWidth), col = lakeID))+
   geom_point(alpha = 0.5)+
   geom_smooth(method = "lm", alpha = 0.2)+
-  scale_color_manual(values = lakeColorsReverse)+
+  scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Pec fin width vs body length, log-transformed")
 ggsave(p, filename = "pecFinWidthAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
