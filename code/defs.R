@@ -27,3 +27,4 @@ colFuncLowHigh <- colorRampPalette(c(ltblue, medblue, dkblue, tan, brown))
 colFuncHighLow <- colorRampPalette(c(brown, tan, dkblue, medblue, ltblue))
 lakeColorsLowHigh <- colFuncLowHigh(14)
 lakeColorsHighLow <- colFuncHighLow(14)
+
