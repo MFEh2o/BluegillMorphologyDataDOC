@@ -715,7 +715,7 @@ dev.off()
 gradientLegend <- cowplot::plot_grid(cowplot::get_legend(df %>%
                                                            ggplot(aes(x = DOC, y = fitted_PL, col = DOC))+
                                                            geom_point()+
-                                                           scale_color_gradientn(colors = lakeColorsLowHigh, name = "DOC")))
+                                                           scale_color_gradientn(colors = lakeColorsLowHigh, name = "DOC (mg/L)")))
 
 ## Save the gradient legend alone in the main figures folder
 pdf(here("figures", "gradientLegend.pdf"), height = 10, width = 4)
