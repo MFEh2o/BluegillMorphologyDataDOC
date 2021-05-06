@@ -209,7 +209,8 @@ plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
 btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
-         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], row.names=dimnames(lm_array)[[1]], 
+         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
+         row.names= dimnames(lm_array)[[1]], 
          pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
 
 # add points for each lake in a different color
@@ -274,24 +275,24 @@ per_var <- (resEig$values / sum(resEig$values))*100
 
 # Make Fig 3 --------------------------------------------------------------
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9, height = 9) 
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9, height = 7) 
 # plot
 # Create plot box with axes and axis labels
-plot(scores[, pcs], type="n", main="Backtransform morphospace",
-     xlab=paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab=paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+     xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
 
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes(scores=scores, vectors=-(resEig$vectors), 
-         fcn=plot_fish_lateral, 
-         pcs=pcs, n=c(4,4), m=dim(lm_array)[2], 
-         row.names=dimnames(lm_array)[[1]], 
-         pc.margin=c(0.06,0.06), 
-         size=0.018, 
-         col=gray(0.7))
-points(scores [,1], scores[,2], col="#41C6EC", pch=19,cex=2)
-text(scores [,1], scores [,2], labels=levels(gpa_df$Lake), cex= 0.7)
+btShapes(scores = scores, vectors = -(resEig$vectors), 
+         fcn = plot_fish_lateral, 
+         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
+         row.names = dimnames(lm_array)[[1]], 
+         pc.margin = c(0.06,0.06), 
+         size = 0.018, 
+         col = gray(0.7))
+points(scores [,1], scores[,2], col = "#41C6EC", pch = 19, cex = 2)
+text(scores [,1], scores [,2], labels = levels(gpa_df$Lake), cex = 0.7)
 dev.off()
 # For ref-to-Target Figures that go along the axes in figure 3: see pc1Plot and pc2Plot, above.
 
@@ -632,7 +633,7 @@ panelA <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(y = "Pectoral fin length, size-standardized (mm)")+
+  labs(y = "Pectoral fin length (mm)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"),
         axis.title.x = element_blank())
@@ -649,7 +650,7 @@ panelB <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(y = "Pectoral fin base width, size-standardized (mm)")+
+  labs(y = "Pectoral fin base width (mm)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"),
         axis.title.x = element_blank(),
@@ -667,7 +668,7 @@ panelC <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(y = "Pectoral fin length:width ratio, size-standardized")+
+  labs(y = "Pectoral fin length:width ratio")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"),
         axis.title.x = element_blank(),
@@ -689,8 +690,7 @@ panelD <- df %>%
        y = "Pectoral fin insertion angle (degrees)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica"),
-        axis.title.x = element_blank(),
-        legend.position = "none")
+        axis.title.x = element_blank())
 
 ## extract the legend from panel A
 legend <- cowplot::get_legend(panelA)
@@ -774,7 +774,7 @@ panelB <- df %>%
 ## Make panel C, with x-axis label
 ### not exponentiating the fitted values on this one because they weren't log-transformed.
 panelC <- df %>%
-  ggplot(aes(x = lakeDOC, y = fitted_C))+
+  ggplot(aes(x = lakeDOC, y = round(fitted_C, 2)))+
   geom_point(aes(fill = lakeID, shape = basin), size = 5, 
              col = "black", stroke = 1)+
   theme_classic()+
@@ -794,7 +794,7 @@ panelC <- df %>%
 allPanels <- cowplot::plot_grid(panelA, panelB, panelC, ncol = 1, align = "v")
 
 ## Save the main plot panels
-pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 13, width = 5)
+pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 11.25, width = 5)
 allPanels
 dev.off()
 
@@ -829,6 +829,6 @@ eyePlot <- df %>%
         legend.position = "none")
 
 ## Save the main plot panel
-pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 4, width = 7)
+pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 3.75, width = 5)
 eyePlot
 dev.off()
