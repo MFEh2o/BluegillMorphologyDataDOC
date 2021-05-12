@@ -43,8 +43,8 @@ lakeShapesLowHigh <- lakeInfo %>%
 # Function to create a model summary table ---------------------------------
 makeSummary <- function(model, conf){
   # Make the table
-  table <- data.frame(parameter = c("intercept", "log(DOC)", "watershed", 
-                                    "log(DOC):watershed", "sigmaLake", "sigmaRes", 
+  table <- data.frame(parameter = c("intercept", "log(DOC)", "basin", 
+                                    "log(DOC):basin", "sigmaLake", "sigmaRes", 
                                     "R2marginal", "R2conditional"),
     estimate = c(fixef(model), as.data.frame(VarCorr(model))[1,5], 
                  sigma(model), as.vector(r.squaredGLMM(model))),

@@ -8,7 +8,6 @@ library(geomorph) # for morphometric analysis (used)
 library(StereoMorph) # for morphometric analysis (used)
 library(dplyr) # for pipes etc
 library(lme4) # for mixed models
-library(lmerTest) # to calculate stats on mixed models
 library(ggplot2) # for plots
 library(MuMIn) # for model effect sizes
 library(here) # for file paths
@@ -208,7 +207,7 @@ plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
+StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
          pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
          row.names= dimnames(lm_array)[[1]], 
          pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
@@ -601,7 +600,7 @@ write.csv(fullTable, here("data", "outputs", "univariateModelSummary.csv"), row.
 ## Fig 3. PC1 vs PC2 plot on DOC gradient, fish body shape. 
 ### Saved components of this figure above, in sections "PC1 plots" and "PC2 plots"
 
-# Figure 4 ----------------------------------------------------------------
+# Pec Fin Figure ----------------------------------------------------------------
 ## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), D (insertion anlge)
 # Prepare the data, drawing from dfFin and dfangle
 df1 <- dfFin %>%
@@ -616,8 +615,8 @@ df2 <- dfangle %>%
 df <- left_join(df1, df2, by = "lakeID") %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
-         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
-                           basin == "7" ~ "Mississippi Watershed"),
+         basin = case_when(basin == "4" ~ "Great Lakes basin",
+                           basin == "7" ~ "Mississippi basin"),
          # Arrange lake factor levels from high to low DOC
          lakeID = forcats::fct_reorder(lakeID, DOC, .desc = T))
 
@@ -722,13 +721,13 @@ pdf(here("figures", "gradientLegend.pdf"), height = 10, width = 4)
 gradientLegend
 dev.off()
 
-# Figure 5 ----------------------------------------------------------------
+# Gill Raker Figure ----------------------------------------------------------------
 ## Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
 df <- dfraker %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
-         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
-                           basin == "7" ~ "Mississippi Watershed"),
+         basin = case_when(basin == "4" ~ "Great Lakes basin",
+                           basin == "7" ~ "Mississippi basin"),
          # Arrange lake factor levels from high to low DOC
          lakeID = forcats::fct_reorder(lakeID, lakeDOC, .desc = T)) %>%
   select(lakeID, basin, fitted_L, fitted_S, fitted_C, lakeDOC)
@@ -798,14 +797,14 @@ pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 11.25, w
 allPanels
 dev.off()
 
-# Figure 6 ----------------------------------------------------------------
+# Eye Width figure ----------------------------------------------------------------
 # Eye width across DOC gradient. One panel.
 ## exponentiating these values to undo the log-transformation
 df <- dfeye %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
-         basin = case_when(basin == "4" ~ "Great Lakes Watershed",
-                           basin == "7" ~ "Mississippi Watershed"),
+         basin = case_when(basin == "4" ~ "Great Lakes basin",
+                           basin == "7" ~ "Mississippi basin"),
          # Arrange lake factor levels from high to low DOC
          lakeID = forcats::fct_reorder(lakeID, DOC, .desc = T)) %>%
   select(lakeID, DOC, basin, fitted) %>%
