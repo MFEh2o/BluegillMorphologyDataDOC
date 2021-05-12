@@ -274,12 +274,14 @@ per_var <- (resEig$values / sum(resEig$values))*100
 
 # Make Fig 3 --------------------------------------------------------------
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9, height = 7) 
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9.5, height = 7) 
 # plot
 # Create plot box with axes and axis labels
+par(mar = c(6, 6, 6, 6)) 
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"), 
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
 
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
@@ -291,7 +293,7 @@ btShapes(scores = scores, vectors = -(resEig$vectors),
          size = 0.018, 
          col = gray(0.7))
 points(scores [,1], scores[,2], col = "#41C6EC", pch = 19, cex = 2)
-text(scores [,1], scores [,2], labels = levels(gpa_df$Lake), cex = 0.7)
+text(scores [,1], scores [,2], labels = levels(gpa_df$Lake), cex = 1.5)
 dev.off()
 # For ref-to-Target Figures that go along the axes in figure 3: see pc1Plot and pc2Plot, above.
 
