@@ -634,7 +634,7 @@ panelA <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin length (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank())
 
 # B (pec fin base width)
@@ -651,7 +651,7 @@ panelB <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin base width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -669,7 +669,7 @@ panelC <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin length:width ratio")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -688,7 +688,7 @@ panelD <- df %>%
   labs(x = "Dissolved Organic Carbon (mg/L)",
        y = "Pectoral fin insertion angle (degrees)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank())
 
 ## extract the legend from panel A
@@ -748,7 +748,7 @@ panelA <- df %>%
                      values = c(21, 22))+
   labs(y = "Average Gill Raker Length (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -766,7 +766,7 @@ panelB <- df %>%
                      values = c(21, 22))+
   labs(y = "Average Gill Raker Space Width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -786,7 +786,7 @@ panelC <- df %>%
   labs(x = "Dissolved Organic Carbon (mg/L)",
        y = "Gill Raker number")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         legend.position = "none")
 
 ## make the three stacked plots
@@ -824,10 +824,11 @@ eyePlot <- df %>%
   labs(x = "Dissolved Organic Carbon (mg/L)",
        y = "Eye Width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica"),
+        text = element_text(family = "Helvetica", size = 16),
         legend.position = "none")
 
 ## Save the main plot panel
-pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), height = 3.75, width = 5)
+pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), 
+    height = 3.75, width = 5)
 eyePlot
 dev.off()
