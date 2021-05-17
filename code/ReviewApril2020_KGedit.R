@@ -13,6 +13,7 @@ library(MuMIn) # for model effect sizes
 library(here) # for file paths
 library(gridGraphics) # for base R plots
 library(ggtext) # for markdown titles and captions
+library(cowplot) # for putting figures together at the end
 source(here("code", "defs.R")) # additional variable/function definitions
 
 # Load data ---------------------------------------------------------------
@@ -230,16 +231,6 @@ points(Lost[,1], Lost[,2], col=lakeColorsHighLow[14], pch=19,cex=2)
 
 legend("topright", legend = lakesHighLow, 
        pch = 19, col = lakeColorsHighLow, cex = 0.30)
-
-# Add convex hull polygons to the PCA plot, PC1 vs PC2:
-for(j in 1:nlevels(as.factor(gdf.fish$DOC))) {
-  # Get edge points (used to plot convex hull):
-  edge_points <- rownames(PCscores[which(gdf.fish$DOC == levels(as.factor(gdf.fish$DOC))[j]),])[
-    chull(PCscores[which(gdf.fish$DOC == levels(as.factor(gdf.fish$DOC))[j]), c(1,2)])]
-  # Plot convex hull as polygon:
-  polygon(PCscores[edge_points, c(1,2)], col = adjustcolor(lakeColorsHighLow[j],
-                                                           alpha.f = 0.3) , border = lakeColorsHighLow[j])
-} # alpha gives the degree of transparency of the polygon
 
 
 # Backtransform morphospace figure with mean shapes per lake ----------
@@ -691,7 +682,8 @@ panelD <- df %>%
        y = "Pectoral fin insertion angle (degrees)")+
   theme(legend.title = element_markdown(),
         text = element_text(family = "Helvetica", size = 16),
-        axis.title.x = element_blank())
+        axis.title.x = element_blank(),
+        legend.position = "none")
 
 ## extract the legend from panel A
 legend <- cowplot::get_legend(panelA)
