@@ -26,7 +26,50 @@ mylinks <- read.table(here("data", "inputs", "Full_body_links.txt"))
 ## fish metadata to correspond to the landmarks
 identifiers <- read.table(here("data", "outputs", "Identifiers_Update_2020.txt"), 
                           sep = ",", header = TRUE)
+# Landmark repeatability analysis -----------------------------------------
+tps_rep <- readland.tps(here("data", "inputs", "Total Replicates Coords.TPS"),
+                        specID = "imageID")
 
+### Make data frame
+gdf.rep <- geomorph.data.frame(shape = tps_rep)
+superimp <- gpagen(tps_rep, ProcD = TRUE, Proj = TRUE)  
+plot(superimp)
+corePCA <- plotTangentSpace(superimp$coords) ### Page57
+summary(corePCA)
+
+### Classifiers
+classifiers <- read.table(here("data", "inputs", "Replicates Identifiers.txt"), 
+                          sep = "\t", header = TRUE)
+plotTangentSpace(superimp$coords, 
+                 groups = as.factor(paste(classifiers$replicateNo, 
+                                          classifiers$lakeID)), legend = TRUE)
+
+gdf.rep$replic <- as.factor(classifiers$replicateNo)
+gdf.rep <- geomorph.data.frame(shape = tps_rep, 
+                               replic = classifiers$replicateNo, 
+                               fishID = classifiers$imageID,
+                               lake = classifiers$lakeID,
+                               cSize = superimp$Csize)
+
+### ANOVA
+fishrep.anova <- procD.lm(shape ~ fishID/replic, data = gdf.rep) 
+summary(fishrep.anova)
+# XXX MADLEN SAYS ONE OF THESE HAS TO BE SIGNIF AND THE OTHER NOT. BUT I SEE BOTH SIGNIF?
+
+###             Df     SS      MS     Rsq        F       Z Pr(>SS)   
+#fishID         59 602102 10205.1 0.97561 187.1758 10.3693   0.001 **
+# fishID:replic  60   8509   141.8 0.01379   2.6012  5.3186   0.001 **
+#Residuals     120   6543    54.5 0.01060                            
+#Total         239 617154                    
+
+ms_fishID <- fishrep.anova$aov.table[1,3]
+ms_fishID_replic <- fishrep.anova$aov.table[2,3]
+
+# XXX I NEED TO UNDERSTAND THIS CALCULATION BETTER
+### Calculate percent repeatability
+part1 <- (ms_fishID - ms_fishID_replic)/4
+
+part1/(ms_fishID_replic + part1) # repeatability is 0.947. # XXX DIFFERS FROM THE MANUSCRIPT
 
 # Prepare the data for morphometric analyses -------------------------------
 ## set imageID's as names for the individual fish (third dimension)
@@ -34,7 +77,6 @@ dimnames(myData_tps)[[3]] <- identifiers$imageID
 
 ## number the landmarks (first dimension)
 dimnames(myData_tps)[[1]] <- as.character(1:19)
-
 
 # Morphometric analysis ------------------------------------------------------
 ## perform Procrustes analysis
