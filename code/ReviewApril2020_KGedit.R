@@ -58,7 +58,7 @@ summary(fishrep.anova)
 
 ###             Df     SS      MS     Rsq        F       Z Pr(>SS)   
 #fishID         59 602102 10205.1 0.97561 187.1758 10.3693   0.001 **
-# fishID:replic  60   8509   141.8 0.01379   2.6012  5.3186   0.001 **
+#fishID:replic  60   8509   141.8 0.01379   2.6012  5.3186   0.001 **
 #Residuals     120   6543    54.5 0.01060                            
 #Total         239 617154                    
 
@@ -244,6 +244,38 @@ plot_fish_lateral <- function(xy, coor, size = 1, col = "black"){
 pcs <- 1:2
 
 # Backtransform morphospace all individuals -------------------------------
+means <- data.frame(mn1 = c(mean(Hummingbird[,1]),
+                            mean(Squaw[,1]),
+                            mean(Red_Bass[,1]),
+                            mean(McCullough[,1]),
+                            mean(Oxbow[,1]),
+                            mean(Birch[,1]),
+                            mean(Bay[,1]),
+                            mean(Muskellunge[,1]),
+                            mean(Papoose[,1]),
+                            mean(Found[,1]),
+                            mean(Towanda[,1]),
+                            mean(Crampton[,1]),
+                            mean(Little_Crooked[,1]),
+                            mean(Lost[,1])),
+                    mn2 = c(mean(Hummingbird[,2]),
+                            mean(Squaw[,2]),
+                            mean(Red_Bass[,2]),
+                            mean(McCullough[,2]),
+                            mean(Oxbow[,2]),
+                            mean(Birch[,2]),
+                            mean(Bay[,2]),
+                            mean(Muskellunge[,2]),
+                            mean(Papoose[,2]),
+                            mean(Found[,2]),
+                            mean(Towanda[,2]),
+                            mean(Crampton[,2]),
+                            mean(Little_Crooked[,2]),
+                            mean(Lost[,2])))
+
+# 1. PLOT WITH MEAN POINTS ONLY
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_meansOnly.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
@@ -256,24 +288,93 @@ StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_f
          pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
 
 # add points for each lake in a different color
-points(Hummingbird[,1], Hummingbird[,2], col=lakeColorsHighLow[1], pch=19,cex=2)
-points(Squaw[,1], Squaw[,2], col=lakeColorsHighLow[2], pch=19,cex=2)
-points(Red_Bass[,1], Red_Bass[,2], col=lakeColorsHighLow[3], pch=19,cex=2)
-points(McCullough[,1], McCullough[,2], col=lakeColorsHighLow[4], pch=19,cex=2)
-points(Oxbow[,1], Oxbow[,2], col=lakeColorsHighLow[5], pch=19,cex=2)
-points(Birch[,1], Birch[,2], col=lakeColorsHighLow[6], pch=19,cex=2)
-points(Bay[,1], Bay[,2], col=lakeColorsHighLow[7], pch=19,cex=2)
-points(Muskellunge[,1], Muskellunge[,2], col=lakeColorsHighLow[8], pch=19,cex=2)
-points(Papoose[,1], Papoose[,2], col=lakeColorsHighLow[9], pch=19,cex=2)
-points(Found[,1], Found[,2], col=lakeColorsHighLow[10], pch=19,cex=2)
-points(Towanda[,1], Towanda[,2], col=lakeColorsHighLow[11], pch=19,cex=2)
-points(Crampton[,1], Crampton[,2], col=lakeColorsHighLow[12], pch=19,cex=2)
-points(Little_Crooked[,1], Little_Crooked[,2], col=lakeColorsHighLow[13], pch=19,cex=2)
-points(Lost[,1], Lost[,2], col=lakeColorsHighLow[14], pch=19,cex=2)
+points(mean(Hummingbird[,1]), mean(Hummingbird[,2]), col=lakeColorsHighLow[1], pch=19,cex=3)
+points(mean(Squaw[,1]), mean(Squaw[,2]), col=lakeColorsHighLow[2], pch=19,cex=3)
+points(mean(Red_Bass[,1]), mean(Red_Bass[,2]), col=lakeColorsHighLow[3], pch=19,cex=3)
+points(mean(McCullough[,1]), mean(McCullough[,2]), col=lakeColorsHighLow[4], pch=19,cex=3)
+points(mean(Oxbow[,1]), mean(Oxbow[,2]), col=lakeColorsHighLow[5], pch=19,cex=3)
+points(mean(Birch[,1]), mean(Birch[,2]), col=lakeColorsHighLow[6], pch=19,cex=3)
+points(mean(Bay[,1]), mean(Bay[,2]), col=lakeColorsHighLow[7], pch=19,cex=3)
+points(mean(Muskellunge[,1]), mean(Muskellunge[,2]), col=lakeColorsHighLow[8], pch=19,cex=3)
+points(mean(Papoose[,1]), mean(Papoose[,2]), col=lakeColorsHighLow[9], pch=19,cex=3)
+points(mean(Found[,1]), mean(Found[,2]), col=lakeColorsHighLow[10], pch=19,cex=3)
+points(mean(Towanda[,1]), mean(Towanda[,2]), col=lakeColorsHighLow[11], pch=19,cex=3)
+points(mean(Crampton[,1]), mean(Crampton[,2]), col=lakeColorsHighLow[12], pch=19,cex=3)
+points(mean(Little_Crooked[,1]), mean(Little_Crooked[,2]), col=lakeColorsHighLow[13], pch=19,cex=3)
+points(mean(Lost[,1]), mean(Lost[,2]), col=lakeColorsHighLow[14], pch=19,cex=3)
 
 legend("topright", legend = lakesHighLow, 
-       pch = 19, col = lakeColorsHighLow, cex = 0.30)
+       pch = 19, col = lakeColorsHighLow)
+dev.off()
 
+# 2. PLOT WITH LABELED MEAN POINTS
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_labeledMeans.pdf"), width = 9.5, height = 7) 
+# Create plot box with axes and axis labels
+plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+     xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+
+# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
+StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
+                      pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
+                      row.names= dimnames(lm_array)[[1]], 
+                      pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
+
+# add points for each lake in a different color
+points(mean(Hummingbird[,1]), mean(Hummingbird[,2]), col=lakeColorsHighLow[1], pch=19,cex=3)
+points(mean(Squaw[,1]), mean(Squaw[,2]), col=lakeColorsHighLow[2], pch=19,cex=3)
+points(mean(Red_Bass[,1]), mean(Red_Bass[,2]), col=lakeColorsHighLow[3], pch=19,cex=3)
+points(mean(McCullough[,1]), mean(McCullough[,2]), col=lakeColorsHighLow[4], pch=19,cex=3)
+points(mean(Oxbow[,1]), mean(Oxbow[,2]), col=lakeColorsHighLow[5], pch=19,cex=3)
+points(mean(Birch[,1]), mean(Birch[,2]), col=lakeColorsHighLow[6], pch=19,cex=3)
+points(mean(Bay[,1]), mean(Bay[,2]), col=lakeColorsHighLow[7], pch=19,cex=3)
+points(mean(Muskellunge[,1]), mean(Muskellunge[,2]), col=lakeColorsHighLow[8], pch=19,cex=3)
+points(mean(Papoose[,1]), mean(Papoose[,2]), col=lakeColorsHighLow[9], pch=19,cex=3)
+points(mean(Found[,1]), mean(Found[,2]), col=lakeColorsHighLow[10], pch=19,cex=3)
+points(mean(Towanda[,1]), mean(Towanda[,2]), col=lakeColorsHighLow[11], pch=19,cex=3)
+points(mean(Crampton[,1]), mean(Crampton[,2]), col=lakeColorsHighLow[12], pch=19,cex=3)
+points(mean(Little_Crooked[,1]), mean(Little_Crooked[,2]), col=lakeColorsHighLow[13], pch=19,cex=3)
+points(mean(Lost[,1]), mean(Lost[,2]), col=lakeColorsHighLow[14], pch=19,cex=3)
+
+legend("topright", legend = lakesHighLow, 
+       pch = 19, col = lakeColorsHighLow)
+text(means[,1], means[,2], labels = lakesHighLow, cex = 1.5)
+dev.off()
+
+# 3. PLOT WITH all points
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_allIndividuals.pdf"), width = 9.5, height = 7) 
+# Create plot box with axes and axis labels
+plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+     xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+
+# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
+StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
+                      pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
+                      row.names= dimnames(lm_array)[[1]], 
+                      pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
+
+# add points for each lake in a different color
+points(Hummingbird[,1], Hummingbird[,2], col=lakeColorsHighLow[1], pch=19,cex=2,alpha = 0.7)
+points(Squaw[,1], Squaw[,2], col=lakeColorsHighLow[2], pch=19,cex=2,alpha = 0.7)
+points(Red_Bass[,1], Red_Bass[,2], col=lakeColorsHighLow[3], pch=19,cex=2,alpha = 0.7)
+points(McCullough[,1], McCullough[,2], col=lakeColorsHighLow[4], pch=19,cex=2,alpha = 0.7)
+points(Oxbow[,1], Oxbow[,2], col=lakeColorsHighLow[5], pch=19,cex=2,alpha = 0.7)
+points(Birch[,1], Birch[,2], col=lakeColorsHighLow[6], pch=19,cex=2,alpha = 0.7)
+points(Bay[,1], Bay[,2], col=lakeColorsHighLow[7], pch=19,cex=2,alpha = 0.7)
+points(Muskellunge[,1], Muskellunge[,2], col=lakeColorsHighLow[8], pch=19,cex=2,alpha = 0.7)
+points(Papoose[,1], Papoose[,2], col=lakeColorsHighLow[9], pch=19,cex=2,alpha = 0.7)
+points(Found[,1], Found[,2], col=lakeColorsHighLow[10], pch=19,cex=2,alpha = 0.7)
+points(Towanda[,1], Towanda[,2], col=lakeColorsHighLow[11], pch=19,cex=2,alpha = 0.7)
+points(Crampton[,1], Crampton[,2], col=lakeColorsHighLow[12], pch=19,cex=2,alpha = 0.7)
+points(Little_Crooked[,1], Little_Crooked[,2], col=lakeColorsHighLow[13], pch=19,cex=2,alpha = 0.7)
+points(Lost[,1], Lost[,2], col=lakeColorsHighLow[14], pch=19,cex=2,alpha = 0.7)
+
+legend("topright", legend = lakesHighLow, 
+       pch = 19, col = lakeColorsHighLow)
+dev.off()
 
 # Backtransform morphospace figure with mean shapes per lake ----------
 ## Mean Shapes Per Lake
@@ -306,8 +407,6 @@ scores <- gpa_mat %*% -(resEig$vectors)
 per_var <- (resEig$values / sum(resEig$values))*100
 
 # Make Fig 3 --------------------------------------------------------------
-# Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot.pdf"), width = 9.5, height = 7) 
 # plot
 # Create plot box with axes and axis labels
 par(mar = c(6, 6, 6, 6)) 
@@ -327,7 +426,6 @@ btShapes(scores = scores, vectors = -(resEig$vectors),
          col = gray(0.7))
 points(scores [,1], scores[,2], col = "#41C6EC", pch = 19, cex = 2)
 text(scores [,1], scores [,2], labels = levels(gpa_df$Lake), cex = 1.5)
-dev.off()
 # For ref-to-Target Figures that go along the axes in figure 3: see pc1Plot and pc2Plot, above.
 
 # Stats for shape ---------------------------------------------------------
