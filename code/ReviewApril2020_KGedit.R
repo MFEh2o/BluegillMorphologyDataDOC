@@ -277,9 +277,11 @@ means <- data.frame(mn1 = c(mean(Hummingbird[,1]),
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_meansOnly.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
+par(mar = c(6, 6, 6, 6)) 
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"),
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
 StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
@@ -311,9 +313,11 @@ dev.off()
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_labeledMeans.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
+par(mar = c(6, 6, 6, 6)) 
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"),
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
 StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
@@ -346,9 +350,11 @@ dev.off()
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_allIndividuals.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
+par(mar = c(6, 6, 6, 6)) 
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"))
+     ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"),
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
 StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
