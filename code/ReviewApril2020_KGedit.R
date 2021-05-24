@@ -15,6 +15,7 @@ library(gridGraphics) # for base R plots
 library(ggtext) # for markdown titles and captions
 library(cowplot) # for putting figures together at the end
 source(here("code", "defs.R")) # additional variable/function definitions
+source(here("code", "plotFishLateral.R"))
 
 # Load data ---------------------------------------------------------------
 ## landmark data
@@ -27,49 +28,56 @@ mylinks <- read.table(here("data", "inputs", "Full_body_links.txt"))
 identifiers <- read.table(here("data", "outputs", "Identifiers_Update_2020.txt"), 
                           sep = ",", header = TRUE)
 # Landmark repeatability analysis -----------------------------------------
+# Following the procedure outlined on page 258 of Zelditch 2012, and in this blog post: https://www.r-bloggers.com/2015/04/tips-tricks-8-examining-replicate-error/
+# 1. Read the coordinate data into R (and format it)
 tps_rep <- readland.tps(here("data", "inputs", "Total Replicates Coords.TPS"),
                         specID = "imageID")
 
 ### Make data frame
 gdf.rep <- geomorph.data.frame(shape = tps_rep)
+
+# 2. Use gpagen() to perform a Procrustes Superimposition
 superimp <- gpagen(tps_rep, ProcD = TRUE, Proj = TRUE)  
-plot(superimp)
-corePCA <- plotTangentSpace(superimp$coords) ### Page57
-summary(corePCA)
+plot(superimp) # all of these look reasonable--no landmarks way far away from where they should be.
+corePCA <- plotTangentSpace(superimp$coords)
 
 ### Classifiers
-classifiers <- read.table(here("data", "inputs", "Replicates Identifiers.txt"), 
-                          sep = "\t", header = TRUE)
-plotTangentSpace(superimp$coords, 
-                 groups = as.factor(paste(classifiers$replicateNo, 
-                                          classifiers$lakeID)), legend = TRUE)
-
+classifiers <- read.table(here("data", "outputs", "Replicates Identifiers.txt"), 
+                          sep = ",", header = TRUE)
 gdf.rep$replic <- as.factor(classifiers$replicateNo)
 gdf.rep <- geomorph.data.frame(shape = tps_rep, 
                                replic = classifiers$replicateNo, 
                                fishID = classifiers$imageID,
-                               lake = classifiers$lakeID,
                                cSize = superimp$Csize)
 
+# 3. Perform a Procrustes ANOVA
 ### ANOVA
-fishrep.anova <- procD.lm(shape ~ fishID/replic, data = gdf.rep) 
+fishrep.anova <- procD.lm(shape ~ fishID + fishID:replic, data = gdf.rep) 
 summary(fishrep.anova)
 # XXX MADLEN SAYS ONE OF THESE HAS TO BE SIGNIF AND THE OTHER NOT. BUT I SEE BOTH SIGNIF?
+# XXX GRANT DISAGREES WITH MADLEN.
 
 ###             Df     SS      MS     Rsq        F       Z Pr(>SS)   
 #fishID         59 602102 10205.1 0.97561 187.1758 10.3693   0.001 **
 #fishID:replic  60   8509   141.8 0.01379   2.6012  5.3186   0.001 **
 #Residuals     120   6543    54.5 0.01060                            
-#Total         239 617154                    
+#Total         239 617154        
 
-ms_fishID <- fishrep.anova$aov.table[1,3]
-ms_fishID_replic <- fishrep.anova$aov.table[2,3]
+# To calculate the repeatability of our digitizing ability, we subtract the MS of the replicate term from the individual term and divide by 4 (because we measured each fish 4 times):
+#  (MS(fishID) – MS(fishID:replic))/4
+# To make these calculations easier, I'm going to extract the MS terms of the ANOVA output as their own variables with descriptive names: 
+ms_inter <- fishrep.anova$aov.table[1,3] # MS term for the among-fish variability
+ms_intra <- fishrep.anova$aov.table[2,3] # MS term for the within-individual, among-replicates variability
+part1 <- (ms_inter - ms_intra)/4
 
-# XXX I NEED TO UNDERSTAND THIS CALCULATION BETTER
-### Calculate percent repeatability
-part1 <- (ms_fishID - ms_fishID_replic)/4
+# Then we calculate the ratio of this value (part1) to the total MS:
+# ((MS(fishID) – MS(fishID:replic))/4 ) / (MS(fishID) + MS(fishID:replic)) 
 
-part1/(ms_fishID_replic + part1) # repeatability is 0.947. # XXX DIFFERS FROM THE MANUSCRIPT
+repeatability <- part1/(ms_intra + part1)
+# repeatability is 0.947. # XXX DIFFERS FROM THE MANUSCRIPT
+# Note that the blog post referenced above would have us doing repeatability <- part/(ms_intra + ms_inter), but that gives a value around 0.24, which just *can't* possibly be right. I'm going with Zelditch instead.
+# Zelditch says "measurement error is often quantified as repeatability (R) using a ratio of two variance components, that for among-individual to the sum of the among-individual and measurement error components.
+# The terminology there is really confusing, and Zelditch provides methods of calculating each of these components that I can't quite follow. But by combining this description with the method outlined in the blog post above for extracting each MS from the ANOVA, we do end up with R = part1/(ms_intra + part1)
 
 # Prepare the data for morphometric analyses -------------------------------
 ## set imageID's as names for the individual fish (third dimension)
@@ -206,44 +214,13 @@ scores <- gpa_mat %*% -(resEig$vectors)
 # Get percent variance explained along each axis
 per_var <- (resEig$values / sum(resEig$values))*100
 
-plot_fish_lateral <- function(xy, coor, size = 1, col = "black"){
-  # If 3D, rotate points about x-axis using 3D rotation matrix
-  if(ncol(coor) == 3){
-    coor <- coor %*% matrix(c(1,0,0,0,cos(-pi/2),sin(-pi/2), 
-                              0,-sin(-pi/2),cos(-pi/2)), 
-                            nrow=3, ncol=3)
-  }
-  
-  # Get just x,y coordinates (orthographic projection into xy-plane)
-  coor <- coor[, 1:2]
-  
-  # Get plot aspect ratio
-  w <- par("pin")[1]/diff(par("usr")[1:2])
-  h <- par("pin")[2]/diff(par("usr")[3:4])
-  asp <- w/h
-  
-  # Correct for plot aspect ratio not necessarily being 1:1
-  coor[, 1] <- coor[, 1] * (1/asp)
-  
-  # Scale points and place back in position
-  coor <- coor*size
-  
-  # Center about zero based on range of coordinates
-  coor <- coor - matrix(colMeans(apply(coor, 2, range)), 
-                        nrow=nrow(coor), ncol=ncol(coor), byrow = TRUE)
-  
-  # Move shape to PC score
-  coor <- coor + matrix(xy, nrow(coor), ncol(coor), byrow = TRUE)
-  
-  # Set order in which to draw points to create polygon
-  polygon_order <- c(1,3:12,16,1) # name landmarks in the order you want them connected
-  # Create filled polygon
-  polygon(coor[polygon_order, ], col = col, border = col)
-}
 # Set PCs to plot
 pcs <- 1:2
 
-# Backtransform morphospace all individuals -------------------------------
+# (all individuals) Backtransform morphospace all individuals -------------------------------
+# NOTE: Because I wasn't sure what Chelsea would want to use for her photoshopping, I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points (in case that's desirable/useful for something).
+
+# Create data frame of means by lake, for use later in plotting the legend
 means <- data.frame(mn1 = c(mean(Hummingbird[,1]),
                             mean(Squaw[,1]),
                             mean(Red_Bass[,1]),
@@ -277,17 +254,23 @@ means <- data.frame(mn1 = c(mean(Hummingbird[,1]),
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_meansOnly.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
-par(mar = c(6, 6, 6, 6)) 
-plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
+par(mar = c(6, 6, 6, 6)) # set margins around the plot so we can read the axis labels
+plot(scores[, pcs], type = "n", # type = "n" plots the axes without plotting the scores, so we can add the scores later
+     main = "Backtransform morphospace", # title
      xlab = paste0("PC", pcs[1], " (", round(per_var[pcs[1]]), "%)"),
      ylab = paste0("PC", pcs[2], " (", round(per_var[pcs[2]]), "%)"),
-     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5) # the cex. commands scale up the text to make it larger and more easily readable
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-StereoMorph::btShapes(scores = scores, vectors = -(resEig$vectors), fcn = plot_fish_lateral, 
-         pcs = pcs, n = c(4,4), m = dim(lm_array)[2], 
-         row.names= dimnames(lm_array)[[1]], 
-         pc.margin = c(0.06,0.05), size = 0.038, col = gray(0.7))
+# There's no documentation for the btShapes function (i.e. ?btShapes or help(btShapes) won't get you anything), but see this tutorial (https://aaronolsen.github.io/tutorials/morphometrics/backtransform.html) for an explanation of the input parameters to btShapes. 
+StereoMorph::btShapes(scores = scores, 
+                      vectors = -(resEig$vectors), 
+                      fcn = plot_fish_lateral, # defined in plotFishLateral.R
+         pcs = pcs, # the two pc axes for the plot
+         n = c(4,4), # number of shapes to draw along the x and y axes, respectively
+         m = dim(lm_array)[2], 
+         row.names= dimnames(lm_array)[[1]], # order in which to connect the landmarks
+         pc.margin = c(0.06, 0.05), size = 0.038, col = gray(0.7))
 
 # add points for each lake in a different color
 points(mean(Hummingbird[,1]), mean(Hummingbird[,2]), col=lakeColorsHighLow[1], pch=19,cex=3)
@@ -382,7 +365,7 @@ legend("topright", legend = lakesHighLow,
        pch = 19, col = lakeColorsHighLow)
 dev.off()
 
-# Backtransform morphospace figure with mean shapes per lake ----------
+# (per-lake means) Backtransform morphospace figure with mean shapes per lake ----------
 ## Mean Shapes Per Lake
 x <- two.d.array(gpa_array) # the following part is necessary to calculate mean shapes per lake
 gpa_df = geomorph.data.frame(shape=gpa_array, 
@@ -412,8 +395,7 @@ scores <- gpa_mat %*% -(resEig$vectors)
 # Get percent variance explained along each axis
 per_var <- (resEig$values / sum(resEig$values))*100
 
-# Make Fig 3 --------------------------------------------------------------
-# plot
+# Plot
 # Create plot box with axes and axis labels
 par(mar = c(6, 6, 6, 6)) 
 plot(scores[, pcs], type = "n", main = "Backtransform morphospace",
