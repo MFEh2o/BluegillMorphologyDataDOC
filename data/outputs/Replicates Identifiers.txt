@@ -1,0 +1,241 @@
+"imageID","replicateNo"
+"BA AN 001 07-13.jpg",1
+"BA AN 002 07-13.jpg",1
+"BA AN 003 07-13.jpg",1
+"BA AN 004 07-13.jpg",1
+"BA AN 005 07-13.jpg",1
+"BA AN 006 07-13.jpg",1
+"BA AN 007 07-13.jpg",1
+"BA AN 008 07-13.jpg",1
+"BA AN 009 07-13.jpg",1
+"BA AN 010 07-13.jpg",1
+"BA AN 011 07-13.jpg",1
+"BA AN 012 07-13.jpg",1
+"BA AN 013 07-13.jpg",1
+"BA AN 014 07-13.jpg",1
+"BA AN 015 07-13.jpg",1
+"BA FN4 001.jpg",1
+"BA FN4 002.jpg",1
+"BA FN4 003.jpg",1
+"BA FN5 001 07-26.jpg",1
+"BA FN5 002 07-26.jpg",1
+"BA FN5 003 07-26.jpg",1
+"BA FN5 004 07-26.jpg",1
+"BA FN5 005 07-26.jpg",1
+"BA FN5 006 07-26.jpg",1
+"BA FN5 007 07-26.jpg",1
+"BA FN5 008 07-26.jpg",1
+"BA FN8 001 07-16.jpg",1
+"BA FN8 002 07-16.jpg",1
+"BA FN8 003 07-16.jpg",1
+"BA FN8 004 07-16.jpg",1
+"FD Electro 001.jpg",1
+"FD Electro 002.jpg",1
+"FD Electro 003.jpg",1
+"FD Electro 004.jpg",1
+"FD Electro 005.jpg",1
+"FD Electro 006.jpg",1
+"FD Electro 007.jpg",1
+"FD Electro 008.jpg",1
+"FD Electro 009.jpg",1
+"FD Electro 010.jpg",1
+"FD Electro 011.jpg",1
+"FD Electro 012.jpg",1
+"FD Electro 013.jpg",1
+"FD Electro 014.jpg",1
+"FD Electro 015.jpg",1
+"FD Electro 016.jpg",1
+"FD Electro 017.jpg",1
+"FD Electro 018.jpg",1
+"FD Electro 019.jpg",1
+"FD Electro 020.jpg",1
+"FD Electro 021.jpg",1
+"FD Electro 022.jpg",1
+"FD Electro 023.jpg",1
+"FD Electro 024.jpg",1
+"FD Electro 025.jpg",1
+"FD Electro 026.jpg",1
+"FD Electro 027.jpg",1
+"FD Electro 028.jpg",1
+"FD Electro 029.jpg",1
+"FD Electro 030.jpg",1
+"BA AN 001 07-13.jpg",2
+"BA AN 002 07-13.jpg",2
+"BA AN 003 07-13.jpg",2
+"BA AN 004 07-13.jpg",2
+"BA AN 005 07-13.jpg",2
+"BA AN 006 07-13.jpg",2
+"BA AN 007 07-13.jpg",2
+"BA AN 008 07-13.jpg",2
+"BA AN 009 07-13.jpg",2
+"BA AN 010 07-13.jpg",2
+"BA AN 011 07-13.jpg",2
+"BA AN 012 07-13.jpg",2
+"BA AN 013 07-13.jpg",2
+"BA AN 014 07-13.jpg",2
+"BA AN 015 07-13.jpg",2
+"BA FN4 001.jpg",2
+"BA FN4 002.jpg",2
+"BA FN4 003.jpg",2
+"BA FN5 001 07-26.jpg",2
+"BA FN5 002 07-26.jpg",2
+"BA FN5 003 07-26.jpg",2
+"BA FN5 004 07-26.jpg",2
+"BA FN5 005 07-26.jpg",2
+"BA FN5 006 07-26.jpg",2
+"BA FN5 007 07-26.jpg",2
+"BA FN5 008 07-26.jpg",2
+"BA FN8 001 07-16.jpg",2
+"BA FN8 002 07-16.jpg",2
+"BA FN8 003 07-16.jpg",2
+"BA FN8 004 07-16.jpg",2
+"FD Electro 001.jpg",2
+"FD Electro 002.jpg",2
+"FD Electro 003.jpg",2
+"FD Electro 004.jpg",2
+"FD Electro 005.jpg",2
+"FD Electro 006.jpg",2
+"FD Electro 007.jpg",2
+"FD Electro 008.jpg",2
+"FD Electro 009.jpg",2
+"FD Electro 010.jpg",2
+"FD Electro 011.jpg",2
+"FD Electro 012.jpg",2
+"FD Electro 013.jpg",2
+"FD Electro 014.jpg",2
+"FD Electro 015.jpg",2
+"FD Electro 016.jpg",2
+"FD Electro 017.jpg",2
+"FD Electro 018.jpg",2
+"FD Electro 019.jpg",2
+"FD Electro 020.jpg",2
+"FD Electro 021.jpg",2
+"FD Electro 022.jpg",2
+"FD Electro 023.jpg",2
+"FD Electro 024.jpg",2
+"FD Electro 025.jpg",2
+"FD Electro 026.jpg",2
+"FD Electro 027.jpg",2
+"FD Electro 028.jpg",2
+"FD Electro 029.jpg",2
+"FD Electro 030.jpg",2
+"BA AN 001 07-13.jpg",3
+"BA AN 002 07-13.jpg",3
+"BA AN 003 07-13.jpg",3
+"BA AN 004 07-13.jpg",3
+"BA AN 005 07-13.jpg",3
+"BA AN 006 07-13.jpg",3
+"BA AN 007 07-13.jpg",3
+"BA AN 008 07-13.jpg",3
+"BA AN 009 07-13.jpg",3
+"BA AN 010 07-13.jpg",3
+"BA AN 011 07-13.jpg",3
+"BA AN 012 07-13.jpg",3
+"BA AN 013 07-13.jpg",3
+"BA AN 014 07-13.jpg",3
+"BA AN 015 07-13.jpg",3
+"BA FN4 001.jpg",3
+"BA FN4 002.jpg",3
+"BA FN4 003.jpg",3
+"BA FN5 001 07-26.jpg",3
+"BA FN5 002 07-26.jpg",3
+"BA FN5 003 07-26.jpg",3
+"BA FN5 004 07-26.jpg",3
+"BA FN5 005 07-26.jpg",3
+"BA FN5 006 07-26.jpg",3
+"BA FN5 007 07-26.jpg",3
+"BA FN5 008 07-26.jpg",3
+"BA FN8 001 07-16.jpg",3
+"BA FN8 002 07-16.jpg",3
+"BA FN8 003 07-16.jpg",3
+"BA FN8 004 07-16.jpg",3
+"FD Electro 001.jpg",3
+"FD Electro 002.jpg",3
+"FD Electro 003.jpg",3
+"FD Electro 004.jpg",3
+"FD Electro 005.jpg",3
+"FD Electro 006.jpg",3
+"FD Electro 007.jpg",3
+"FD Electro 008.jpg",3
+"FD Electro 009.jpg",3
+"FD Electro 010.jpg",3
+"FD Electro 011.jpg",3
+"FD Electro 012.jpg",3
+"FD Electro 013.jpg",3
+"FD Electro 014.jpg",3
+"FD Electro 015.jpg",3
+"FD Electro 016.jpg",3
+"FD Electro 017.jpg",3
+"FD Electro 018.jpg",3
+"FD Electro 019.jpg",3
+"FD Electro 020.jpg",3
+"FD Electro 021.jpg",3
+"FD Electro 022.jpg",3
+"FD Electro 023.jpg",3
+"FD Electro 024.jpg",3
+"FD Electro 025.jpg",3
+"FD Electro 026.jpg",3
+"FD Electro 027.jpg",3
+"FD Electro 028.jpg",3
+"FD Electro 029.jpg",3
+"FD Electro 030.jpg",3
+"BA AN 001 07-13.jpg",4
+"BA AN 002 07-13.jpg",4
+"BA AN 003 07-13.jpg",4
+"BA AN 004 07-13.jpg",4
+"BA AN 005 07-13.jpg",4
+"BA AN 006 07-13.jpg",4
+"BA AN 007 07-13.jpg",4
+"BA AN 008 07-13.jpg",4
+"BA AN 009 07-13.jpg",4
+"BA AN 010 07-13.jpg",4
+"BA AN 011 07-13.jpg",4
+"BA AN 012 07-13.jpg",4
+"BA AN 013 07-13.jpg",4
+"BA AN 014 07-13.jpg",4
+"BA AN 015 07-13.jpg",4
+"BA FN4 001.jpg",4
+"BA FN4 002.jpg",4
+"BA FN4 003.jpg",4
+"BA FN5 001 07-26.jpg",4
+"BA FN5 002 07-26.jpg",4
+"BA FN5 003 07-26.jpg",4
+"BA FN5 004 07-26.jpg",4
+"BA FN5 005 07-26.jpg",4
+"BA FN5 006 07-26.jpg",4
+"BA FN5 007 07-26.jpg",4
+"BA FN5 008 07-26.jpg",4
+"BA FN8 001 07-16.jpg",4
+"BA FN8 002 07-16.jpg",4
+"BA FN8 003 07-16.jpg",4
+"BA FN8 004 07-16.jpg",4
+"FD Electro 001.jpg",4
+"FD Electro 002.jpg",4
+"FD Electro 003.jpg",4
+"FD Electro 004.jpg",4
+"FD Electro 005.jpg",4
+"FD Electro 006.jpg",4
+"FD Electro 007.jpg",4
+"FD Electro 008.jpg",4
+"FD Electro 009.jpg",4
+"FD Electro 010.jpg",4
+"FD Electro 011.jpg",4
+"FD Electro 012.jpg",4
+"FD Electro 013.jpg",4
+"FD Electro 014.jpg",4
+"FD Electro 015.jpg",4
+"FD Electro 016.jpg",4
+"FD Electro 017.jpg",4
+"FD Electro 018.jpg",4
+"FD Electro 019.jpg",4
+"FD Electro 020.jpg",4
+"FD Electro 021.jpg",4
+"FD Electro 022.jpg",4
+"FD Electro 023.jpg",4
+"FD Electro 024.jpg",4
+"FD Electro 025.jpg",4
+"FD Electro 026.jpg",4
+"FD Electro 027.jpg",4
+"FD Electro 028.jpg",4
+"FD Electro 029.jpg",4
+"FD Electro 030.jpg",4

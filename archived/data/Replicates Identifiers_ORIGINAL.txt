@@ -1,4 +1,4 @@
-imageID	lakeID	lakeDOC	replicateNo
+ imageID	lakeID	lakeDOC	replicateNo
 BA AN 001 07-13.jpg	BA	7.4	1
 BA AN 002 07-13.jpg	BA	7.4	1
 BA AN 003 07-13.jpg	BA	7.4	1
