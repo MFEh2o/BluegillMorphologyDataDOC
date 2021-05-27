@@ -60,3 +60,22 @@ makeSummary <- function(model, conf){
   return(table)
 }
 
+# btShapes_wrapper -----------------------------------------------------
+# This function plots btShapes with the parameters for the all-individuals PCA. Pulling it out so I don't have to re-type it three times.
+btShapes_wrapper <- function(sc, vc, f = plot_fish_lateral, 
+                             p = pcs, nn = c(4, 4), mm = dim(landmarks)[2], 
+                             rn = dimnames(landmarks)[[1]], 
+                             pm = c(0.06, 0.05), sz = 0.038, 
+                             cl = gray(0.7)){
+  StereoMorph::btShapes(scores = sc, 
+                        vectors = vc, 
+                        fcn = f, # defined in plotFishLateral.R
+                        pcs = p, # the two pc axes for the plot
+                        n = nn, # number of shapes to draw along the x and y axes, respectively
+                        m = mm, 
+                        row.names = rn, # order in which to connect the landmarks
+                        pc.margin = pm, 
+                        size = sz, col = cl)
+}
+
+
