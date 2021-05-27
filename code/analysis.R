@@ -267,6 +267,3 @@ text(scores_lakes[,1], scores_lakes[,2], labels = levels(gdf_lakes$Lake), cex = 
 # For ref-to-Target Figures that go along the axes in figure 3: see pc1Plot and pc2Plot, above.
 
 # XXX STILL NEED TO ADD THE REST OF THE ANALYSIS
-
-
-
