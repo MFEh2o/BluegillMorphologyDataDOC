@@ -174,52 +174,6 @@ legend("topright", legend = lakesHighLow,
        pch = 19, col = lakeColorsHighLow)
 dev.off()
 
-# 2. PLOT WITH LABELED MEAN POINTS
-# Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_labeledMeans.pdf"), width = 9.5, height = 7) 
-# Create plot box with axes and axis labels
-par(mar = c(6, 6, 6, 6)) 
-plot(scores_indiv[, pcs], type = "n", main = "Backtransform morphospace",
-     xlab = paste0("PC", pcs[1], " (", round(per_var_indiv[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var_indiv[pcs[2]]), "%)"),
-     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
-
-# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
-
-# add mean points for each lake in a different color
-for(i in 1:nrow(means)){
-  points(means[i, 1], means[i, 2], col = lakeColorsHighLow[i], pch = 19, cex = 3)
-}
-
-legend("topright", legend = lakesHighLow, 
-       pch = 19, col = lakeColorsHighLow)
-text(means[,1], means[,2], labels = means$lakeID, cex = 1.5)
-dev.off()
-
-# 3. PLOT WITH all points
-# Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_allIndividuals.pdf"), 
-    width = 9.5, height = 7) 
-# Create plot box with axes and axis labels
-par(mar = c(6, 6, 6, 6)) 
-plot(scores_indiv[, pcs], type = "n", main = "Backtransform morphospace",
-     xlab = paste0("PC", pcs[1], " (", round(per_var_indiv[pcs[1]]), "%)"),
-     ylab = paste0("PC", pcs[2], " (", round(per_var_indiv[pcs[2]]), "%)"),
-     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5)
-
-# Plot backtransform shapes, changed sign of rotation matrix (resEig$vectors) 
-btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
-
-# add individual points for each lake in a different color
-for(i in 1:length(lakePCScores)){
-  points(lakePCScores[[i]][,1], lakePCScores[[i]][,2], 
-         col = lakeColorsHighLow[i], pch = 19, cex = 2, alpha = 0.7)
-}
-
-legend("topright", legend = lakesHighLow, pch = 19, col = lakeColorsHighLow)
-dev.off()
-
 # (per-lake means) Backtransform morphospace figure with mean shapes per lake ----------
 ## Mean Shapes Per Lake
 x <- two.d.array(gpa_coords) # the following part is necessary to calculate mean shapes per lake
