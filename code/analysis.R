@@ -149,7 +149,33 @@ means <- lapply(lakePCScores, function(x) data.frame(mn1 = mean(x[,1]),
   as.data.frame()
 means$lakeID <- names(lakePCScores)
 
-# 1. PLOT WITH MEAN POINTS ONLY
+# 1. PLOT WITH MEAN POINTS ONLY, no legend
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_meansOnly_nolegend.pdf"), width = 9.5, height = 7) 
+# Create plot box with axes and axis labels
+par(mar = c(6, 6, 6, 6)) # set margins around the plot so we can read the axis labels
+plot(scores_indiv[, pcs], type = "n", # type = "n" plots the axes without plotting the scores, so we can add the scores later
+     main = "Backtransform morphospace", # title
+     xlab = paste0("PC", pcs[1], " (", round(per_var_indiv[pcs[1]]), "%)"),
+     ylab = paste0("PC", pcs[2], " (", round(per_var_indiv[pcs[2]]), "%)"),
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5) # the cex. commands scale up the text to make it larger and more easily readable
+
+# Plot backtransform shapes, changed sign of rotation matrix (resEig_indiv$vectors) 
+# There's no documentation for the btShapes function (i.e. ?btShapes or help(btShapes) won't get you anything), but see this tutorial (https://aaronolsen.github.io/tutorials/morphometrics/backtransform.html) for an explanation of the input parameters to btShapes. 
+# Wrapper function is defined in defs.R
+btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
+
+# add mean points for each lake in a different color
+for(i in 1:nrow(means)){
+  points(means[i, 1], means[i, 2], 
+         bg = lakeColorsHighLow[i], 
+         col = "black",
+         lwd = 2,
+         pch = lakeShapesHighLow[i], cex = 3)
+}
+dev.off()
+
+# 2. PLOT WITH MEAN POINTS ONLY, with legend
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "mainPlot_meansOnly.pdf"), width = 9.5, height = 7) 
 # Create plot box with axes and axis labels
@@ -167,7 +193,11 @@ btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
 
 # add mean points for each lake in a different color
 for(i in 1:nrow(means)){
-  points(means[i, 1], means[i, 2], col = lakeColorsHighLow[i], pch = 19, cex = 3)
+  points(means[i, 1], means[i, 2], 
+         bg = lakeColorsHighLow[i], 
+         col = "black",
+         lwd = 2,
+         pch = lakeShapesHighLow[i], cex = 3)
 }
 
 legend("topright", legend = lakesHighLow, 
