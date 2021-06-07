@@ -114,8 +114,8 @@ fish_pcScores <- fish_corePCA$pc.scores[,1:2]
 
 ## Split PC scores into individual list elements by lake
 lakePCScores <- lapply(lakesHighLow, function(x){
-                       fish_pcScores[which(gdf$Lake == x),]
-                     }) %>%
+  fish_pcScores[which(gdf$Lake == x),]
+}) %>%
   setNames(., lakesHighLow)
 
 # Take just the coords from the gpa object
@@ -206,7 +206,7 @@ dev.off()
 ## Mean Shapes Per Lake
 x <- two.d.array(gpa_coords) # the following part is necessary to calculate mean shapes per lake
 gdf_lakes <- geomorph.data.frame(shape = gpa_coords, 
-                             Lake = as.factor(identifiers$lakeID))
+                                 Lake = as.factor(identifiers$lakeID))
 p <- dim(gpa_coords)[1] # the number of landmarks
 k <- dim(gpa_coords)[2] # the dimensions of the coordinates
 gpa_coords_lakes <- array(NA, dim = c(p, k, length(levels(gdf_lakes$Lake)))) #new empty array to fill
@@ -250,76 +250,88 @@ text(scores_lakes[,1], scores_lakes[,2], labels = levels(gdf_lakes$Lake), cex = 
 
 # Save plots of the PC1 extremes ------------------------------------------
 # Open a pdf file
-#pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
 # plot
-plotRefToTarget(fish_corePCA$pc.shapes$PC1min, 
-                fish_corePCA$pc.shapes$PC1max,
-                method = "points", 
-                links = links, 
-                gridPars = gridPar(tar.pt.bg = "darkorange3",
-                                   tar.link.col = "darkorange3",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
+plotRefToTarget(
+  # reference = max (gray)
+  fish_corePCA$pc.shapes$PC1max, 
+  # target = min (orange)
+  fish_corePCA$pc.shapes$PC1min, 
+  method = "points", 
+  links = links, 
+  gridPars = gridPar(tar.pt.bg = "darkorange3",
+                     tar.link.col = "darkorange3",
+                     tar.link.lwd = 3, 
+                     tar.pt.size = 1, 
+                     pt.size = 1, 
+                     pt.bg = "gray", 
+                     link.lwd = 3), 
+  mag=1, 
+  useRefPts = TRUE)
 dev.off() # close the device
 
 # Open a pdf file
-#pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
 # plot
-plotRefToTarget(fish_corePCA$pc.shapes$PC1max,
-                fish_corePCA$pc.shapes$PC1min, 
-                method="points", 
-                links = links, 
-                gridPars = gridPar(tar.pt.bg = "darkorange3",
-                                   tar.link.col = "darkorange3",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
+plotRefToTarget(
+  # reference = min (gray)
+  fish_corePCA$pc.shapes$PC1min,
+  # target = max (orange)
+  fish_corePCA$pc.shapes$PC1max,
+  method="points", 
+  links = links, 
+  gridPars = gridPar(tar.pt.bg = "darkorange3",
+                     tar.link.col = "darkorange3",
+                     tar.link.lwd = 3, 
+                     tar.pt.size = 1, 
+                     pt.size = 1, 
+                     pt.bg = "gray", 
+                     link.lwd = 3), 
+  mag=1, 
+  useRefPts = TRUE)
 dev.off() # close the device
 
 # Save plots of the PC2 extremes ------------------------------------------
 # Open a pdf file
-#pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
 # plot
-plotRefToTarget(fish_corePCA$pc.shapes$PC2min, 
-                fish_corePCA$pc.shapes$PC2max,
-                method="points", 
-                links = links, 
-                gridPars = gridPar(tar.pt.bg = "green3",
-                                   tar.link.col = "green3",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
+plotRefToTarget(
+  # reference = max (gray)
+  fish_corePCA$pc.shapes$PC2max,
+  # target = min (orange)
+  fish_corePCA$pc.shapes$PC2min,
+  method="points", 
+  links = links, 
+  gridPars = gridPar(tar.pt.bg = "green3",
+                     tar.link.col = "green3",
+                     tar.link.lwd = 3, 
+                     tar.pt.size = 1, 
+                     pt.size = 1, 
+                     pt.bg = "gray", 
+                     link.lwd = 3), 
+  mag=1, 
+  useRefPts = TRUE)
 dev.off()
 
 # Open a pdf file
-#pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
 # plot
-plotRefToTarget(fish_corePCA$pc.shapes$PC2max, 
-                fish_corePCA$pc.shapes$PC2min,
-                method="points", 
-                links = links, 
-                gridPars = gridPar(tar.pt.bg = "green3",
-                                   tar.link.col = "green3",
-                                   tar.link.lwd = 3, 
-                                   tar.pt.size = 1, 
-                                   pt.size = 1, 
-                                   pt.bg = "gray", 
-                                   link.lwd = 3), 
-                mag=1, 
-                useRefPts = TRUE)
+plotRefToTarget(
+  # reference = min (gray)
+  fish_corePCA$pc.shapes$PC2min,
+  # target = max (orange)
+  fish_corePCA$pc.shapes$PC2max,
+  method="points", 
+  links = links, 
+  gridPars = gridPar(tar.pt.bg = "green3",
+                     tar.link.col = "green3",
+                     tar.link.lwd = 3, 
+                     tar.pt.size = 1, 
+                     pt.size = 1, 
+                     pt.bg = "gray", 
+                     link.lwd = 3), 
+  mag=1, 
+  useRefPts = TRUE)
 dev.off()
 
 # XXX STILL NEED TO ADD THE REST OF THE ANALYSIS
