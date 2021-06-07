@@ -122,7 +122,6 @@ Red_Bass <- PCscores[which(gdf.fish$Lake == "RS"),]
 Squaw <- PCscores[which(gdf.fish$Lake == "SQ"),]
 Towanda <- PCscores[which(gdf.fish$Lake == "TO"),]
 
-
 # Save plots of the PC1 extremes ------------------------------------------
 # Open a pdf file
 pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
