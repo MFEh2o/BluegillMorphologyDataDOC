@@ -139,6 +139,80 @@ per_var_indiv <- (resEig_indiv$values / sum(resEig_indiv$values))*100
 # We're going to plot PC's 1 and 2
 pcs <- 1:2
 
+# Save plots of the PC1 extremes ------------------------------------------
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
+# plot
+plotRefToTarget(fish_corePCA$pc.shapes$PC1min, 
+                fish_corePCA$pc.shapes$PC1max,
+                method = "points", 
+                links = links, 
+                gridPars = gridPar(tar.pt.bg = "darkorange3",
+                                   tar.link.col = "darkorange3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off() # close the device
+
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
+# plot
+plotRefToTarget(fish_corePCA$pc.shapes$PC1max,
+                fish_corePCA$pc.shapes$PC1min, 
+                method="points", 
+                links = links, 
+                gridPars = gridPar(tar.pt.bg = "darkorange3",
+                                   tar.link.col = "darkorange3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off() # close the device
+
+# Save plots of the PC2 extremes ------------------------------------------
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
+# plot
+plotRefToTarget(fish_corePCA$pc.shapes$PC2min, 
+                fish_corePCA$pc.shapes$PC2max,
+                method="points", 
+                links = links, 
+                gridPars = gridPar(tar.pt.bg = "green3",
+                                   tar.link.col = "green3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off()
+
+# Open a pdf file
+pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
+# plot
+plotRefToTarget(fish_corePCA$pc.shapes$PC2max, 
+                fish_corePCA$pc.shapes$PC2min,
+                method="points", 
+                links = links, 
+                gridPars = gridPar(tar.pt.bg = "green3",
+                                   tar.link.col = "green3",
+                                   tar.link.lwd = 3, 
+                                   tar.pt.size = 1, 
+                                   pt.size = 1, 
+                                   pt.bg = "gray", 
+                                   link.lwd = 3), 
+                mag=1, 
+                useRefPts = TRUE)
+dev.off()
+
 # (all individuals) Backtransform morphospace all individuals -------------------------------
 # NOTE: Because I wasn't sure what Chelsea would want to use for her photoshopping, I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points (in case that's desirable/useful for something).
 
