@@ -141,7 +141,7 @@ pcs <- 1:2
 
 # Save plots of the PC1 extremes ------------------------------------------
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
+#pdf(here("figures", "fishShapes_pc1_pc2", "pc1Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(fish_corePCA$pc.shapes$PC1min, 
                 fish_corePCA$pc.shapes$PC1max,
@@ -159,7 +159,7 @@ plotRefToTarget(fish_corePCA$pc.shapes$PC1min,
 dev.off() # close the device
 
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
+#pdf(here("figures", "fishShapes_pc1_pc2", "pc1Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(fish_corePCA$pc.shapes$PC1max,
                 fish_corePCA$pc.shapes$PC1min, 
@@ -178,7 +178,7 @@ dev.off() # close the device
 
 # Save plots of the PC2 extremes ------------------------------------------
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
+#pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(fish_corePCA$pc.shapes$PC2min, 
                 fish_corePCA$pc.shapes$PC2max,
@@ -196,7 +196,7 @@ plotRefToTarget(fish_corePCA$pc.shapes$PC2min,
 dev.off()
 
 # Open a pdf file
-pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
+#pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5) 
 # plot
 plotRefToTarget(fish_corePCA$pc.shapes$PC2max, 
                 fish_corePCA$pc.shapes$PC2min,
