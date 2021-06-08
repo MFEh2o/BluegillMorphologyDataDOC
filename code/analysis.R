@@ -298,7 +298,7 @@ pdf(here("figures", "fishShapes_pc1_pc2", "pc2Min.pdf"), width = 5, height = 5)
 plotRefToTarget(
   # reference = max (gray)
   fish_corePCA$pc.shapes$PC2max,
-  # target = min (orange)
+  # target = min (green)
   fish_corePCA$pc.shapes$PC2min,
   method="points", 
   links = links, 
@@ -319,7 +319,7 @@ pdf(here("figures", "fishShapes_pc1_pc2", "pc2Max.pdf"), width = 5, height = 5)
 plotRefToTarget(
   # reference = min (gray)
   fish_corePCA$pc.shapes$PC2min,
-  # target = max (orange)
+  # target = max (green)
   fish_corePCA$pc.shapes$PC2max,
   method="points", 
   links = links, 
