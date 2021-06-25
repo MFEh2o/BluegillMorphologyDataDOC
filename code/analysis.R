@@ -80,10 +80,7 @@ part1 <- (ms_inter - ms_intra)/4
 # ((MS(fishID) – MS(fishID:replic))/4 ) / (MS(fishID) + MS(fishID:replic)) 
 
 repeatability <- part1/(ms_intra + part1)
-# repeatability is 0.947. # XXX DIFFERS FROM THE MANUSCRIPT
-# Note that the blog post referenced above would have us doing repeatability <- part/(ms_intra + ms_inter), but that gives a value around 0.24, which just *can't* possibly be right. I'm going with Zelditch instead.
-# Zelditch says "measurement error is often quantified as repeatability (R) using a ratio of two variance components, that for among-individual to the sum of the among-individual and measurement error components.
-# The terminology there is really confusing, and Zelditch provides methods of calculating each of these components that I can't quite follow. But by combining this description with the method outlined in the blog post above for extracting each MS from the ANOVA, we do end up with R = part1/(ms_intra + part1)
+# repeatability is 0.947.
 
 # Prepare non-replicate data for morphometric analyses ----------------------
 ## Set imageID's as names for the individual fish (third dimension)
@@ -138,7 +135,7 @@ per_var_indiv <- (resEig_indiv$values / sum(resEig_indiv$values))*100
 pcs <- 1:2
 
 # (all individuals) Backtransform morphospace all individuals -------------------------------
-# NOTE: Because I wasn't sure what Chelsea would want to use for her photoshopping, I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points (in case that's desirable/useful for something).
+# NOTE: I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points (in case that's desirable/useful for something).
 
 # Create data frame of means by lake, for use later in plotting the legend
 means <- lapply(lakePCScores, function(x) data.frame(mn1 = mean(x[,1]),
@@ -266,7 +263,7 @@ plotRefToTarget(
                      pt.size = 1, 
                      pt.bg = "gray", 
                      link.lwd = 3), 
-  mag=1, 
+  mag = 1, 
   useRefPts = TRUE)
 dev.off() # close the device
 
