@@ -2,11 +2,11 @@
 Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
 
 ### Abstract
-This repo contains code and data related to Chelsea Bishop's project on Bluegill morphometrics. The data, including a version of the MFE database (where the original landmark data resides) can be found in the data/ folder. Code is in the code/ folder. Archived scripts, which didn't end up being necessary to the complete minimal reproducible pipeline (e.g. earlier drafts of Chelsea's analysis) are thrown into the archived/ folder. The [renv](https://rstudio.github.io/renv/articles/renv.html)/ folder preserves package versions used in this analysis, including older versions of packages that may not be current on CRAN. The resources/ folder has various relevant literature documents and manuscript drafts. The figures/ folder contains some drafts of figures to be eventually included in the manuscript. 
+This repository contains code and data related to Chelsea Bishop's project on Bluegill morphometrics. The data can be found in the data/ folder, apart from the MFE database, which must be downloaded separately (see **Project setup**, below). Code is in the code/ folder. The [renv](https://rstudio.github.io/renv/articles/renv.html)/ folder preserves package versions used in this analysis, including older versions of packages that may not be current on CRAN. The resources/ folder has various relevant literature documents diagrams/notes. The figures/ folder contains the raw material for figures, which were then modified in Photoshop by CB before inclusion in the manuscript.
 
 ### Project setup
 1. Clone this repository to your computer using the green Download Code button.
-2. **Download MFE database** The MFE database, which these analyses draw from, is too large to be stored on GitHub. It is stored in a [Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). This analysis draws from MFEdb_20210423, which is version 4.5.4 of the MFE database. This version has not yet been posted to Figshare, but this README will be updated when it is. In the meantime, you can download it from the MFE Box repo, or contact Kaija (gahmk@caryinstitute.org) for a copy. *Put this file into the "data/" folder of the BluegillMorphologyDataDOC cloned folder.*
+2. **Download MFE database** The MFE database, which these analyses draw from, is too large to be stored on GitHub. It is stored in a [Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). This analysis draws from MFEdb_20210423, which is version 4.5.4 of the MFE database. This version has not yet been posted to Figshare, but this README will be updated when it is. In the meantime, you can download it from the MFE Box repo, or contact Kaija (gahmk@caryinstitute.org) for a copy. Once you've downloaded the database file, *Put this file into the "data/" folder of the BluegillMorphologyDataDOC cloned folder.*
 3. **Download the NHD watershed shapefiles** These are used to assign major watershed basins to each study lake, by means of a spatial intersection with lake lat/long coordinates. You can download the shapefiles from [this Figshare repository](https://caryinstitute.figshare.com/articles/dataset/Morphometry_of_Bluegill_sunfish_Lepomis_macrochirus_varies_with_lake_dissolved_organic_carbon_concentration/14529303). In that repo, the README.txt file describes where the data comes from. Then, there are two zip files, "region4.zip" and "region7.zip". Download both of those and unzip them; you will now have two folders by the same names. *Move the "region4/" and "region7/" folders into the "data/inputs/" folder of the BluegillMorphologyDataDOC cloned folder.*
 4. Make sure you have both R and RStudio installed. If you don't, install them here: [R](https://www.r-project.org/) [RStudio](https://www.rstudio.com/products/rstudio/download/)
 5. Open the RStudio project, "BluegillMorphologyDataDOC.Rproj". This will open a new session of RStudio. All the scripts in this project are written with file paths that will work within this "project" setup. For more information on how RStudio projects work, see [this article](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects).
@@ -48,74 +48,75 @@ Once you've installed Rtools, try `renv::restore()` again. You may have to resta
 ![](https://docs.google.com/drawings/d/e/2PACX-1vTEP9I5EuLxzX9hGX9sKzH35NbnyMQLg7ndA6maboKz3uW1_UmA13QyY7cssFAbMCt5Q2UDPTgbF9kv/pub?w=4116&h=947)
 
 ### Directory structure
-- archived/ contains older scripts and data files that aren't part of the final reproducible workflow. Experimentation etc.
 - code/ contains final R code files, represented in the schema above.
 - data/ contains final data files, including minimal necessary inputs and outputs. 
      - This analysis draws from MFEdb_20210423.db, which is version 4.5.4 of the database. See above for download instructions.
      - unclassified/ contains a few data files carried over from the archived data folder, to use as comparison for the recreated data files. Where there are discrepancies between these files and the final files in outputs/, they are noted in the recreate*.R scripts.
-- figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in ReviewApril2020_KGedit.R. When further editing is needed, these can be loaded into Photoshop or similar and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files.
+- figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in **analysis.R**. When further editing was needed, these were loaded into Photoshop and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files. The 'allometry/' subfolder contains some allometry plots created in the various **create....R** scripts; these were not included in the final manuscript.
 - renv/ contains data about package versions used in preparing this project, to facilitate re-running the analyses at a later date even if packages have been updated.
-- resources/ contains various manuscripts and literature that was helpful in preparing these analyses.
-
+- resources/ contains various diagrams and literature that were helpful in performing this analysis.
 
 ```
 .
 ├── BluegillMorphologyDataDOC.Rproj
 ├── README.md
-├── archived/
-│   ├── code/
-│   └── data/
-├── code/
-│   ├── DOC_binning.R
-|   ├── calculateDOC.R
-|   ├── landmarksToMeasurements.R
-│   ├── ReviewApril2020_KGedit.R
+├── code
+│   ├── analysis.R
+│   ├── compileLakeDOC.R
+│   ├── createEyeWidths.R
+│   ├── createGillRakers.R
 │   ├── createIdentifiersUpdated.R
+│   ├── createPecFinAngles.R
+│   ├── createPecFins.R
 │   ├── dbUtil.R
+│   ├── defs.R
 │   ├── hucIDforLakes.R
-│   ├── recreateEyewidths.R
-│   ├── recreateGillRakers.R
-│   ├── recreatePecFinAngles.R
-│   └── recreatePecFins.R
-├── data/
-│   ├── MFEdb_20210423.db
-│   ├── inputs/
-│   ├── outputs/
-│   └── unclassified/
-├── figures/
+│   └── plotFishLateral.R
+├── data
+│   ├── MFEdb_20210423.db (** must download separately; see above)
+│   ├── inputs
+│   │   ├── FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS
+│   │   ├── Full_body_links.txt
+│   │   ├── TotalReplicatesCoords.TPS
+│   │   ├── fishBodyPhotos_fileNames.txt
+│   │   ├── region4/ (** must download separately; see above)
+│   │   ├── region7/ (** must download separately; see above)
+│   │   └── ntl41_v1_0.csv
+│   └── outputs
+│       ├── Gill_Rakers_2018_Final.csv
+│       ├── Identifiers_Update_2020.txt
+│       ├── Lake_Info_2020wBasins.csv
+│       ├── PecFinAnglesFINAL.csv
+│       ├── PecFinDataNovemberFINAL.csv
+│       ├── ReplicatesIdentifiers.txt
+│       ├── eyewidthsFINAL.csv
+│       ├── lakeInfo.csv
+│       └── univariateModelSummary.csv
+├── figures
 │   ├── allometryPlots/
 │   ├── eyeWidths/
 │   ├── fishShapes_pc1_pc2/
 │   ├── gillRakers/
+│   ├── gradientLegend.pdf
+│   ├── legend.pdf
 │   └── pecFins/
 ├── renv/
-│   ├── activate.R
-│   ├── library/
-│   └── settings.dcf
 ├── renv.lock
 └── resources/
-    ├── BISHOP_THESIS2020_FINALSUBMISSION.pdf
-    ├── Craigetal2017_Ecology&Evolution.pdf
-    ├── Kaeuffer_et_al_2012.pdf
-    ├── LandmarkDiagrams.pdf
-    └── Manuscript Draft_FiguresInText.docx
 ```
-### Data sources
-- **MFEdb_20210402.db** See download instructions above.
-- **region4 and region7 shapeiles** See download instructions above.
-- **Bishop_NotoriousBLG.xlsx** manually-created file with raw landmark measurements, mostly copied/exported from the [tpsDIG program](http://www.sbmorphometrics.org/soft-dataacq.html).
-- **fishBodyPhotos_fileNames.txt** created by running `ls()` on the folder "fishBodyPhotos", stored in the MFE Box drive under "MFE/notoriousBLGPhotoArchive".
-- **FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS** created by tpsDIG
+### Raw data sources (files in data/ and data/inputs/)
+- **MFEdb_20210423.db** See download instructions above.
+- **FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS** measurements taken in tpsDIG and exported
 - **Full_body_links.txt** created manually by Chelsea Bishop, based on knowledge of how the body landmarks interact. This file serves as a precursor to geometric morphometric analyses.
-- **lakeInfo.csv** mostly pulled from LAKES in the database, but with DOC values originating elsewhere. #XXX need to flesh this out and create a full workflow!
-- **PecFins2018.TPS** created by tpsDIG
-- **proposedFishScapeLakeList_20180327.csv** # XXX flesh out the DOC workflow here.
+- **TotalReplicatesCoords.TPS** measurements taken in tpsDIG and exported
+- **fishBodyPhotos_fileNames.txt** created by running `ls()` on the folder "fishBodyPhotos", stored in the MFE Box drive under "MFE/notoriousBLGPhotoArchive".
+- **region4 and region7 shapeiles** See download instructions above.
+- **ntl41_v1_0.csv** Downloaded from [here](https://lter.limnology.wisc.edu/dataset/biocomplexity-north-temperate-lakes-lter-coordinated-field-studies-chemical-limnology-2001-2) (the "Download csv" option)
 
-### Contributions
+### Contributors
 Repository created by Chelsea Bishop and Kaija Gahm in 2020-21. 
 
 Data were collected by Chelsea Bishop with the help of Alex Ross, Colin Dassow, Matthew Farragher, Henry Chung and undergrads of the University of Notre Dame in 2018. Data and scripts were reorganized and reviewed by Kaija Gahm in consultation with Chelsea Bishop, and Kaija prepared the data reproducibility pipeline.
 
 Geometric Morphometrics Analyses were conducted with the help of Madlen Stange. 
 Fish morphometric data are contributed to the [MFE database](https://figshare.com/articles/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). 
-
