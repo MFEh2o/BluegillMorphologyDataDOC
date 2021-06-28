@@ -1,3 +1,5 @@
+![finalFigure_flippedPC2Plots_KG_20210608](https://user-images.githubusercontent.com/37053323/123697927-7dc22180-d82b-11eb-8399-a07c128e8bbb.png)
+
 # Bluegill Shape Data
 Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
 
