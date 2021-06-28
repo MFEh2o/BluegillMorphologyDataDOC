@@ -138,7 +138,7 @@ per_var_indiv <- (resEig_indiv$values / sum(resEig_indiv$values))*100
 pcs <- 1:2
 
 # (all individuals) Backtransform morphospace all individuals -------------------------------
-# NOTE: I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points (in case that's desirable/useful for something).
+# I've created three versions of this plot, all on the axes defined from a PCA on individual points (not lake means). One plot shows the lake means unlabeled, another shows the labeled lake means, and the last shows all individual points.
 
 # Create data frame of means by lake, for use later in plotting the legend
 means <- lapply(lakePCScores, function(x) data.frame(mn1 = mean(x[,1]),
@@ -160,7 +160,7 @@ plot(scores_indiv[, pcs], type = "n", # type = "n" plots the axes without plotti
 
 # Plot backtransform shapes, changed sign of rotation matrix (resEig_indiv$vectors) 
 # There's no documentation for the btShapes function (i.e. ?btShapes or help(btShapes) won't get you anything), but see this tutorial (https://aaronolsen.github.io/tutorials/morphometrics/backtransform.html) for an explanation of the input parameters to btShapes. 
-# Wrapper function is defined in defs.R
+# btShapes_wrapper function is defined in defs.R
 btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
 
 # add mean points for each lake in a different color
@@ -184,9 +184,6 @@ plot(scores_indiv[, pcs], type = "n", # type = "n" plots the axes without plotti
      ylab = paste0("PC", pcs[2], " (", round(per_var_indiv[pcs[2]]), "%)"),
      cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, cex.sub = 1.5) # the cex. commands scale up the text to make it larger and more easily readable
 
-# Plot backtransform shapes, changed sign of rotation matrix (resEig_indiv$vectors) 
-# There's no documentation for the btShapes function (i.e. ?btShapes or help(btShapes) won't get you anything), but see this tutorial (https://aaronolsen.github.io/tutorials/morphometrics/backtransform.html) for an explanation of the input parameters to btShapes. 
-# Wrapper function is defined in defs.R
 btShapes_wrapper(sc = scores_indiv, vc = -(resEig_indiv$vectors))
 
 # add mean points for each lake in a different color
@@ -226,7 +223,6 @@ resEig_lakes <- eigen(cov(gpa_mat_lakes))
 
 # Get PC scores, changed sign of rotation matrix (resEig$vectors)
 scores_lakes <- gpa_mat_lakes %*% -(resEig_lakes$vectors)
-#### shapes switched need to reverse signs to fix
 
 # Get percent variance explained along each axis
 per_var_lakes <- (resEig_lakes$values / sum(resEig_lakes$values))*100
