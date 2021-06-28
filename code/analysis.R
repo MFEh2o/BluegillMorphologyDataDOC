@@ -53,7 +53,7 @@ plot(replicates_superimp)
 replicates_corePCA <- plotTangentSpace(replicates_superimp$coords)
 
 ### Classifiers
-classifiers <- read.table(here("data", "outputs", "Replicates Identifiers.txt"), 
+classifiers <- read.table(here("data", "outputs", "ReplicatesIdentifiers.txt"), 
                           sep = ",", header = TRUE)
 gdf.rep$replic <- as.factor(classifiers$replicateNo)
 gdf.rep <- geomorph.data.frame(shape = landmarks_replicates, 
