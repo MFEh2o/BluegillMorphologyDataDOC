@@ -1,4 +1,4 @@
-# Script to recreate pec fin angle data
+# Script to recreate pectoral fin insertion angle data
 # Created by Kaija Gahm on 10 March 2021
 
 # Load packages -----------------------------------------------------------
@@ -14,9 +14,6 @@ library(RSQLite) # for db connection
 dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210423.db" # name of db
 
-# Load the original pec fin angle data for comparison ---------------------
-pfa <- read.csv(here("data", "unclassified", "Pec Fin Angles_ORIGINAL.csv"))
-
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
 fm <- dbTable("fish_morphometrics")
 
@@ -31,17 +28,6 @@ pfaR <- fm %>%
   group_by(lakeID, fishID, parameter) %>%
   slice(1) %>% # take the first measurement when the fish was measured more than once.
   pivot_wider(id_cols = c("lakeID", "fishID"), names_from = "parameter", values_from = "parameterValue")
-
-# Are all the fish represented?
-all(pfa$fishID %in% pfaR$fishID) # good!
-
-# Limit it to the fish contained in the original file
-pfaR <- pfaR %>%
-  filter(fishID %in% pfa$fishID)
-
-# lakeID ------------------------------------------------------------------
-table(pfaR$lakeID, exclude = NULL) # looks good.
-table(pfa$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
 
 # Add DOC and basin ------------------------------------------------------
 pfaR <- pfaR %>%
