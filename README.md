@@ -118,9 +118,9 @@ Here is a diagram illustrating the reproducible data and code pipeline (click to
 - **ntl41_v1_0.csv** Downloaded from [here](https://lter.limnology.wisc.edu/dataset/biocomplexity-north-temperate-lakes-lter-coordinated-field-studies-chemical-limnology-2001-2) (the "Download csv" option)
 
 ### Contributors
-Repository created by Chelsea Bishop and Kaija Gahm in 2020-21. 
+Repository created by Chelsea Bishop and Kaija Gahm in 2020-2021. 
 
-Data were collected by Chelsea Bishop with the help of Alex Ross, Colin Dassow, Matthew Farragher, Henry Chung and undergrads of the University of Notre Dame in 2018. Data and scripts were reorganized and reviewed by Kaija Gahm in consultation with Chelsea Bishop, and Kaija prepared the data reproducibility pipeline.
+Data were collected by Chelsea Bishop with the help of Alex Ross, Colin Dassow, Matthew Farragher, Henry Chung and undergrads of the University of Notre Dame in 2018. Data and scripts were reorganized and reviewed by Kaija Gahm in consultation with Chelsea Bishop and Chris Solomon, and Kaija prepared the data reproducibility pipeline.
 
 Geometric Morphometrics Analyses were conducted with the help of Madlen Stange. 
 Fish morphometric data are contributed to the [MFE database](https://figshare.com/articles/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). 
