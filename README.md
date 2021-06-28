@@ -43,7 +43,9 @@ This error usually means that your computer isn't configured with the necessary 
 
 Once you've installed Rtools, try `renv::restore()` again. You may have to restart R and RStudio first.
 
-7. Run the analyses in order, from the beginning. Here is a diagram illustrating the reproducible data and code pipeline. The pinkish ovals are R scripts that need to be run. So, start by running compileLakeDOC.R; then run hucIDforLakes.R, etc. (You don't have to run chelseaDataEnter_FISH_INFO_cleanup_gh92_gh29_gh93.R, shown in a lighter pink).
+7. Run the analyses in order, from the beginning. 
+
+Here is a diagram illustrating the reproducible data and code pipeline (click to make it larger). The pinkish ovals are R scripts that need to be run. So, start by running compileLakeDOC.R; then run hucIDforLakes.R, etc. (You don't have to run chelseaDataEnter_FISH_INFO_cleanup_gh92_gh29_gh93.R, shown in a lighter pink).
 
 ![](https://docs.google.com/drawings/d/e/2PACX-1vTEP9I5EuLxzX9hGX9sKzH35NbnyMQLg7ndA6maboKz3uW1_UmA13QyY7cssFAbMCt5Q2UDPTgbF9kv/pub?w=4116&h=947)
 
