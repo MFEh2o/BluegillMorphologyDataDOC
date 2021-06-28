@@ -51,7 +51,6 @@ Once you've installed Rtools, try `renv::restore()` again. You may have to resta
 - code/ contains final R code files, represented in the schema above.
 - data/ contains final data files, including minimal necessary inputs and outputs. 
      - This analysis draws from MFEdb_20210423.db, which is version 4.5.4 of the database. See above for download instructions.
-     - unclassified/ contains a few data files carried over from the archived data folder, to use as comparison for the recreated data files. Where there are discrepancies between these files and the final files in outputs/, they are noted in the recreate*.R scripts.
 - figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in **analysis.R**. When further editing was needed, these were loaded into Photoshop and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files. The 'allometry/' subfolder contains some allometry plots created in the various **create....R** scripts; these were not included in the final manuscript.
 - renv/ contains data about package versions used in preparing this project, to facilitate re-running the analyses at a later date even if packages have been updated.
 - resources/ contains various diagrams and literature that were helpful in performing this analysis.
