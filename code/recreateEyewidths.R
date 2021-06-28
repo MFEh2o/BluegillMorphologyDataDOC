@@ -1,5 +1,5 @@
-# Script to recreate eyewidthsFINAL.csv
-# Created by Kaija Gahm on 19 February 2021
+# Script to create eyewidthsFINAL.csv, which will be used in analysis.R.
+# Created by Kaija Gahm on 19 February 2021, last updated 28 Jun 2021
 
 # Load packages -----------------------------------------------------------
 library(dplyr) # for data wrangling
@@ -14,7 +14,7 @@ library(RSQLite) # for db connection
 source(here("code", "defs.R"))
 
 # Connect to the database -------------------------------------------------
-dbdir <- here("data") # directory where the db is stored
+dbdir <- here("data") # directory where the database is stored
 db <- "MFEdb_20210423.db" # name of db
 
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
@@ -23,7 +23,7 @@ fm <- dbTable("fish_morphometrics")
 # Grab lakeInfo -----------------------------------------------------------
 lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
-# Initialize recreated df -------------------------------------------------
+# Initialize df -------------------------------------------------
 ewR <- fm %>%
   filter(replicate == "NA") %>%
   select(lakeID, imageFile, parameter, parameterValue) %>%

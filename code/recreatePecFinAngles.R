@@ -1,5 +1,5 @@
-# Script to recreate pectoral fin insertion angle data
-# Created by Kaija Gahm on 10 March 2021
+# Script to create PecFinAnglesFINAL.csv, which will be used in analysis.R
+# Created by Kaija Gahm on 10 March 2021, last updated 28 June 2021
 
 # Load packages -----------------------------------------------------------
 library(dplyr) # for data wrangling
@@ -20,7 +20,7 @@ fm <- dbTable("fish_morphometrics")
 # Grab lakeInfo -----------------------------------------------------------
 lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
-# Initialize recreated df -------------------------------------------------
+# Initialize df -------------------------------------------------
 pfaR <- fm %>%
   select(lakeID, imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile) %>%

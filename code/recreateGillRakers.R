@@ -1,5 +1,5 @@
-# Script to recreate Gill_Rakers_2018_Final.csv
-# Created by Kaija Gahm on 25 February 2021
+# Script to create Gill_Rakers_2018_Final.csv, which will be used in analysis.R
+# Created by Kaija Gahm on 25 February 2021, last updated 28 Jun 2021
 
 # Load packages -----------------------------------------------------------
 library(dplyr) # for data wrangling
@@ -20,7 +20,7 @@ fm <- dbTable("fish_morphometrics")
 # Grab lakeInfo -----------------------------------------------------------
 lakeInfo <- read.csv(here("data", "outputs", "Lake_Info_2020wBasins.csv"))
 
-# Initialize recreated df -------------------------------------------------
+# Initialize df -------------------------------------------------
 grR <- fm %>%
   select(lakeID, replicate, imageFile, parameter, parameterValue) %>%
   rename("fishID" = imageFile)
