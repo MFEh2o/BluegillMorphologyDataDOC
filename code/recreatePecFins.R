@@ -14,10 +14,6 @@ library(RSQLite) # for db connection
 dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210423.db" # name of db
 
-# Load the original pec fin data for comparison ---------------------------
-pf <- read.csv(here("data", "unclassified", "PecFinDataNovember_ORIGINAL.csv")) %>%
-  select(-imageID)
-
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
 fm <- dbTable("fish_morphometrics")
 
@@ -29,23 +25,13 @@ pfR <- fm %>%
   select(lakeID, fishID, imageFile, parameter, parameterValue, replicate) %>%
   filter(replicate == "NA") %>%
   filter(parameter %in% c("pecFinLength", "pecFinBaseWidth", "stdLength")) %>%
-  pivot_wider(id_cols = c("lakeID", "fishID", "imageFile"), names_from = "parameter", values_from = "parameterValue")
+  pivot_wider(id_cols = c("lakeID", "fishID", "imageFile"), 
+              names_from = "parameter", values_from = "parameterValue")
 
 # Are all the fish represented?
-all(pf$fishID %in% pfR$imageFile) # good!
-
-# Limit it to the fish contained in the original file
+# Remove any whole-body fishID's (that don't have pec fin measurements)
 pfR <- pfR %>%
-  filter(imageFile %in% pf$fishID)
-
-nrow(pfR) == nrow(pf)
-all(pfR$imageFile == pf$fishID)
-all(pfR$pecFinLength == pf$PecFinLengths) # these don't quite match because I recomputed a few of them in the database update
-all(pfR$pecFinBaseWidth == pf$baseWidth) # these do match.
-
-# lakeID ------------------------------------------------------------------
-table(pfR$lakeID, exclude = NULL) # looks good.
-table(pf$lakeID, exclude = NULL) # good, the counts line up and there are no NA's.
+  filter(!(is.na(pecFinBaseWidth) & is.na(pecFinLength)))
 
 # Add DOC and basin ------------------------------------------------------
 pfR <- pfR %>%
@@ -62,7 +48,7 @@ nrow(pfR) # 218
 pfR <- pfR %>%
   select(-stdLength) %>%
   left_join(l, by = "fishID")
-nrow(pfR) # 218
+nrow(pfR) # 218 still, good
 
 # Size-standardize the pec fins -----------------------------------------
 # First, let's compute the mean fishStdLength across all fish
@@ -99,10 +85,6 @@ coef # 0.7673796
 pfR <- pfR %>%
   mutate(finLengthSS = pecFinLength*(meanFishSize/stdLength)^coef)
 
-## check it against the original
-head(pfR$finLengthSS)
-head(pf$finLengthSS) # pretty close!
-
 ## Pec Fin Base Widths
 # Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
 moda <- lm(log(pecFinBaseWidth) ~ log(stdLength), data = pfR)
@@ -134,17 +116,8 @@ coef # 0.8631758
 pfR <- pfR %>%
   mutate(finBaseSS = pecFinBaseWidth*(meanFishSize/stdLength)^coef)
 
-## check it against the original
-head(pfR$finBaseSS)
-head(pf$finBaseSS) # pretty close!
-
 # Compute size-standardized length:width ratio ----------------------------
 pfR$finRatioSS <- pfR$finLengthSS/pfR$finBaseSS
 
-## compare with original
-head(pfR$finRatioSS)
-head(pf$ss_ratio) # similar, but not the same, due to ss body length differences.
-
 # Write out the data ------------------------------------------------------
 write.csv(pfR, file = here("data", "outputs", "PecFinDataNovemberFINAL.csv"), row.names = F)
-
