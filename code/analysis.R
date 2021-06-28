@@ -40,7 +40,7 @@ identifiers <- read.table(here("data", "outputs",
 
 # 1. Read the coordinate data into R (and format it)
 landmarks_replicates <- readland.tps(here("data", "inputs", 
-                                          "Total Replicates Coords.TPS"),
+                                          "TotalReplicatesCoords.TPS"),
                                      specID = "imageID")
 
 ### Make data frame
