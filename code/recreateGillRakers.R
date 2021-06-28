@@ -14,9 +14,6 @@ library(RSQLite) # for db connection
 dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210423.db" # name of db
 
-# Load the original Gill_Rakers_2018_Final.csv for comparison -------------
-gr <- read.csv(here("data", "unclassified", "Gill_Rakers_2018_Final_ORIGINAL.csv")) 
-
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
 fm <- dbTable("fish_morphometrics")
 
@@ -39,24 +36,9 @@ grR <- grR %>%
               values_from = "parameterValue") %>%
   rename("total_RakerNum" = "totalRakerCount")
 
-# Are all the fish represented?
-all(gr$fishID %in% grR$fishID) # good!
-
-# Limit it to the fish contained in the original file
+# Remove any fish that don't have raker measurements
 grR <- grR %>%
-  filter(fishID %in% gr$fishID)
-
-# check a few columns and dimensions to make sure they match
-nrow(grR) == nrow(gr)
-all(grR$fishID == gr$fishID)
-all(grR$length_Raker1 == gr$length_Raker1)
-all(grR$space1 == gr$space1) # all good!
-
-# lakeID ------------------------------------------------------------------
-sum(is.na(grR$lakeID))
-
-table(grR$lakeID, exclude = NULL)
-table(gr$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
+  filter(!is.na(length_Raker1))
 
 # Add DOC and basin ------------------------------------------------------
 grR <- grR %>%
@@ -74,17 +56,13 @@ grR <- grR %>%
          avgL_4.7 = mean(c_across(c(length_Raker4, length_Raker5, length_Raker6, length_Raker7))),
          avgS_4.6 = mean(c_across(c(space4, space5, space6))))
 
-## check that these averages look good
-head(grR$avgL_4.7)
-head(gr$avgL_4.7) # okay, great! These look good. I also checked all of them, and some are off by slight amounts, but it's definitely just a rounding thing.
-
 # Size-standardize the averages -------------------------------------------
-# Looking at the Review April 2020 script, it seems that the only size-standardized measurements that are actually used in the model are the avgL_4.7 measurement and the avgS_4.6 measurement, both size-standardized independent of lakeID (so, size-standardized using the full data set, as seen in recreateEyewidths.R).
+# The only size-standardized measurements that are used in the final analysis are the avgL_4.7 measurement and the avgS_4.6 measurement, both size-standardized independent of lakeID (so, size-standardized using the full data set, as seen in recreateEyewidths.R).
 # So, I'm only going to perform size-standardizations for those columns.
 
 # Average Raker Length (Rakers 4-7)
 # First, let's compute the mean fishStdLength across all fish
-meanFishSize <- mean(grR$stdLength) # XXX this is different from the eyeWidths one. That's not good! The fishSL column is probably not right. Need to update this once I have the standard length values from FISH_MORPHOMETRICS directly.
+meanFishSize <- mean(grR$stdLength) 
 
 # Now, we make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
 moda <- lm(log(avgL_4.7) ~ log(stdLength), data = grR)
@@ -105,7 +83,10 @@ p <- grR %>%
   scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Raker length vs body length, log-transformed")
-ggsave(p, filename = "rakerLengthAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
+
+ggsave(p, filename = "rakerLengthAllometry.png",
+       path = here("figures", "allometryPlots"), 
+       width = 6, height = 4)
 
 # We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
 coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
@@ -115,10 +96,6 @@ coef # 0.398793
 ## We're using the Kaeuffer version of the formula here (see notes doc)
 grR <- grR %>%
   mutate(avgL2_ss = avgL_4.7*(meanFishSize/stdLength)^coef)
-
-## check it against the original
-head(grR$avgL2_ss)
-head(gr$avgL2_ss) # Slightly different, due to Chelsea using the wrong coefficient previously. Not a concern.
 
 # Same thing for the Average Raker Space (Spaces 4-6)
 # Make three different models and compare them to determine which coefficient to use. See sizeStandardizationNotes.docx for more details on this approach.
@@ -140,7 +117,8 @@ p <- grR %>%
   scale_color_manual(values = lakeColorsHighLow)+
   theme_minimal()+
   labs(title = "Raker space vs body length, log-transformed")
-ggsave(p, filename = "rakerSpaceAllometry.png", path = here("figures", "allometryPlots"), width = 6, height = 4)
+ggsave(p, filename = "rakerSpaceAllometry.png", 
+       path = here("figures", "allometryPlots"), width = 6, height = 4)
 
 # We will still use the coefficient from model b, as is standard practice (see sizeStandardizationNotes.docx)
 coef <- coef(modb)[2] %>% unname() # pull the "Estimate" parameter from the model
@@ -151,14 +129,7 @@ coef # 0.72846
 grR <- grR %>%
   mutate(avgS2_ss = avgS_4.6*(meanFishSize/stdLength)^coef)
 
-## check it against the original
-head(grR$avgS2_ss)
-head(gr$avgS2_ss) # These values are extremely different. See the explanation above for raker lengths: in her original work, Chelsea took the wrong coefficient, the intercept instead of the slope. 
-
-# Check names between grR and gr.
-names(gr)[!(names(gr) %in% names(grR))]
-# Okay, we still have not recreated all the column names, but that's okay. capture_Method isn't necessary for analyses. SS.Length, SS.Space, and SS.Count were also not used in subsequent analyses, so I haven't performed size-standardizations on those. lakeSlope, avgrakerlengthSS_bylake, avgrakerspaceSS_bylake, and rakercountSS_bylake are all by-lake size-standardized values, but Chelsea says that these were part of some exploratory analyses and weren't used in subsequent models. fitted_L, fitted_S, and fitted_C will be added in the 'Review April 2020_KGedit.R' script. So we're ready to write out the data.
-
 # Write out the data ------------------------------------------------------
-write.csv(grR, file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), row.names = F)
-
+write.csv(grR, 
+          file = here("data", "outputs", "Gill_Rakers_2018_Final.csv"), 
+          row.names = F)
