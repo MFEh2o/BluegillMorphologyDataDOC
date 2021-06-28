@@ -17,10 +17,6 @@ source(here("code", "defs.R"))
 dbdir <- here("data") # directory where the db is stored
 db <- "MFEdb_20210423.db" # name of db
 
-# Load the original eyewidthsFINAL for comparison -------------------------
-ew <- read.csv(here("data", "unclassified", "eyewidthsFINAL_ORIGINAL.csv")) %>%
-  select(-imageID) # this is a file path to chelsea's computer, so don't need this.
-
 # Grab FISH_MORPHOMETRICS -------------------------------------------------
 fm <- dbTable("fish_morphometrics")
 
@@ -34,21 +30,6 @@ ewR <- fm %>%
   rename("fishID" = imageFile) %>%
   filter(parameter %in% c("eyeWidth", "stdLength")) %>%
   pivot_wider(id_cols = c("lakeID", "fishID"), names_from = "parameter", values_from = "parameterValue")
-
-# Are all the fish represented?
-all(ew$fishID %in% ewR$fishID) # good!
-
-# Limit it to the fish contained in the original file
-ewR <- ewR %>%
-  filter(fishID %in% ew$fishID)
-
-nrow(ewR) == nrow(ew)
-all(ewR$fishID == ew$fishID)
-all(ewR$eyeWidth == ew$eyeWidth) # all right, these match!
-
-# lakeID ------------------------------------------------------------------
-table(ewR$lakeID, exclude = NULL)
-table(ew$lakeID, exclude = NULL) # good, the counts line up and there are no NA's. I'm using lake names to avoid incorrect abbreviations.
 
 # Add DOC and basin ------------------------------------------------------
 ewR <- ewR %>%
@@ -92,12 +73,6 @@ coef #  0.6266465
 ## We're using the Kaeuffer version of the formula here (see notes doc)
 ewR <- ewR %>%
   mutate(eyewidth.ss = eyeWidth*(meanFishSize/stdLength)^coef)
-
-## check it against the original
-head(ewR$eyewidth.ss)
-head(ew$sizeStandardize) # these are very close but slightly different. I think that's because Chelsea said she rounded the commonWithinGroupSlope parameter to 0.62, whereas I'm using the whole thing. Indeed, I tried it out with the parameter rounded to 0.62, and then they're the same out to like 3 decimals.
-
-# I think that this file is now ready to write out and use in other analyses.
 
 # Write out the data ------------------------------------------------------
 write.csv(ewR, file = here("data", "outputs", "eyewidthsFINAL.csv"), row.names = F)
