@@ -335,28 +335,26 @@ plotRefToTarget(
 dev.off()
 
 # Stats for shape ---------------------------------------------------------
-
-#Model structure similar to univariate analyses
-
-#Check that basin is a factor
-str(gdf.fish)
+# Model structure similar to univariate analyses
+# Check that basin is a factor
+class(gdf$basin)
 
 # Fit model
-# shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data = gdf.fish, SS.type = "II")
+# shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data = gdf, SS.type = "II")
 
 # Because this is not a hierarchical model, the log(DOC):basin term is redundant with the Lake term. Drop the former.
 shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, 
-                       data = gdf.fish, SS.type = "II", iter = 10000)
+                       data = gdf, SS.type = "II", iter = 10000)
 
-#Diagnostic plot
+# Diagnostic plot
 plot(shapeModel)
 
 #ANOVA
-anova(shapeModel,error = c("Residuals", "Residuals", "Residuals", "Lake"))
+anova(shapeModel, error = c("Residuals", "Residuals", "Residuals", "Lake"))
 
 # Univariate Data Check and Run -------------------------------------------
 # Eye Widths --------------------------------------------------------------
-dfeye <-read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) 
+dfeye <- read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) 
 
 # Create a new data frame, changing some of the column names.
 dfeye <- dfeye %>%
@@ -392,11 +390,11 @@ dfeye$fitted <- fitted(EyeModelNew)
 
 # Some plots:
 ggplot(dfeye, aes(x = DOC, y = fitted, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # fitted values
 ggplot(dfeye,aes(x = DOC, y = eyewidth, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # raw eyeWidth values
 ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # size-standardized eyeWidth values
 
 # Gill Rakers -------------------------------------------------------------
 dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
@@ -407,13 +405,13 @@ str(dfraker)
 # Set basin to factor
 dfraker$basin <- as.factor(dfraker$basin)
 
-# avgL2_ss is size standardizations for average length for rakers 4-7
-
+# avgL2_ss is size standardization for average length of rakers 4-7
 ## lengths
 RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + 
                          basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerLModelNew)
 
+# avgS2_ss is size standardization for average space between rakers, for rakers 4-6
 ## spaces
 RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + 
                          basin:log(lakeDOC) + (1|lakeID), data = dfraker)
@@ -434,7 +432,6 @@ fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
 # GLM for raker count data
-
 RakerCModelNew <- lmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + basin + 
                          basin:log(lakeDOC) + (1|lakeID), data = dfraker)
 summary(RakerCModelNew)
@@ -503,7 +500,7 @@ dfFin <- dfFin %>%
   left_join(lakeInfo %>%
               select(lakeID, basin),
             by = "lakeID")
-nrow(dfFin) # still 218
+nrow(dfFin) # still 218, good
 
 # Check structure of dfFin
 str(dfFin)
@@ -545,31 +542,31 @@ dfFin$fitted_PR <- fitted(FinRModelNew)
 
 # Plots of fitted values
 ggplot(dfFin, aes(x = DOC, y = fitted_PL, label = lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(colour = lakeID)) # fitted, pec fin lengths
 
 ggplot(dfFin, aes(x = DOC, y = fitted_PW, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # fitted, pec fin widths
 
 ggplot(dfFin, aes(x = DOC, y = fitted_PR, label = lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(colour = lakeID)) # fitted, pec fin ratio (size standardized)
 
 # Plots of non-fitted values
 ## raw
 ggplot(dfFin, aes(x = DOC, y = pecFinLength, label = lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(colour = lakeID)) # raw, pec fin lengths
 
 ggplot(dfFin, aes(x = DOC, y = pecFinBaseWidth, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # raw, pec fin widths
 
 ## size-standardized
 ggplot(dfFin, aes(x = DOC, y = finLengthSS, label = lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin lengths
 
 ggplot(dfFin, aes(x = DOC, y = finBaseSS, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin widths
 
 ggplot(dfFin, aes(x = DOC, y = finRatioSS, label = lakeID)) + 
-  geom_point(aes(colour = lakeID))
+  geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin ratio
 
 # Pec Fin Angles ----------------------------------------------------------
 dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
