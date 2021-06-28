@@ -1,4 +1,5 @@
 ![](https://github.com/MFEh2o/BluegillMorphologyDataDOC/blob/main/resources/headerFish.jpg)
+(Photo by Chelsea Bishop)
 
 # Bluegill Shape Data
 Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
