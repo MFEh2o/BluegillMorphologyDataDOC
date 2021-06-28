@@ -1,3 +1,5 @@
+![finalFigure_flippedPC2Plots_KG_20210608](https://user-images.githubusercontent.com/37053323/123697927-7dc22180-d82b-11eb-8399-a07c128e8bbb.png)
+
 # Bluegill Shape Data
 Relating lake DOC to Geometric Morphometric Analyses of bluegill captured from study lakes.
 
@@ -6,7 +8,7 @@ This repository contains code and data related to Chelsea Bishop's project on Bl
 
 ### Project setup
 1. Clone this repository to your computer using the green Download Code button.
-2. **Download MFE database** The MFE database, which these analyses draw from, is too large to be stored on GitHub. It is stored in a [Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598). This analysis draws from MFEdb_20210423, which is version 4.5.4 of the MFE database. This version has not yet been posted to Figshare, but this README will be updated when it is. In the meantime, you can download it from the MFE Box repo, or contact Kaija (gahmk@caryinstitute.org) for a copy. Once you've downloaded the database file, *Put this file into the "data/" folder of the BluegillMorphologyDataDOC cloned folder.*
+2. **Download MFE database** The MFE database, which these analyses draw from, is too large to be stored on GitHub. It is stored in a [Figshare repository](https://caryinstitute.figshare.com/articles/dataset/MFE_database_Data_from_ecosystem_ecology_research_by_Jones_Solomon_and_collaborators_on_the_ecology_and_biogeochemistry_of_lakes_and_lake_organisms_in_the_Upper_Midwest_USA/7438598/5). This analysis draws from MFEdb_20210423, which is version 4.5.4 of the MFE database and version 5 on Figshare (the previous link will take you to the correct Figshare version). There are lots of other supporting documents on the Figshare repository, but you only need to download the one called MFEdb_20210423.db. Once you've downloaded the database file, *Put this file into the "data/" folder of the BluegillMorphologyDataDOC cloned folder.*
 3. **Download the NHD watershed shapefiles** These are used to assign major watershed basins to each study lake, by means of a spatial intersection with lake lat/long coordinates. You can download the shapefiles from [this Figshare repository](https://caryinstitute.figshare.com/articles/dataset/Morphometry_of_Bluegill_sunfish_Lepomis_macrochirus_varies_with_lake_dissolved_organic_carbon_concentration/14529303). In that repo, the README.txt file describes where the data comes from. Then, there are two zip files, "region4.zip" and "region7.zip". Download both of those and unzip them; you will now have two folders by the same names. *Move the "region4/" and "region7/" folders into the "data/inputs/" folder of the BluegillMorphologyDataDOC cloned folder.*
 4. Make sure you have both R and RStudio installed. If you don't, install them here: [R](https://www.r-project.org/) [RStudio](https://www.rstudio.com/products/rstudio/download/)
 5. Open the RStudio project, "BluegillMorphologyDataDOC.Rproj". This will open a new session of RStudio. All the scripts in this project are written with file paths that will work within this "project" setup. For more information on how RStudio projects work, see [this article](https://support.rstudio.com/hc/en-us/articles/200526207-Using-Projects).
@@ -43,7 +45,9 @@ This error usually means that your computer isn't configured with the necessary 
 
 Once you've installed Rtools, try `renv::restore()` again. You may have to restart R and RStudio first.
 
-7. Run the analyses in order, from the beginning. Here is a diagram illustrating the reproducible data and code pipeline. The pinkish ovals are R scripts that need to be run. So, start by running compileLakeDOC.R; then run hucIDforLakes.R, etc. (You don't have to run chelseaDataEnter_FISH_INFO_cleanup_gh92_gh29_gh93.R, shown in a lighter pink).
+7. Run the analyses in order, from the beginning. 
+
+Here is a diagram illustrating the reproducible data and code pipeline (click to make it larger). The pinkish ovals are R scripts that need to be run. So, start by running compileLakeDOC.R; then run hucIDforLakes.R, etc. (You don't have to run chelseaDataEnter_FISH_INFO_cleanup_gh92_gh29_gh93.R, shown in a lighter pink).
 
 ![](https://docs.google.com/drawings/d/e/2PACX-1vTEP9I5EuLxzX9hGX9sKzH35NbnyMQLg7ndA6maboKz3uW1_UmA13QyY7cssFAbMCt5Q2UDPTgbF9kv/pub?w=4116&h=947)
 
@@ -51,7 +55,6 @@ Once you've installed Rtools, try `renv::restore()` again. You may have to resta
 - code/ contains final R code files, represented in the schema above.
 - data/ contains final data files, including minimal necessary inputs and outputs. 
      - This analysis draws from MFEdb_20210423.db, which is version 4.5.4 of the database. See above for download instructions.
-     - unclassified/ contains a few data files carried over from the archived data folder, to use as comparison for the recreated data files. Where there are discrepancies between these files and the final files in outputs/, they are noted in the recreate*.R scripts.
 - figures/ contains saved images that are either final or near-final versions of the figures needed for the manuscript. These are generated in **analysis.R**. When further editing was needed, these were loaded into Photoshop and modified. Because some figures contain multiple parts and I wanted to leave room for arranging those parts as needed, I've created a separate folder for each figure, containing one or multiple image files. The 'allometry/' subfolder contains some allometry plots created in the various **create....R** scripts; these were not included in the final manuscript.
 - renv/ contains data about package versions used in preparing this project, to facilitate re-running the analyses at a later date even if packages have been updated.
 - resources/ contains various diagrams and literature that were helpful in performing this analysis.
