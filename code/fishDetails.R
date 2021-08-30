@@ -71,7 +71,10 @@ lengthSum <- fishInfo %>%
 lengthSum
 
 #Plot length histograms by lake
+#First open pdf device
+pdf(here("figures", "lengthFreq.pdf"), width = 8.5, height = 11)
 ggplot(fishInfo) +
   geom_histogram(mapping=aes(standardLength)) +
   facet_wrap(vars(lakeID),ncol=1,strip.position='right') +
   labs(x="Standard length (mm)")
+dev.off()
