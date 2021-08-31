@@ -71,7 +71,39 @@ lengthSum <- fishInfo %>%
 lengthSum
 
 #Plot length histograms by lake
+#First open pdf device
+pdf(here("figures", "lengthFreq.pdf"), width = 8.5, height = 11)
 ggplot(fishInfo) +
   geom_histogram(mapping=aes(standardLength)) +
   facet_wrap(vars(lakeID),ncol=1,strip.position='right') +
   labs(x="Standard length (mm)")
+dev.off()
+
+#Looks like standardLengths are incorrectly recorded in fishInfo for at least some of these fish.
+#See 'matching fishID and imageFile.docx' for details.
+#Pull standardLengths from fm for now and summarize those.
+lengthInfo <- fm[fm$parameter=="stdLength",]
+#Note that there are replicate measurements for some fish
+dim(lengthInfo)
+#But each of the 417 fish shows up
+length(unique(lengthInfo$fishID))
+#Each fish has at least one stdLength value associated with replicate==NA
+unique(lengthInfo$replicate)
+lengthInfoSub <- lengthInfo[lengthInfo$replicate=="NA",]
+length(unique(lengthInfoSub$fishID))
+
+#So now we have a single stdLength value for each fish. Summarize these.
+lengthSum <- lengthInfoSub %>%
+  group_by(lakeID) %>%
+  summarize(lMean=mean(parameterValue),
+            lMin=min(parameterValue),
+            lMax=max(parameterValue),
+            lSD=sd(parameterValue))
+lengthSum
+
+#And plot
+ggplot(lengthInfoSub) +
+  geom_histogram(mapping=aes(parameterValue)) +
+  facet_wrap(vars(lakeID),ncol=1,strip.position='right') +
+  labs(x="Standard length (mm)")
+

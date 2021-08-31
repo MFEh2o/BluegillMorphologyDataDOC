@@ -20,8 +20,8 @@ source(here("code", "plotFishLateral.R"))
 
 # Load data ---------------------------------------------------------------
 ## Landmark data
-landmarks <- readland.tps("kaijagahm/Desktop/BluegillMorphologyDataDOC/data/inputs/FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS", 
-                          specID = "imageID")
+#landmarks <- readland.tps("kaijagahm/Desktop/BluegillMorphologyDataDOC/data/inputs/FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS", 
+#                          specID = "imageID")
 
 landmarks <- readland.tps(here("data", "inputs", 
                                "FULL_2018_TPS_FILE_UPDATED_09-25-19.TPS"), 
