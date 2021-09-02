@@ -339,18 +339,34 @@ class(gdf$basin)
 # shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + log(DOC):basin + Lake, data = gdf, SS.type = "II")
 
 # Because this is not a hierarchical model, the log(DOC):basin term is redundant with the Lake term. Drop the former.
-shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, 
+shapeModelReduced <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake, 
                        data = gdf, SS.type = "II", iter = 10000)
+
+#ANOVA
+anova(shapeModelReduced, error = c("Residuals", "Residuals", "Residuals", "Lake"))
+
+#Version of shape model including capture method
+shapeModel <- procD.lm(shape ~ log(cSize) + log(DOC) + basin + Lake + captureMethod, data = gdf, SS.type = "II", iter = 10000)
+summary(shapeModel)
+anova(shapeModel, error = c("Residuals", "Residuals", "Residuals", "Lake", "Residuals"))
+
+#Test whether captureMethod term is significant
+anova.lm.rrpp(shapeModelReduced,shapeModel)
 
 # Diagnostic plot
 plot(shapeModel)
 
-#ANOVA
-anova(shapeModel, error = c("Residuals", "Residuals", "Residuals", "Lake"))
 
 # Univariate Data Check and Run -------------------------------------------
 # Eye Widths --------------------------------------------------------------
 dfeye <- read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) 
+
+#Extract angling method from fishID
+dfeye$captureMethod <- substr(dfeye$fishID,4,5)
+unique(dfeye$captureMethod)
+#Double-check that this gives same info on capture methods that we have in gdf data frame
+table(dfeye$captureMethod,dfeye$lakeID)
+table(gdf$captureMethod,gdf$Lake)
 
 # Create a new data frame, changing some of the column names.
 dfeye <- dfeye %>%
@@ -360,7 +376,8 @@ dfeye <- dfeye %>%
          "fishLength" = stdLength,
          DOC,
          basin,
-         eyewidth.ss)
+         eyewidth.ss,
+         captureMethod)
 
 # Check structure of dfeye
 str(dfeye)
@@ -369,17 +386,25 @@ str(dfeye)
 dfeye$basin <- as.factor(dfeye$basin)
 
 # New Model with Basin
-EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + 
-                      basin:log(DOC) + (1|lakeID), data = dfeye)
-summary(EyeModelNew)
+EyeModelReduced <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfeye)
+summary(EyeModelReduced)
+# Calculate profile CIs for parameter estimates
+confEyeModelReduced <- confint(EyeModelReduced, level = 0.95, method = 'profile')
+# Assemble parameter estimates, CIs, R2
+tableEyeModelReduced <- makeSummary(model = EyeModelReduced, conf = confEyeModelReduced)
+tableEyeModelReduced
 
+#Version of eyewidth model including capture method
+EyeModelNew <- lmer(log(eyewidth.ss) ~ 1 + log(DOC) + basin + basin:log(DOC) + captureMethod + (1|lakeID), data = dfeye)
+summary(EyeModelNew)
 # Calculate profile CIs for parameter estimates
 confEyeModelNew <- confint(EyeModelNew, level = 0.95, method = 'profile')
-
+confEyeModelNew
 # Assemble parameter estimates, CIs, R2
-tableEyeModelNew <- makeSummary(model = EyeModelNew, 
-                                conf = confEyeModelNew)
+tableEyeModelNew <- makeSummary2(model=EyeModelNew, conf=confEyeModelNew)
 tableEyeModelNew
+#Compare model 2 to original model using LRT
+anova(EyeModelReduced,EyeModelNew)
 
 # Add the fitted values to dfeye
 dfeye$fitted <- fitted(EyeModelNew) 
@@ -392,8 +417,16 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth, label = lakeID)) +
 ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) # size-standardized eyeWidth values
 
+
 # Gill Rakers -------------------------------------------------------------
 dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
+
+#Extract angling method from fishID
+dfraker$captureMethod <- substr(dfraker$fishID,4,5)
+unique(dfraker$captureMethod)
+#Double-check that this gives same info on capture methods that we have in gdf data frame
+table(dfraker$captureMethod,dfraker$lakeID)
+table(gdf$captureMethod,gdf$Lake)
 
 # Check structure of dfraker
 str(dfraker)
@@ -403,41 +436,66 @@ dfraker$basin <- as.factor(dfraker$basin)
 
 # avgL2_ss is size standardization for average length of rakers 4-7
 ## lengths
-RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + 
-                         basin:log(lakeDOC) + (1|lakeID), data = dfraker)
-summary(RakerLModelNew)
-
+RakerLModelReduced <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
+summary(RakerLModelReduced)
 # avgS2_ss is size standardization for average space between rakers, for rakers 4-6
 ## spaces
-RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + 
-                         basin:log(lakeDOC) + (1|lakeID), data = dfraker)
-summary(RakerSModelNew)
+RakerSModelReduced <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
+summary(RakerSModelReduced)
+# Calculate profile CIs for parameter estimates
+confRakerLModelReduced <- confint(RakerLModelReduced, level = 0.95, method = 'profile')
+confRakerSModelReduced <- confint(RakerSModelReduced, level = 0.95, method = 'profile')
+# Assemble parameter estimates, CIs, R2
+tableRakerLModelReduced <- makeSummary(model = RakerLModelReduced, conf = confRakerLModelReduced)
+tableRakerSModelReduced <- makeSummary(model = RakerSModelReduced, conf = confRakerSModelReduced)
 
+#Version of rakerLength model including capture method
+RakerLModelNew <- lmer(log(avgL2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + captureMethod + (1|lakeID), data = dfraker)
+summary(RakerLModelNew)
 # Calculate profile CIs for parameter estimates
 confRakerLModelNew <- confint(RakerLModelNew, level = 0.95, method = 'profile')
-confRakerSModelNew <- confint(RakerSModelNew, level = 0.95, method = 'profile')
-
+confRakerLModelNew
 # Assemble parameter estimates, CIs, R2
-tableRakerLModelNew <- makeSummary(model = RakerLModelNew, 
-                                   conf = confRakerLModelNew)
-tableRakerSModelNew <- makeSummary(model = RakerSModelNew, 
-                                   conf = confRakerSModelNew)
+tableRakerLModelNew <- makeSummary2(model=RakerLModelNew, conf=confRakerLModelNew)
+tableRakerLModelNew
+#Compare model 2 to original model using LRT
+anova(RakerLModelReduced,RakerLModelNew)
+
+#Version of rakerSpacing model including capture method
+RakerSModelNew <- lmer(log(avgS2_ss) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + captureMethod + (1|lakeID), data = dfraker)
+summary(RakerSModelNew)
+# Calculate profile CIs for parameter estimates
+confRakerSModelNew <- confint(RakerSModelNew, level = 0.95, method = 'profile')
+confRakerSModelNew
+# Assemble parameter estimates, CIs, R2
+tableRakerSModelNew <- makeSummary2(model=RakerSModelNew, conf=confRakerSModelNew)
+tableRakerSModelNew
+#Compare model 2 to original model using LRT
+anova(RakerSModelReduced,RakerSModelNew)
 
 ## save fitted vals
 fittedL <- fitted(RakerLModelNew)
 fittedS <- fitted(RakerSModelNew)
 
-# GLM for raker count data
-RakerCModelNew <- lmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + basin + 
-                         basin:log(lakeDOC) + (1|lakeID), data = dfraker)
-summary(RakerCModelNew)
+# Model for raker count data
+RakerCModelReduced <- lmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + (1|lakeID), data = dfraker)
+summary(RakerCModelReduced)
+# Calculate profile CIs for parameter estimates
+confRakerCModelReduced <- confint(RakerCModelReduced, level = 0.95, method = 'profile')
+# Assemble parameter estimates, CIs, R2
+tableRakerCModelReduced <- makeSummary(model = RakerCModelReduced, conf = confRakerCModelReduced) 
 
+#Version of rakerCount model including capture method
+RakerCModelNew <- lmer(log(total_RakerNum) ~ 1 + log(lakeDOC) + basin + basin:log(lakeDOC) + captureMethod + (1|lakeID), data = dfraker)
+summary(RakerCModelNew)
 # Calculate profile CIs for parameter estimates
 confRakerCModelNew <- confint(RakerCModelNew, level = 0.95, method = 'profile')
-
+confRakerCModelNew
 # Assemble parameter estimates, CIs, R2
-tableRakerCModelNew <- makeSummary(model = RakerCModelNew, 
-                                   conf = confRakerCModelNew) 
+tableRakerCModelNew <- makeSummary2(model=RakerCModelNew, conf=confRakerCModelNew)
+tableRakerCModelNew
+#Compare model 2 to original model using LRT
+anova(RakerCModelReduced,RakerCModelNew)
 
 ## save fitted vals
 fittedC <- fitted(RakerCModelNew)
@@ -490,6 +548,16 @@ ggplot(dfraker, aes(x = lakeDOC, y = avgS2_ss, label= lakeID)) +
 # Pectoral Fins -----------------------------------------------------------
 dfFin <- read.csv(here("data", "outputs", "PecFinDataNovemberFINAL.csv"))
 
+#Extract angling method from imageFile
+dfFin$captureMethod <- substr(dfFin$imageFile,4,5)
+#Change "sh" (shocking) to "El" for consistency with previous
+dfFin$captureMethod[dfFin$captureMethod=="sh"] <- "El"
+unique(dfFin$captureMethod)
+#Double-check that this gives same info on capture methods that we have in gdf data frame
+table(dfFin$captureMethod,dfFin$lakeID)
+table(gdf$captureMethod,gdf$Lake)
+#Fewer fish with fins than with body shape - OK
+
 ## Add basins
 nrow(dfFin) # 218
 dfFin <- dfFin %>%
@@ -505,31 +573,47 @@ str(dfFin)
 dfFin$basin <- as.factor(dfFin$basin)
 
 # New models with basin
-FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID), data = dfFin)
-summary(FinLModelNew)
-plot(fitted(FinLModelNew)~dfFin$DOC,pch=as.numeric(dfFin$basin))
-
-FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID), data = dfFin)
-summary(FinWModelNew)
-
-FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID), data = dfFin)
-summary(FinRModelNew)
-
+#Fin lengths
+FinLModelReduced <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+summary(FinLModelReduced)
+plot(fitted(FinLModelReduced)~dfFin$DOC,pch=as.numeric(dfFin$basin))
+#Fin width
+FinWModelReduced <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+summary(FinWModelReduced)
+#Fin ratio
+FinRModelReduced <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfFin)
+summary(FinRModelReduced)
 # Calculate profile CIs for parameter estimates
-confFinLModelNew <- confint(FinLModelNew, level = 0.95, method = 'profile')
-confFinWModelNew <- confint(FinWModelNew, level = 0.95, method = 'profile')
-confFinRModelNew <- confint(FinRModelNew, level = 0.95, method = 'profile')
-
+confFinLModelReduced <- confint(FinLModelReduced, level = 0.95, method = 'profile')
+confFinWModelReduced <- confint(FinWModelReduced, level = 0.95, method = 'profile')
+confFinRModelReduced <- confint(FinRModelReduced, level = 0.95, method = 'profile')
 # Assemble parameter estimates, CIs, R2
-tableFinLModelNew <- makeSummary(model = FinLModelNew, 
-                                 conf = confFinWModelNew)
-tableFinWModelNew <- makeSummary(model = FinWModelNew, 
-                                 conf = confFinWModelNew)
-tableFinRModelNew <- makeSummary(model = FinRModelNew, 
-                                 conf = confFinRModelNew)
+tableFinLModelReduced <- makeSummary(model = FinLModelReduced, conf = confFinWModelReduced)
+tableFinWModelReduced <- makeSummary(model = FinWModelReduced, conf = confFinWModelReduced)
+tableFinRModelReduced <- makeSummary(model = FinRModelReduced, conf = confFinRModelReduced)
+
+#Versions of these models including capture method
+#Fin length
+FinLModelNew <- lmer(log(finLengthSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + captureMethod + (1|lakeID), data = dfFin)
+summary(FinLModelNew)
+confFinLModelNew <- confint(FinLModelNew, level = 0.95, method = 'profile')
+tableFinLModelNew <- makeSummary2(model = FinLModelNew, conf = confFinLModelNew)
+tableFinLModelNew
+anova(FinLModelReduced,FinLModelNew)
+#Fin width
+FinWModelNew <- lmer(log(finBaseSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + captureMethod + (1|lakeID), data = dfFin)
+summary(FinWModelNew)
+confFinWModelNew <- confint(FinWModelNew, level = 0.95, method = 'profile')
+tableFinWModelNew <- makeSummary2(model = FinWModelNew, conf = confFinWModelNew)
+tableFinWModelNew
+anova(FinWModelReduced,FinWModelNew)
+#Fin ratio
+FinRModelNew <- lmer(log(finRatioSS) ~ 1 + log(DOC) + basin + basin:log(DOC) + captureMethod + (1|lakeID), data = dfFin)
+summary(FinRModelNew)
+confFinRModelNew <- confint(FinRModelNew, level = 0.95, method = 'profile')
+tableFinRModelNew <- makeSummary2(model = FinRModelNew, conf = confFinRModelNew)
+tableFinRModelNew
+anova(FinRModelReduced,FinRModelNew)
 
 # Add fitted values to the data frame
 dfFin$fitted_PL <- fitted(FinLModelNew)
@@ -564,9 +648,17 @@ ggplot(dfFin, aes(x = DOC, y = finBaseSS, label = lakeID)) +
 ggplot(dfFin, aes(x = DOC, y = finRatioSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin ratio
 
+
 # Pec Fin Angles ----------------------------------------------------------
 dfangle <- read.csv(here("data", "outputs", "PecFinAnglesFINAL.csv")) %>%
   rename("finangle" = "pecFinInsertionAngle")
+
+#Extract angling method from fishID
+dfangle$captureMethod <- substr(dfangle$fishID,4,5)
+unique(dfangle$captureMethod)
+#Double-check that this gives same info on capture methods that we have in gdf data frame
+table(dfangle$captureMethod,dfangle$lakeID)
+table(gdf$captureMethod,gdf$Lake)
 
 # Check structure of dfangle
 str(dfangle)
@@ -575,17 +667,21 @@ str(dfangle)
 dfangle$basin <- as.factor(dfangle$basin)
 
 # With basin
-FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + 
-                       basin:log(DOC) + (1|lakeID), data = dfangle)
-summary(FinAModelNew)
-plot(fitted(FinAModelNew) ~ dfangle$DOC, pch = as.numeric(dfangle$basin))
-
+FinAModelReduced <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + (1|lakeID), data = dfangle)
+summary(FinAModelReduced)
+plot(fitted(FinAModelReduced) ~ dfangle$DOC, pch = as.numeric(dfangle$basin))
 # Calculate profile CIs for parameter estimates
-confFinAModelNew <- confint(FinAModelNew, level = 0.95, method = 'profile')
-
+confFinAModelReduced <- confint(FinAModelReduced, level = 0.95, method = 'profile')
 # Assemble parameter estimates, CIs, R2
-tableFinAModelNew <- makeSummary(model = FinAModelNew, 
-                                 conf = confFinAModelNew)
+tableFinAModelReduced <- makeSummary(model = FinAModelReduced, conf = confFinAModelReduced)
+
+#Version including capture method
+FinAModelNew <- lmer(log(finangle) ~ 1 + log(DOC) + basin + basin:log(DOC) + captureMethod + (1|lakeID), data = dfangle)
+summary(FinAModelNew)
+confFinAModelNew <- confint(FinAModelNew, level = 0.95, method = 'profile')
+tableFinAModelNew <- makeSummary2(model = FinAModelNew, conf = confFinAModelNew)
+tableFinAModelNew
+anova(FinAModelReduced,FinAModelNew)
 
 # Get fitted values and add to data frame. 
 dfangle$fitted <- fitted(FinAModelNew)
