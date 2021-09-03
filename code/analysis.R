@@ -730,17 +730,25 @@ write.csv(fullTable, here("data", "outputs", "univariateModelSummary.csv"), row.
 
 # Pec Fin Figure ----------------------------------------------------------------
 ## Pec fins vs. DOC, with gradient. Panels: A (pec fin length), B (pec fin base width), C (length:width ratio), D (insertion anlge)
-# Prepare the data, drawing from dfFin and dfangle
-df1 <- dfFin %>%
-  select(lakeID, DOC, basin, fitted_PL, fitted_PW, fitted_PR) %>%
+
+#Calculate fitted values for each lake, for fyke net capture method (since that is the method most commonly used)
+
+#First, pull out info on DOC and basin for each lakeID, and add a column for captureMethod
+df <- dfFin %>%
+  select(lakeID, DOC, basin) %>%
   distinct()
+df <- cbind(df,captureMethod="FN")
 
-df2 <- dfangle %>%
-  select(lakeID, fitted) %>%
-  distinct() %>%
-  rename("fitted_A" = fitted)
+#Calculate fitted value, including random lake effect
+fitted_PL <- exp(predict(FinLModelNew,df,type="response"))
+fitted_PW <- exp(predict(FinWModelNew,df,type="response"))
+fitted_PR <- exp(predict(FinRModelNew,df,type="response"))
+fitted_A <- exp(predict(FinAModelNew,df,type="response"))
 
-df <- left_join(df1, df2, by = "lakeID") %>%
+#Add fits to data frame
+df <- cbind(df,fitted_PL,fitted_PW,fitted_PR,fitted_A)
+
+df <- df %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
          basin = case_when(basin == "4" ~ "Great Lakes basin",
@@ -750,8 +758,8 @@ df <- left_join(df1, df2, by = "lakeID") %>%
 
 # A (pec fin length)
 panelA <- df %>%
-  ggplot(aes(x = DOC, y = exp(fitted_PL)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = DOC, y = fitted_PL))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -762,13 +770,13 @@ panelA <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin length (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank())
 
 # B (pec fin base width)
 panelB <- df %>%
-  ggplot(aes(x = DOC, y = exp(fitted_PW)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = DOC, y = fitted_PW))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -779,14 +787,14 @@ panelB <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin base width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank(),
         legend.position = "none")
 
 # C (length:width ratio)
 panelC <- df %>%
-  ggplot(aes(x = DOC, y = exp(fitted_PR)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = DOC, y = fitted_PR))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -797,14 +805,14 @@ panelC <- df %>%
                      values = c(21, 22))+
   labs(y = "Pectoral fin length:width ratio")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank(),
         legend.position = "none")
 
 # D (insertion angle)
 panelD <- df %>%
-  ggplot(aes(x = DOC, y = exp(fitted_A)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = DOC, y = fitted_A))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -813,10 +821,10 @@ panelD <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(x = "Dissolved Organic Carbon (mg/L)",
+  labs(x = "Dissolved organic carbon (mg/L)",
        y = "Pectoral fin insertion angle (degrees)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -829,13 +837,13 @@ allPanels <- cowplot::plot_grid(panelA +
                                 panelB, panelC, panelD, ncol = 1, align = "v")
 
 ## Save the main plot panels
-pdf(here("figures", "pecFins", "pecFinsPlotPanels.pdf"), height = 15, width = 5)
+pdf(here("figures", "pecFins", "pecFinsPlotPanels.pdf"), height = 7.8, width = 2.5)
 allPanels
 dev.off()
 
 ## Save the legend to the main figures folder
 legendPlot <- cowplot::plot_grid(legend)
-pdf(here("figures", "legend.pdf"), height = 10, width = 4)
+pdf(here("figures", "legend.pdf"), height = 3.9, width = 2)
 legendPlot
 dev.off()
 
@@ -852,7 +860,22 @@ dev.off()
 
 # Gill Raker Figure ----------------------------------------------------------------
 ## Gill rakers vs. DOC, with gradient. Panels: A (average gill raker length), B (average gill raker space), C (Gill raker total number)
+
+#First, pull out info on DOC and basin for each lakeID, and add a column for captureMethod
 df <- dfraker %>%
+  select(lakeID, lakeDOC, basin) %>%
+  distinct()
+df <- cbind(df,captureMethod="FN")
+
+#Calculate fitted value, including random lake effect
+fitted_L <- exp(predict(RakerLModelNew,df,type="response"))
+fitted_S <- exp(predict(RakerSModelNew,df,type="response"))
+fitted_C <- exp(predict(RakerCModelNew,df,type="response"))
+
+#Add fits to data frame
+df <- cbind(df,fitted_L,fitted_S,fitted_C)
+
+df <- df %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
          basin = case_when(basin == "4" ~ "Great Lakes basin",
@@ -865,8 +888,8 @@ df <- dfraker %>%
 
 ## Panel A
 panelA <- df %>%
-  ggplot(aes(x = lakeDOC, y = exp(fitted_L)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = lakeDOC, y = fitted_L))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -875,16 +898,16 @@ panelA <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(y = "Average Gill Raker Length (mm)")+
+  labs(y = "Gill raker length (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank(),
         legend.position = "none")
 
 ## make panel B
 panelB <- df %>%
-  ggplot(aes(x = lakeDOC, y = exp(fitted_S)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = lakeDOC, y = fitted_S))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -893,9 +916,9 @@ panelB <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(y = "Average Gill Raker Space Width (mm)")+
+  labs(y = "Gill raker spacing (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         axis.title.x = element_blank(),
         legend.position = "none")
 
@@ -903,7 +926,7 @@ panelB <- df %>%
 ### not exponentiating the fitted values on this one because they weren't log-transformed.
 panelC <- df %>%
   ggplot(aes(x = lakeDOC, y = round(fitted_C, 2)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -912,36 +935,48 @@ panelC <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(x = "Dissolved Organic Carbon (mg/L)",
-       y = "Gill Raker number")+
+  labs(x = "Dissolved organic carbon (mg/L)",
+       y = "Gill raker number")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         legend.position = "none")
 
 ## make the three stacked plots
 allPanels <- cowplot::plot_grid(panelA, panelB, panelC, ncol = 1, align = "v")
 
 ## Save the main plot panels
-pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 11.25, width = 5)
+pdf(here("figures", "gillRakers", "gillRakersPlotPanels.pdf"), height = 5.85, width = 2.5)
 allPanels
 dev.off()
 
 # Eye Width figure ----------------------------------------------------------------
 # Eye width across DOC gradient. One panel.
-## exponentiating these values to undo the log-transformation
+
+#First, pull out info on DOC and basin for each lakeID, and add a column for captureMethod
 df <- dfeye %>%
+  select(lakeID, DOC, basin) %>%
+  distinct()
+df <- cbind(df,captureMethod="FN")
+
+#Calculate fitted value, including random lake effect
+fitted_eye <- exp(predict(EyeModelNew,df,type="response"))
+
+#Add fits to data frame
+df <- cbind(df,fitted_eye)
+
+df <- df %>%
   mutate(lakeID = stringr::str_replace(lakeID, "_", " "),
          # Rename basins so they'll show up properly in the legend
          basin = case_when(basin == "4" ~ "Great Lakes basin",
                            basin == "7" ~ "Mississippi basin"),
          # Arrange lake factor levels from high to low DOC
          lakeID = forcats::fct_reorder(lakeID, DOC, .desc = T)) %>%
-  select(lakeID, DOC, basin, fitted) %>%
+  select(lakeID, DOC, basin, fitted_eye) %>%
   distinct()
 
 eyePlot <- df %>%
-  ggplot(aes(x = DOC, y = exp(fitted)))+
-  geom_point(aes(fill = lakeID, shape = basin), size = 5, 
+  ggplot(aes(x = DOC, y = fitted_eye))+
+  geom_point(aes(fill = lakeID, shape = basin), size = 3, 
              col = "black", stroke = 1)+
   theme_classic()+
   scale_fill_manual(name = "**Lakes**",
@@ -950,14 +985,14 @@ eyePlot <- df %>%
                                            list(shape = lakeShapesHighLow))) +
   scale_shape_manual(name = "",
                      values = c(21, 22))+
-  labs(x = "Dissolved Organic Carbon (mg/L)",
-       y = "Eye Width (mm)")+
+  labs(x = "Dissolved organic carbon (mg/L)",
+       y = "Eye width (mm)")+
   theme(legend.title = element_markdown(),
-        text = element_text(family = "Helvetica", size = 16),
+        text = element_text(family = "Helvetica", size = 9),
         legend.position = "none")
 
 ## Save the main plot panel
 pdf(here("figures", "eyeWidths", "eyeWidthsPlotPanel.pdf"), 
-    height = 3.75, width = 5)
+    height = 1.95, width = 2.5)
 eyePlot
 dev.off()
