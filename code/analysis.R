@@ -357,6 +357,17 @@ anova.lm.rrpp(shapeModelReduced,shapeModel)
 plot(shapeModel)
 
 
+# Morphological disparity (variation) ------------------------------------
+#Does shape variation within populations vary as a function of DOC?
+
+#gdf[["Lake"]] <- as.factor(gdf[["Lake"]])
+morphol.disparity(shape ~ 1, data=gdf, iter=1000)
+
+#Note that gdf$shape is the coords
+morphol.disparity(shape ~ cSize + Lake, groups=Lake, data=gdf, iter=1000)
+#error
+
+
 # Univariate Data Check and Run -------------------------------------------
 # Eye Widths --------------------------------------------------------------
 dfeye <- read.csv(here("data", "outputs", "eyewidthsFINAL.csv")) 
@@ -417,6 +428,11 @@ ggplot(dfeye,aes(x = DOC, y = eyewidth, label = lakeID)) +
 ggplot(dfeye,aes(x = DOC, y = eyewidth.ss, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) # size-standardized eyeWidth values
 
+#Variation (sd) in eye width plotted against DOC
+eyeVar <- dfeye %>%
+  group_by(lakeID) %>%
+  summarize(sdEye=sd(eyewidth.ss),DOC=mean(DOC))
+plot(sdEye~DOC,data=eyeVar)
 
 # Gill Rakers -------------------------------------------------------------
 dfraker <- read.csv(here("data", "outputs", "Gill_Rakers_2018_Final.csv"))
@@ -537,13 +553,21 @@ ggplot(dfraker, aes(x = lakeDOC, y = total_RakerNum, label= lakeID)) +
 # Size-standardized values
 ## lengths
 ggplot(dfraker, aes(x = lakeDOC, y = avgL2_ss, label= lakeID)) + 
-  geom_point(aes(colour = lakeID)) 
+  geom_point(aes(colour = lakeID)) +
+  labs(x="DOC (mg/L)", y="Size-standardized gill raker length (mm)")
 
 ## spaces
 ggplot(dfraker, aes(x = lakeDOC, y = avgS2_ss, label= lakeID)) + 
   geom_point(aes(colour = lakeID))
 
 ## (size-standardization is not applicable for counts.)
+
+#Variation (sd) in size-standardized raker spacing plotted against DOC
+rakerVar <- dfraker %>%
+  group_by(lakeID) %>%
+  summarize(sdLength=sd(avgL2_ss),sdSpace=sd(avgS2_ss),sdCount=sd(total_RakerNum),DOC=mean(lakeDOC))
+plot(sdSpace~DOC,data=rakerVar)
+
 
 # Pectoral Fins -----------------------------------------------------------
 dfFin <- read.csv(here("data", "outputs", "PecFinDataNovemberFINAL.csv"))
@@ -640,13 +664,22 @@ ggplot(dfFin, aes(x = DOC, y = pecFinBaseWidth, label = lakeID)) +
 
 ## size-standardized
 ggplot(dfFin, aes(x = DOC, y = finLengthSS, label = lakeID)) + 
-  geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin lengths
+  geom_point(aes(colour = lakeID)) +
+  labs(x="DOC (mg/L)", y="Size-standardized pectoral fin length (mm)") # raw, size-standardized pec fin lengths
 
 ggplot(dfFin, aes(x = DOC, y = finBaseSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin widths
 
 ggplot(dfFin, aes(x = DOC, y = finRatioSS, label = lakeID)) + 
   geom_point(aes(colour = lakeID)) # raw, size-standardized pec fin ratio
+
+#Variation (sd) in size-standardized fin length and width plotted against DOC
+finVar <- dfFin %>%
+  group_by(lakeID) %>%
+  summarize(sdLength=sd(finLengthSS),sdWidth=sd(finBaseSS),sdRatio=sd(finRatioSS),DOC=mean(DOC))
+plot(sdLength~DOC,data=finVar)
+plot(sdWidth~DOC,data=finVar)
+plot(sdRatio~DOC,data=finVar)
 
 
 # Pec Fin Angles ----------------------------------------------------------
